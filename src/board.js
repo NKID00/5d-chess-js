@@ -34,8 +34,30 @@ exports.move = (board, move) => {
     var dest = move[1];
     var newTurn = turnFuncs.copy(board, src[0], src[1]);
     var destPiece = dest[4] ? dest[4] : newTurn[src[2]][src[3]];
-    newTurn[src[2]][src[3]] = 0;
-    board[src[0]][src[1] + 1] = newTurn;
+    if(destPiece !== undefined && destPiece !== 0) { 
+      newTurn[src[2]][src[3]] = 0;
+      if(dest[0] === src[0] && dest[1] === src[1]) {
+        newTurn[dest[2]][dest[3]] = destPiece;
+      }
+      else {
+        var secondNewTurn = turnFuncs.copy(board, dest[0], dest[1]);
+        secondNewTurn[dest[2]][dest[3]] = destPiece;
+        if(this.positionIsLatest(board, dest)) {
+          board[dest[0]][dest[1] + 1] = secondNewTurn;
+        }
+        else {
+          var newTimeline = 0;
+          for(var i = 0;i < board.length;i++) {
+            if(board[i] !== undefined && i % 2 === destPiece % 2) {
+              if(newTimeline < i) { i = newTimeline; }
+            }
+          }
+          board[newTimeline + 2] = [];
+          board[newTimeline][dest[1] + 1] = secondNewTurn;
+        }
+      }
+      board[src[0]][src[1] + 1] = newTurn;
+    }
   }
 }
 
