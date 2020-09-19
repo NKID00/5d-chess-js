@@ -1,0 +1,28 @@
+{
+  "name": "5d-chess.js",
+  "version": "1.0.0",
+  "description": "Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library.",
+  "main": "index.js",
+  "scripts": {
+    "cli": "nodemon ./src/cli.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "profile": "clinic flame -- node ./src/bench.js"
+  },
+  "_moduleAliases": {
+    "@local": "./src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/alexbay218/5d-chess-js.git"
+  },
+  "author": "Shaun Wu",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://gitlab.com/alexbay218/5d-chess-js/issues"
+  },
+  "homepage": "https://gitlab.com/alexbay218/5d-chess-js#readme",
+  "dependencies": {
+    "module-alias": "^2.2.2",
+    "nodemon": "^2.0.4"
+  }
+}
