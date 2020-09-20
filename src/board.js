@@ -17,10 +17,16 @@ exports.init = () => {
 exports.copy = (board) => {
   var res = [];
   for(var l = 0;board && l < board.length;l++) {
+    if(board[l]) {
+      res[l] = [];
+    }
     for(var t = 0;board[l] && t < board[l].length;t++) {
+      if(board[l][t]) {
+        res[l][t] = [];
+      }
       for(var r = 0;board[l][t] && r < board[l][t].length;r++) {
         if(board[l][t][r]) {
-          res.push(board[l][t][r].slice());
+          res[l][t][r] = board[l][t][r].slice();
         }
       }
     }
@@ -36,27 +42,38 @@ exports.move = (board, move) => {
     var destPiece = dest[4] ? dest[4] : newTurn[src[2]][src[3]];
     if(destPiece !== undefined && destPiece !== 0) { 
       newTurn[src[2]][src[3]] = 0;
-      if(dest[0] === src[0] && dest[1] === src[1]) {
-        newTurn[dest[2]][dest[3]] = destPiece;
-      }
-      else {
-        var secondNewTurn = turnFuncs.copy(board, dest[0], dest[1]);
-        secondNewTurn[dest[2]][dest[3]] = destPiece;
-        if(this.positionIsLatest(board, dest)) {
-          board[dest[0]][dest[1] + 1] = secondNewTurn;
+      if(dest !== undefined) {
+        if(dest[0] === src[0] && dest[1] === src[1]) {
+          newTurn[dest[2]][dest[3]] = destPiece;
         }
         else {
-          var newTimeline = 0;
-          for(var i = 0;i < board.length;i++) {
-            if(board[i] !== undefined && i % 2 === destPiece % 2) {
-              if(newTimeline < i) { i = newTimeline; }
-            }
+          var secondNewTurn = turnFuncs.copy(board, dest[0], dest[1]);
+          secondNewTurn[dest[2]][dest[3]] = destPiece;
+          if(this.positionIsLatest(board, dest)) {
+            board[dest[0]][dest[1] + 1] = secondNewTurn;
           }
-          board[newTimeline + 2] = [];
-          board[newTimeline][dest[1] + 1] = secondNewTurn;
+          else {
+            var newTimeline = 0;
+            for(var i = 0;i < board.length;i++) {
+              if(board[i] !== undefined && i % 2 === destPiece % 2) {
+                if(newTimeline < i) { i = newTimeline; }
+              }
+            }
+            board[newTimeline + 2] = [];
+            board[newTimeline][dest[1] + 1] = secondNewTurn;
+          }
         }
       }
       board[src[0]][src[1] + 1] = newTurn;
+    }
+    if(move[2] !== undefined) {
+      var src2 = move[2];
+      var dest2 = move[3];
+      var destPiece2 = dest2[4] ? dest2[4] : board[src2[0]][src2[1]][src2[2]][src2[3]];
+      if(dest2 !== undefined) {
+        board[dest2[0]][dest2[1]][dest2[2]][dest2[3]] = destPiece2;
+      }
+      board[src2[0]][src2[1]][src2[2]][src2[3]] = 0;
     }
   }
 }
@@ -199,4 +216,80 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
     }
   }
   return res;
+}
+
+exports.positionIsAttacked = (board, pos, player) => {
+  var toCheck = [];
+  if(this.positionExists(board, pos)) {
+    var movePos = pieceFuncs.movePos(6); //Knight movement
+    var moveVec = pieceFuncs.movePos(10); //Queen movement
+    for(var i = 0;i < movePos.length;i++) {
+      var newSrc = pos.slice();
+      if(newSrc[0] === 0 || newSrc[0] % 2 === 0) {
+        newSrc[0] += movePos[i][0] * 2;
+        if(newSrc[0] < 0) {
+          newSrc[0] = (newSrc[0] * -1) + 1;
+        }
+      }
+      else {
+        newSrc[0] -= movePos[i][0] * 2;
+        if(newSrc[0] < 0) {
+          newSrc[0] = (newSrc[0] * -1) - 1;
+        }
+      }
+      newSrc[1] += movePos[i][1] * 2;
+      newSrc[2] += movePos[i][2];
+      newSrc[3] += movePos[i][3];
+      if(boardFuncs.positionExists(board, newSrc)) {
+        var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
+        if(destPiece % 2 !== player) {
+          toCheck.push(newSrc.slice());
+        }
+      }
+    }
+    for(var i = 0;i < moveVec.length;i++) {
+      var newSrc = pos.slice();
+      var blocking = false;
+      while(!blocking) {
+        if(newSrc[0] === 0 || newSrc[0] % 2 === 0) {
+          newSrc[0] += moveVec[i][0] * 2;
+          if(newSrc[0] < 0) {
+            newSrc[0] = (newSrc[0] * -1) + 1;
+          }
+        }
+        else {
+          newSrc[0] -= moveVec[i][0] * 2;
+          if(newSrc[0] < 0) {
+            newSrc[0] = (newSrc[0] * -1) - 1;
+          }
+        }
+        newSrc[1] += moveVec[i][1] * 2;
+        newSrc[2] += moveVec[i][2];
+        newSrc[3] += moveVec[i][3];
+        if(boardFuncs.positionExists(board, newSrc)) {
+          var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
+          if(destPiece % 2 !== player) {
+            toCheck.push(newSrc.slice());
+          }
+          else if(destPiece % 2 === player) { blocking = true; }
+        }
+        else { blocking = true; }
+      }
+    }
+    //Generate moves from toCheck Arr
+    for(var i = 0;i < toCheck.length;i++) {
+      var moves = pieceFuncs.moves(board, toCheck[i]);
+      for(var j = 0;j < moves.length;j++) {
+        if(
+          moves[j][1][0] === pos[0] &&
+          moves[j][1][1] === pos[1] &&
+          moves[j][1][2] === pos[2] &&
+          moves[j][1][3] === pos[3]
+        ) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }
