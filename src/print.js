@@ -83,6 +83,12 @@ exports.turnArray = (board, timeline, turn) => {
       }
     }
   }
+  var string = '' + timeline + ',' + turn;
+  for(var i = 1;i < 10;i++) {
+    if(i-1 < string.length) {
+      res[0][i] = string.charAt(i-1);
+    }
+  }
   for(var r = 1;r < 9;r++) {
     for(var f = 1;f < 9;f++) {
       if((r + f) % 2 === 0) {
@@ -108,11 +114,13 @@ exports.boardArray = (board) => {
   var res = [];
   var offset = 0;
   for(var l = board.length - 1;board && l >= 0;l--) {
-    if(board[l] && l % 2 !== 0) {
+    if(l % 2 !== 0) {
       res[Math.floor((board.length - l - 1)/2)] = [];
       offset++;
+    }
+    if(Array.isArray(board[l]) && l % 2 !== 0) {
       for(var t = 0;t < board[l].length;t++) {
-        if(board[l][t]) {
+        if(Array.isArray(board[l][t])) {
           res[Math.floor((board.length - l - 1)/2)][t] = this.turnArray(board, l, t);
         }
         else {
@@ -122,10 +130,10 @@ exports.boardArray = (board) => {
     }
   }
   for(var l = 0;board && l < board.length;l++) {
-    if(board[l] && l % 2 === 0) {
+    if(Array.isArray(board[l]) && l % 2 === 0) {
       res[l/2 + offset] = [];
       for(var t = 0;t < board[l].length;t++) {
-        if(board[l][t]) {
+        if(Array.isArray(board[l][t])) {
           res[l/2 + offset][t] = this.turnArray(board, l, t);
         }
         else {

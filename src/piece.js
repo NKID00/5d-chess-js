@@ -456,13 +456,13 @@ exports.moves = (board, src) => {
       //Black forward single square LT movement
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
-        currMove[1][0] -= 2;
+        currMove[1][0] += 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) + 1;
         }
       }
       else {
-        currMove[1][0] += 2;
+        currMove[1][0] -= 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) - 1;
         }
@@ -477,18 +477,18 @@ exports.moves = (board, src) => {
       //Black forward single square capture LT movement
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
-        currMove[1][0] -= 2;
+        currMove[1][0] += 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) + 1;
         }
       }
       else {
-        currMove[1][0] += 2;
+        currMove[1][0] -= 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) - 1;
         }
       }
-      currMove[1][1]++;
+      currMove[1][1] += 2;
       if(piece === -1) { currMove[1][4] = 1; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
@@ -498,18 +498,18 @@ exports.moves = (board, src) => {
       }
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
-        currMove[1][0] -= 2;
+        currMove[1][0] += 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) + 1;
         }
       }
       else {
-        currMove[1][0] += 2;
+        currMove[1][0] -= 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) - 1;
         }
       }
-      currMove[1][1]--;
+      currMove[1][1] -= 2;
       if(piece === -1) { currMove[1][4] = 1; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
@@ -608,13 +608,13 @@ exports.moves = (board, src) => {
       //White forward single square LT movement
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
-        currMove[1][0] += 2;
+        currMove[1][0] -= 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) + 1;
         }
       }
       else {
-        currMove[1][0] -= 2;
+        currMove[1][0] += 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) - 1;
         }
@@ -629,18 +629,18 @@ exports.moves = (board, src) => {
       //White forward single square capture LT movement
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
-        currMove[1][0] += 2;
+        currMove[1][0] -= 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) + 1;
         }
       }
       else {
-        currMove[1][0] -= 2;
+        currMove[1][0] += 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) - 1;
         }
       }
-      currMove[1][1]++;
+      currMove[1][1] += 2;
       if(piece === -2) { currMove[1][4] = 2; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
@@ -650,18 +650,18 @@ exports.moves = (board, src) => {
       }
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
-        currMove[1][0] += 2;
+        currMove[1][0] -= 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) + 1;
         }
       }
       else {
-        currMove[1][0] -= 2;
+        currMove[1][0] += 2;
         if(currMove[1][0] < 0) {
           currMove[1][0] = (currMove[1][0] * -1) - 1;
         }
       }
-      currMove[1][1]--;
+      currMove[1][1] -= 2;
       if(piece === -2) { currMove[1][4] = 2; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];

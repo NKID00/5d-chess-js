@@ -40,7 +40,7 @@ exports.move = (board, move) => {
     var dest = move[1];
     var newTurn = turnFuncs.copy(board, src[0], src[1]);
     var destPiece = dest[4] ? dest[4] : newTurn[src[2]][src[3]];
-    if(destPiece !== undefined && destPiece !== 0) { 
+    if(destPiece !== undefined && destPiece !== 0) {
       newTurn[src[2]][src[3]] = 0;
       if(dest !== undefined) {
         if(dest[0] === src[0] && dest[1] === src[1]) {
@@ -90,7 +90,7 @@ exports.positionExists = (board, pos) => {
     board[pos[0]] &&
     board[pos[0]][pos[1]] &&
     board[pos[0]][pos[1]][pos[2]] &&
-    board[pos[0]][pos[1]][pos[2]][pos[3]] !== undefined
+    Number.isInteger(board[pos[0]][pos[1]][pos[2]][pos[3]])
   );
 }
 
@@ -170,7 +170,7 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
         if((currTimeline.length - 1) % 2 === action % 2) {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
-              if(latestTurn[r][f] % 2 === action % 2) {
+              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
                 var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f]);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
@@ -191,7 +191,7 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
         if((currTimeline.length - 1) % 2 === action % 2) {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
-              if(latestTurn[r][f] % 2 === action % 2) {
+              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
                 var moves = pieceFuncs.moves(board, [activeTimelines[i], currTimeline.length - 1, r, f]);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
@@ -211,7 +211,7 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
         if((currTimeline.length - 1) % 2 === action % 2) {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
-              if(latestTurn[r][f] % 2 === action % 2) {
+              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
                 var moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f]);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
@@ -301,4 +301,82 @@ exports.positionIsAttacked = (board, pos, player) => {
     }
   }
   return false;
+}
+
+exports.compare = (board1, board2) => {
+  if(Array.isArray(board1)) {
+    if(Array.isArray(board2) && board1.length === board2.length) {
+      for(var t = 0;t < board1.length;t++) {
+        if(Array.isArray(board1[t])) {
+          if(Array.isArray(board2[t]) && board1[t].length === board2[t].length) {
+            for(var l = 0;l < board1[t].length;l++) {
+              if(Array.isArray(board1[t][l])) {
+                if(Array.isArray(board2[t][l]) && board1[t][l].length === board2[t][l].length) {
+                  for(var r = 0;r < board1[t][l].length;r++) {
+                    if(Array.isArray(board1[t][l][r])) {
+                      if(Array.isArray(board2[t][l][r]) && board1[t][l][r].length === board2[t][l][r].length) {
+                        for(var f = 0;f < board1[t][l][r].length;f++) {
+                          if(board1[t][l][r][f] !== undefined) {
+                            if(board2[t][l][r][f] !== undefined) {
+                              if(board1[t][l][r][f] !== board2[t][l][r][f]) {
+                                return board1[t][l][r][f] - board2[t][l][r][f];
+                              }
+                            }
+                            else {
+                              return -1;
+                            }
+                          }
+                          else {
+                            if(board2[t][l][r][f] !== undefined) {
+                              return 1;
+                            }
+                          }
+                        }
+                      }
+                      else {
+                        return -1;
+                      }
+                    }
+                    else {
+                      if(Array.isArray(board2[t][l][r])) {
+                        return 1;
+                      }
+                    }
+                  }
+                }
+                else {
+                  return -1;
+                }
+              }
+              else {
+                if(Array.isArray(board2[t][l])) {
+                  return 1;
+                }
+              }
+            }
+          }
+          else {
+            return -1;
+          }
+        }
+        else {
+          if(Array.isArray(board2[t])) {
+            return 1;
+          }
+        }
+      }
+    }
+    else {
+      return -1;
+    }
+  }
+  else {
+    if(Array.isArray(board2)) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
+  }
+  return 0;
 }
