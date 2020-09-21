@@ -3,14 +3,14 @@ const turnFuncs = require('@local/turn');
 
 exports.init = () => {
   return [[[
-    [7,5,3,9,11,3,5,7],
-    [1,1,1,1,1,1,1,1],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [2,2,2,2,2,2,2,2],
-    [8,6,4,10,12,4,6,8]
+    [ 7, 5, 3, 9,11, 3, 5, 7],
+    [-1,-1,-1,-1,-1,-1,-1,-1],
+    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [-2,-2,-2,-2,-2,-2,-2,-2],
+    [ 8, 6, 4,10,12, 4, 6, 8]
   ]]];
 }
 
@@ -49,18 +49,24 @@ exports.move = (board, move) => {
         else {
           var secondNewTurn = turnFuncs.copy(board, dest[0], dest[1]);
           secondNewTurn[dest[2]][dest[3]] = destPiece;
-          if(this.positionIsLatest(board, dest)) {
+          if((board[dest[0]].length - 1) === dest[1]) {
             board[dest[0]][dest[1] + 1] = secondNewTurn;
           }
           else {
             var newTimeline = 0;
-            for(var i = 0;i < board.length;i++) {
-              if(board[i] !== undefined && i % 2 === destPiece % 2) {
-                if(newTimeline < i) { i = newTimeline; }
+            for(var i = 1;i < board.length;i++) {
+              if(board[i] !== undefined && (i % 2) === (dest[1] % 2)) {
+                if(newTimeline < i) { newTimeline = i; }
               }
             }
-            board[newTimeline + 2] = [];
-            board[newTimeline][dest[1] + 1] = secondNewTurn;
+            if(newTimeline === 0) {
+              board[(dest[1] % 2) === 0 ? 2 : 1] = [];
+              board[(dest[1] % 2) === 0 ? 2 : 1][dest[1] + 1] = secondNewTurn;
+            }
+            else {
+              board[newTimeline + 2] = [];
+              board[newTimeline + 2][dest[1] + 1] = secondNewTurn;
+            }
           }
         }
       }
@@ -200,14 +206,16 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
   else {
     for(var l = 0;board && l < board.length;l++) {
       var currTimeline = board[l];
-      var latestTurn = currTimeline[currTimeline.length - 1];
-      if((currTimeline.length - 1) % 2 === action % 2) {
-        for(var r = 0;latestTurn && r < latestTurn.length;r++) {
-          for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
-            if(latestTurn[r][f] % 2 === action % 2) {
-              var moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f]);
-              for(var j = 0;j < moves.length;j++) {
-                res.push(moves[j]);
+      if(currTimeline) {
+        var latestTurn = currTimeline[currTimeline.length - 1];
+        if((currTimeline.length - 1) % 2 === action % 2) {
+          for(var r = 0;latestTurn && r < latestTurn.length;r++) {
+            for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
+              if(latestTurn[r][f] % 2 === action % 2) {
+                var moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f]);
+                for(var j = 0;j < moves.length;j++) {
+                  res.push(moves[j]);
+                }
               }
             }
           }
@@ -242,7 +250,7 @@ exports.positionIsAttacked = (board, pos, player) => {
       newSrc[3] += movePos[i][3];
       if(boardFuncs.positionExists(board, newSrc)) {
         var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
-        if(destPiece % 2 !== player) {
+        if(Math.abs(destPiece) % 2 !== player) {
           toCheck.push(newSrc.slice());
         }
       }
@@ -268,10 +276,10 @@ exports.positionIsAttacked = (board, pos, player) => {
         newSrc[3] += moveVec[i][3];
         if(boardFuncs.positionExists(board, newSrc)) {
           var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
-          if(destPiece % 2 !== player) {
+          if(Math.abs(destPiece) % 2 !== player) {
             toCheck.push(newSrc.slice());
           }
-          else if(destPiece % 2 === player) { blocking = true; }
+          else if(Math.abs(destPiece) % 2 === player) { blocking = true; }
         }
         else { blocking = true; }
       }
@@ -281,6 +289,7 @@ exports.positionIsAttacked = (board, pos, player) => {
       var moves = pieceFuncs.moves(board, toCheck[i]);
       for(var j = 0;j < moves.length;j++) {
         if(
+          this.positionIsLatest(moves[j][0]) &&
           moves[j][1][0] === pos[0] &&
           moves[j][1][1] === pos[1] &&
           moves[j][1][2] === pos[2] &&

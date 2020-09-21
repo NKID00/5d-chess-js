@@ -22,7 +22,11 @@
   },
   "homepage": "https://gitlab.com/alexbay218/5d-chess-js#readme",
   "dependencies": {
+    "chalk": "^4.1.0",
     "module-alias": "^2.2.2",
     "nodemon": "^2.0.4"
+  },
+  "devDependencies": {
+    "clinic": "^7.0.0"
   }
 }
