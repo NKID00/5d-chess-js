@@ -1,38 +1,38 @@
 const boardFuncs = require('@local/board');
 
-exports.actions = (board, action, activeOnly = true, presentOnly = true) => {
-  var currDate = Date.now();
+exports.actions = (board, action, activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true) => {
   var recurse =  (board, action, layer = 0, totalMoves = 0, totalLayers = 0, totalIndex = []) => {
     var returnArr = [];
     var moves = boardFuncs.moves(board, action, activeOnly, presentOnly);
-    if(Date.now() > currDate + 1000) {
-      currDate = Date.now();
-      console.log('' + totalMoves + ' moves evaluated so far with ' + (totalLayers + 1) + ' max layers (index of layers is ' + totalIndex + ')')
-    }
     for(var i = 0;i < moves.length;i++) {
       var moddedBoard = boardFuncs.copy(board);
-      boardFuncs.move(moddedBoard, moves[i]);
-      totalMoves++;
-      if(boardFuncs.active(moddedBoard).length > 0) {
-        totalIndex[layer] = i;
-        var recurseRes = recurse(moddedBoard, action, layer + 1, totalMoves, totalLayers, totalIndex);
-        var nextLayer = recurseRes[0];
-        totalMoves = recurseRes[1];
-        totalLayers = recurseRes[2] > layer ? recurseRes[2] : layer;
-        totalIndex = recurseRes[3];
-        for(var j = 0;j < nextLayer.length;j++) {
-          var currArr = [moves[i]];
-          for(var k = 0;k < nextLayer[j].length;k++) {
-            currArr.push(nextLayer[j][k]);
+      if(
+        !newActiveTimelinesOnly ||
+        (newActiveTimelinesOnly && (this.newTimelineIsActive(moddedBoard, action) || (!this.newTimelineIsActive(moddedBoard, action) && boardFuncs.positionIsLatest(moddedBoard, moves[i][1]))))
+      ) {
+        boardFuncs.move(moddedBoard, moves[i]);
+        totalMoves++;
+        if(boardFuncs.present(moddedBoard, action).length > 0) {
+          totalIndex[layer] = i;
+          var recurseRes = recurse(moddedBoard, action, layer + 1, totalMoves, totalLayers, totalIndex);
+          var nextLayer = recurseRes[0];
+          totalMoves = recurseRes[1];
+          totalLayers = recurseRes[2] > layer ? recurseRes[2] : layer;
+          totalIndex = recurseRes[3];
+          for(var j = 0;j < nextLayer.length;j++) {
+            var currArr = [moves[i]];
+            for(var k = 0;k < nextLayer[j].length;k++) {
+              currArr.push(nextLayer[j][k]);
+            }
+            returnArr.push(currArr);
           }
-          returnArr.push(currArr);
+          if(nextLayer.length === 0) {
+            returnArr.push([moves[i]]);
+          }
         }
-        if(nextLayer.length === 0) {
+        else {
           returnArr.push([moves[i]]);
         }
-      }
-      else {
-        returnArr.push([moves[i]]);
       }
     }
     return [returnArr, totalMoves, totalLayers, totalIndex];
@@ -44,6 +44,25 @@ exports.move = (board, moves) => {
   for(var i = 0;i < moves.length;i++) {
     boardFuncs.move(board, moves[i]);
   }
+}
+
+exports.newTimelineIsActive = (board, action) => {
+  var minTimeline = 0;
+  var maxTimeline = 0;
+  for(var l = 0;board && l < board.length;l++) {
+    if(board[l]) {
+      if(minTimeline < l && l % 2 !== 0) {
+        minTimeline = l;
+      }
+      if(maxTimeline < l && l % 2 === 0) {
+        maxTimeline = l;
+      }
+    }
+  }
+  if(action % 2 === 0) {
+    return (minTimeline + 1) >= maxTimeline;
+  }
+  return (minTimeline + 1) <= maxTimeline;
 }
 
 exports.databaseHasBoard = (board, db) => {

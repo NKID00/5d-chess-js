@@ -128,19 +128,21 @@ exports.active = (board) => {
   return res;
 }
 
-exports.present = (board) => {
+exports.present = (board, action) => {
   var res = [];
   var activeTimelines = this.active(board);
   var lowestTurn = -1;
   for(var i = 0;i < activeTimelines.length;i++) {
-    var currMax = 0;
+    var currMax = -1;
     for(var t = 0;t < board[activeTimelines[i]].length;t++) {
-      if(board[activeTimelines[i]][t] && currMax < t) {
+      if(board[activeTimelines[i]][t] !== undefined && currMax < t && action % 2 === t % 2) {
         currMax = t;
       }
     }
-    if(lowestTurn === -1 || lowestTurn > currMax) {
-      lowestTurn = currMax;
+    if(currMax !== -1) {
+      if(lowestTurn === -1 || lowestTurn > currMax) {
+        lowestTurn = currMax;
+      }
     }
   }
   if(lowestTurn >= 0) {
@@ -162,7 +164,7 @@ exports.present = (board) => {
 exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
   var res = [];
   if(presentOnly) {
-    var presentTimelines = this.present(board);
+    var presentTimelines = this.present(board, action);
     for(var i = 0;i < presentTimelines.length;i++) {
       if(board[presentTimelines[i]]) {
         var currTimeline = board[presentTimelines[i]];

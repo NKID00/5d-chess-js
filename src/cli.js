@@ -23,7 +23,7 @@ var nr = (n = -1) => {
   ca++;
   bs.push(boardFuncs.copy(nb));
   printFuncs.printBoard(nb);
-  console.log('Timelines: ' + boardFuncs.present(nb));
+  console.log('Timelines: ' + boardFuncs.present(nb, ca));
 }
 
 for(var i = 0;i < 4;i++) {
