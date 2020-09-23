@@ -10,12 +10,11 @@ const validateFuncs = require('@local/validate');
 const mateFuncs = require('@local/mate');
 
 class Chess {
-  constructor() {
-    this.currentBoard = boardFuncs.init();
-    this.currentAction = 0;
-    this.boardHistory = [this.currentBoard];
-    this.actionHistory = [];
-    this.moveBuffer = [];
+  constructor(input) {
+    this.reset();
+    if(input !== undefined) {
+      this.import(input);
+    }
   }
   reset() {
     this.currentBoard = boardFuncs.init();
