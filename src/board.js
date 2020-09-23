@@ -290,14 +290,25 @@ exports.positionIsAttacked = (board, pos, player) => {
     for(var i = 0;i < toCheck.length;i++) {
       var moves = pieceFuncs.moves(board, toCheck[i]);
       for(var j = 0;j < moves.length;j++) {
-        if(
-          this.positionIsLatest(moves[j][0]) &&
-          moves[j][1][0] === pos[0] &&
-          moves[j][1][1] === pos[1] &&
-          moves[j][1][2] === pos[2] &&
-          moves[j][1][3] === pos[3]
-        ) {
-          return true;
+        if(this.positionIsLatest(moves[j][0])) {
+          if (
+            moves[j][1][0] === pos[0] &&
+            moves[j][1][1] === pos[1] &&
+            moves[j][1][2] === pos[2] &&
+            moves[j][1][3] === pos[3] &&
+            moves[j].length === 2
+          ) {
+            return true;
+          }
+          if (
+            moves[j][2][0] === pos[0] &&
+            moves[j][2][1] === pos[1] &&
+            moves[j][2][2] === pos[2] &&
+            moves[j][2][3] === pos[3] &&
+            moves[j].length === 3
+          ) {
+            return true;
+          }
         }
       }
     }

@@ -331,7 +331,7 @@ exports.moves = (board, src) => {
       currMove[1][3] += movePos[i][3];
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece === 0 || (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece === 0 || (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push(currMove);
         }
       }
@@ -358,7 +358,7 @@ exports.moves = (board, src) => {
         currMove[1][3] += moveVecs[i][3];
         if(boardFuncs.positionExists(board, currMove[1])) {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-          if(destPiece === 0 || (Math.abs(destPiece) % 2 !== piece % 2)) {
+          if(destPiece === 0 || (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
             res.push([currMove[0].slice(),currMove[1].slice()]);
           }
           else { blocking = true; }
@@ -394,7 +394,7 @@ exports.moves = (board, src) => {
       if(piece === -1) { currMove[1][4] = 1; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 7) {
             currMove[1][4] = 3;
@@ -414,7 +414,7 @@ exports.moves = (board, src) => {
       if(piece === -1) { currMove[1][4] = 1; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 7) {
             currMove[1][4] = 3;
@@ -425,6 +425,65 @@ exports.moves = (board, src) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 9;
             res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+        }
+      }
+      //Black forward en passant capture RF movement
+      currMove = [src.slice(), src.slice()];
+      currMove[1][2]++;
+      currMove[1][3]++;
+      if(boardFuncs.positionExists(board, [
+        currMove[1][0],
+        currMove[1][1],
+        currMove[1][2]-1,
+        currMove[1][3]
+      ])) {
+        var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
+        if(destPiece === 2) {
+          if(boardFuncs.positionExists(board, [
+            currMove[1][0],
+            currMove[1][1]-2,
+            currMove[1][2]+1,
+            currMove[1][3]
+          ])) {
+            var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
+            if(destPiece === -2) {
+              res.push([currMove[0].slice(), currMove[1].slice(),
+                currMove[1][0],
+                currMove[1][1],
+                currMove[1][2]-1,
+                currMove[1][3]
+              ]);
+            }
+          }
+        }
+      }
+      currMove = [src.slice(), src.slice()];
+      currMove[1][2]++;
+      currMove[1][3]--;
+      if(boardFuncs.positionExists(board, [
+        currMove[1][0],
+        currMove[1][1],
+        currMove[1][2]-1,
+        currMove[1][3]
+      ])) {
+        var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
+        if(destPiece === 2) {
+          if(boardFuncs.positionExists(board, [
+            currMove[1][0],
+            currMove[1][1]-2,
+            currMove[1][2]+1,
+            currMove[1][3]
+          ])) {
+            var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
+            if(destPiece === -2) {
+              res.push([currMove[0].slice(), currMove[1].slice(),
+                currMove[1][0],
+                currMove[1][1],
+                currMove[1][2]-1,
+                currMove[1][3]
+              ]);
+            }
           }
         }
       }
@@ -492,7 +551,7 @@ exports.moves = (board, src) => {
       if(piece === -1) { currMove[1][4] = 1; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
         }
       }
@@ -513,7 +572,7 @@ exports.moves = (board, src) => {
       if(piece === -1) { currMove[1][4] = 1; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
         }
       }
@@ -546,7 +605,7 @@ exports.moves = (board, src) => {
       if(piece === -2) { currMove[1][4] = 2; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 0) {
             currMove[1][4] = 4;
@@ -566,7 +625,7 @@ exports.moves = (board, src) => {
       if(piece === -2) { currMove[1][4] = 2; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 0) {
             currMove[1][4] = 4;
@@ -577,6 +636,65 @@ exports.moves = (board, src) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 10;
             res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+        }
+      }
+      //White forward en passant capture RF movement
+      currMove = [src.slice(), src.slice()];
+      currMove[1][2]--;
+      currMove[1][3]++;
+      if(boardFuncs.positionExists(board, [
+        currMove[1][0],
+        currMove[1][1],
+        currMove[1][2]+1,
+        currMove[1][3]
+      ])) {
+        var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
+        if(destPiece === 1) {
+          if(boardFuncs.positionExists(board, [
+            currMove[1][0],
+            currMove[1][1]-2,
+            currMove[1][2]-1,
+            currMove[1][3]
+          ])) {
+            var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
+            if(destPiece === -1) {
+              res.push([currMove[0].slice(), currMove[1].slice(),
+                currMove[1][0],
+                currMove[1][1],
+                currMove[1][2]-1,
+                currMove[1][3]
+              ]);
+            }
+          }
+        }
+      }
+      currMove = [src.slice(), src.slice()];
+      currMove[1][2]--;
+      currMove[1][3]--;
+      if(boardFuncs.positionExists(board, [
+        currMove[1][0],
+        currMove[1][1],
+        currMove[1][2]+1,
+        currMove[1][3]
+      ])) {
+        var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
+        if(destPiece === 1) {
+          if(boardFuncs.positionExists(board, [
+            currMove[1][0],
+            currMove[1][1]-2,
+            currMove[1][2]-1,
+            currMove[1][3]
+          ])) {
+            var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
+            if(destPiece === -1) {
+              res.push([currMove[0].slice(), currMove[1].slice(),
+                currMove[1][0],
+                currMove[1][1],
+                currMove[1][2]-1,
+                currMove[1][3]
+              ]);
+            }
           }
         }
       }
@@ -644,7 +762,7 @@ exports.moves = (board, src) => {
       if(piece === -2) { currMove[1][4] = 2; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
         }
       }
@@ -665,7 +783,7 @@ exports.moves = (board, src) => {
       if(piece === -2) { currMove[1][4] = 2; }
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== piece % 2)) {
+        if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
         }
       }

@@ -18,7 +18,7 @@ exports.sanCoord = (input) => {
   return res;
 }
 
-exports.moveNotation = (board, action, input, minimize = false) => {
+exports.moveNotation = (board, action, input, minimize = false, check = false, checkmate = false, stalemate = false) => {
   //(Action #)(Color). [Turn #][+/- Line #]:(Piece)[Coord]<[+/- New Line #]>[Dest Turn #][Dest +/- Line #]:[Capture][Promotion Piece][Dest Coord][Check][En Passant]
   var res = {
     str: '',
@@ -31,7 +31,7 @@ exports.moveNotation = (board, action, input, minimize = false) => {
     var tmpActionArr = tmp.match(/^\d+[bw]/);
     if(tmpActionArr && tmpActionArr.length > 0) {
       var tmpAction = tmpActionArr[0];
-      res.action = Number(tmpAction.substr(0,tmpAction.length - 1)) + (tmpAction.charAt(tmpAction.length - 1) === 'b' ? 0 : 1);
+      res.action = (Number(tmpAction.substr(0,tmpAction.length - 1)) - 1) * 2 + (tmpAction.charAt(tmpAction.length - 1) === 'w' ? 0 : 1);
     }
     tmp = tmp.replace(/^\d+[bw]\.\s/, '');
     var tmpSrcTurnArr = tmp.match(/^\d+/);
@@ -110,9 +110,11 @@ exports.moveNotation = (board, action, input, minimize = false) => {
         res.arr[2][2] = res.arr[0][2];
         res.arr[2][3] = res.arr[1][3];
       }
-      var srcPiece = board[res.arr[0][0]][res.arr[0][1]][res.arr[0][2]][res.arr[0][3]];
-      if(srcPiece < 0) {
-        res.arr[1][4] = Math.abs(srcPiece);
+      if(boardFuncs.positionExists(board, res.arr[0])){
+        var srcPiece = board[res.arr[0][0]][res.arr[0][1]][res.arr[0][2]][res.arr[0][3]];
+        if(srcPiece < 0) {
+          res.arr[1][4] = Math.abs(srcPiece);
+        }
       }
     }
     else {
@@ -216,7 +218,7 @@ exports.moveNotation = (board, action, input, minimize = false) => {
       }
       res.str += ':';
       var destPiece = board[input[1][0]][input[1][1]][input[1][2]][input[1][3]];
-      if(Math.abs(piece) % 2 !== Math.abs(destPiece) % 2 || input.length === 3) {
+      if((destPiece !== 0 && Math.abs(piece) % 2 !== Math.abs(destPiece) % 2) || input.length === 3) {
         res.str += 'x';
       }
       if(input[1][4] !== undefined) {
@@ -225,6 +227,15 @@ exports.moveNotation = (board, action, input, minimize = false) => {
       res.str += this.sanCoord([input[1][2],input[1][3]]).str;
       if(input.length === 3) {
         res.str += 'e.p.';
+      }
+      if(stalemate) {
+        res.str += '=';
+      }
+      else if(checkmate) {
+        res.str += '#';
+      }
+      else if(check) {
+        res.str += '+';
       }
     }
     else if(input.length === 4) {

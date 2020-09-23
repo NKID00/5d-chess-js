@@ -6,31 +6,26 @@ r.context.boardFuncs = require('@local/board');
 r.context.pieceFuncs = require('@local/piece');
 r.context.actionFuncs = require('@local/action');
 r.context.printFuncs = require('@local/print');
+r.context.validateFuncs = require('@local/validate');
+r.context.notationFuncs = require('@local/notation');
+r.context.mateFuncs = require('@local/mate');
+r.context.Chess = require('@local/index');
+r.context.chess = new r.context.Chess();
 
 /*
-var nb = boardFuncs.init();
-var ca = 0;
-var bs = [];
-var nr = (n = -1) => {
-  var a = actionFuncs.actions(nb, ca);
-  var r = Math.floor(Math.random() * a.length);
-  console.log('Turn: ' + (ca % 2 === 0 ? 'White' : 'Black'))
-  console.log('Number of actions: ' + a.length);
-  //console.log('Action Number: ' + (n !== -1 ? n : r));
-  var m = a[a.length - 1];
-  console.log('Chosen Action: ' + JSON.stringify(m));
-  actionFuncs.move(nb, m);
-  ca++;
-  bs.push(boardFuncs.copy(nb));
-  printFuncs.printBoard(nb);
-  console.log('Timelines: ' + boardFuncs.present(nb, ca));
-}
+chess.move('1w. 1:e2:e3');
+chess.submit();
+chess.move('1b. 1:f7:f6');
+chess.submit();
+chess.move('2w. 2:Qd1:e2');
+chess.submit();
+chess.move('2b. 2:g7:g6');
+chess.submit();
+chess.move('3w. 3:Qe2:h5');
+chess.submit();
+chess.print(); console.log(chess.moves('notation_short'));
+chess.inCheckmate();
 
-for(var i = 0;i < 4;i++) {
-  nr();
-}
-var as = [0,0,20];
-for(var i = 0;i < as.length;i++) {
-  nr(as[i]);
-}
+
+chess.import('1w. 1:e2:e3\n1b. 1:f7:f6\r\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\r\n3w. 3:Qe2:h5');
 */
