@@ -10,7 +10,7 @@
     "cli": "nodemon ./src/cli.js",
     "test": "jest",
     "profile": "clinic flame -- node ./src/bench.js",
-    "prepublishOnly": "npm run-script test && npm run-script build && npm run-script minify",
+    "prepublishOnly": "npm run-script build && npm run-script minify",
     "build": "browserify  ./src/index.js -t aliasify -o ./dist/5d-chess.js",
     "minify": "browserify  ./src/index.js -p tinyify -t aliasify -o ./dist/5d-chess.min.js"
   },
