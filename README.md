@@ -24,6 +24,7 @@ chess.submit();
 chess.move('3w. 3:Qe2:h5');
 chess.submit();
 console.log(chess.inCheckmate());
+chess.print();
 ```
 
 ### In Browser
@@ -48,6 +49,7 @@ chess.submit();
 chess.move('3w. 3:Qe2:h5');
 chess.submit();
 console.log(chess.inCheckmate());
+chess.print();
 ```
 
 ## Notation and Terminology
@@ -176,6 +178,18 @@ These fields are implemented as a getter function. If getter functions are unsup
 **.player**
 
   - **Return** - String (either `"white"` or `"black"`) representing the current player.
+
+**.inCheck**
+
+  - **Return** - Boolean indicating if the current board state has the current player in check.
+
+**.inCheckmate**
+
+  - **Return** - Boolean indicating if the current board state has the current player in checkmate (i.e. current player loses).
+
+**.inStalemate**
+
+  - **Return** - Boolean indicating if the current board state has the current player in stalemate.
 
 ### Functions
 
