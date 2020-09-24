@@ -1,5 +1,5 @@
 {
-  "name": "5d-chess.js",
+  "name": "5d-chess-js",
   "version": "0.1.0",
   "description": "Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library.",
   "main": "./src/index.js",
