@@ -127,17 +127,21 @@ exports.moveNotation = (board, action, input, minimize = false, check = false, c
       res.arr[2][1] = res.arr[0][1];
       res.arr[3][1] = res.arr[0][1];
       res.arr[0][3] = 4;
-      if(action % 2 === 0) {
+      if(res.action % 2 !== 0) {
         res.arr[0][2] = 0;
         res.arr[1][2] = res.arr[0][2];
         res.arr[2][2] = res.arr[0][2];
         res.arr[3][2] = res.arr[0][2];
+        res.arr[1][4] = 11;
+        res.arr[3][4] = 7;
       }
       else {
         res.arr[0][2] = 7;
         res.arr[1][2] = res.arr[0][2];
         res.arr[2][2] = res.arr[0][2];
         res.arr[3][2] = res.arr[0][2];
+        res.arr[1][4] = 12;
+        res.arr[3][4] = 8;
       }
       if(tmp.includes('0-0-0')) {
         res.arr[1][3] = 2;
@@ -172,6 +176,7 @@ exports.moveNotation = (board, action, input, minimize = false, check = false, c
     }
     res.str += ':';
     if(input.length === 2 || input.length === 3) {
+      if(board === undefined) {console.log(board);console.log(intput)}
       var piece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
       res.str += pieceFuncs.char(piece);
       res.str += this.sanCoord([input[0][2],input[0][3]]).str;

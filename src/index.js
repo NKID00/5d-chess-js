@@ -39,25 +39,30 @@ class Chess {
           var tmpBoard = boardFuncs.copy(this.currentBoard);
           var tmpAction = [];
           for(var i = 0;i < splitStr.length;i++) {
-            var tmpNotation = {};
-            try {
-              tmpNotation = notationFuncs.moveNotation(tmpBoard, tmpCurrAction, splitStr[i]);
-            }
-            catch(err) {
-              throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
-            }
-            if(tmpNotation.action > tmpCurrAction) {
-              if(tmpAction.length > 0) {
-                actions.push(tmpAction);
-                tmpAction = [];
+            if(splitStr[i].length > 0) {
+              var tmpNotation = {};
+              try {
+                if(!validateFuncs.notation(splitStr[i])) {
+                  throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
+                }
+                tmpNotation = notationFuncs.moveNotation(tmpBoard, tmpCurrAction, splitStr[i]);
               }
-              tmpCurrAction = tmpNotation.action;
+              catch(err) {
+                throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
+              }
+              if(tmpNotation.action > tmpCurrAction) {
+                if(tmpAction.length > 0) {
+                  actions.push(tmpAction);
+                  tmpAction = [];
+                }
+                tmpCurrAction = tmpNotation.action;
+              }
+              else if(tmpNotation.action < tmpCurrAction) {
+                throw 'Input order has been tampered and an error has occurred at line: ' + splitStr[i];
+              }
+              boardFuncs.move(tmpBoard, tmpNotation.arr);
+              tmpAction.push(tmpNotation.arr);
             }
-            else if(tmpNotation.action < tmpCurrAction) {
-              throw 'Input order has been tampered and an error has occurred at line: ' + splitStr[i];
-            }
-            boardFuncs.move(tmpBoard, tmpNotation.arr);
-            tmpAction.push(tmpNotation.arr);
           }
           if(tmpAction.length > 0) {
             actions.push(tmpAction);

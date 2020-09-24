@@ -13,17 +13,6 @@ test('Check notation differences has same output', () => {
   chess1.submit();
   chess1.move('3w. 3:Qe2:h5');
   chess1.submit();
-  var chess2 = new Chess();
-  chess2.move('1:e2:e3');
-  chess2.submit();
-  chess2.move('1:f7:f6');
-  chess2.submit();
-  chess2.move('2:Qd1:e2');
-  chess2.submit();
-  chess2.move('2:Nb8:c6');
-  chess2.submit();
-  chess2.move('3:Qe2:h5');
-  chess2.submit();
   var chess3 = new Chess();
   chess3.move('1w. 1:e2<>1:e3');
   chess3.submit();
@@ -37,7 +26,6 @@ test('Check notation differences has same output', () => {
   chess3.submit();
   var chess4 = new Chess();
   chess4.import('1w. 1:e2:e3\n1b. 1:f7:f6\r\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\r\n3w. 3:Qe2:h5');
-  expect(boardFuncs.compare(chess1.currentBoard, chess2.currentBoard)).toBe(0);
   expect(boardFuncs.compare(chess1.currentBoard, chess3.currentBoard)).toBe(0);
   expect(boardFuncs.compare(chess1.currentBoard, chess4.currentBoard)).toBe(0);
 });

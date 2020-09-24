@@ -3,14 +3,14 @@ const turnFuncs = require('@local/turn');
 
 exports.init = () => {
   return [[[
-    [ 7, 5, 3, 9,11, 3, 5, 7],
+    [-7, 5, 3, 9,-11, 3, 5,-7],
     [-1,-1,-1,-1,-1,-1,-1,-1],
     [ 0, 0, 0, 0, 0, 0, 0, 0],
     [ 0, 0, 0, 0, 0, 0, 0, 0],
     [ 0, 0, 0, 0, 0, 0, 0, 0],
     [ 0, 0, 0, 0, 0, 0, 0, 0],
     [-2,-2,-2,-2,-2,-2,-2,-2],
-    [ 8, 6, 4,10,12, 4, 6, 8]
+    [-8, 6, 4,10,-12, 4, 6,-8]
   ]]];
 }
 
@@ -77,16 +77,16 @@ exports.move = (board, move) => {
       var dest2 = move[3];
       var destPiece2 = dest2[4] ? dest2[4] : board[src2[0]][src2[1]][src2[2]][src2[3]];
       if(dest2 !== undefined) {
-        board[dest2[0]][dest2[1]][dest2[2]][dest2[3]] = destPiece2;
+        board[dest2[0]][dest2[1] + 1][dest2[2]][dest2[3]] = destPiece2;
       }
-      board[src2[0]][src2[1]][src2[2]][src2[3]] = 0;
+      board[src2[0]][src2[1] + 1][src2[2]][src2[3]] = 0;
     }
   }
 }
 
 exports.positionExists = (board, pos) => {
   return Boolean(
-    board &&
+    board !== undefined &&
     board[pos[0]] &&
     board[pos[0]][pos[1]] &&
     board[pos[0]][pos[1]][pos[2]] &&
@@ -250,7 +250,7 @@ exports.positionIsAttacked = (board, pos, player) => {
       newSrc[1] += movePos[i][1] * 2;
       newSrc[2] += movePos[i][2];
       newSrc[3] += movePos[i][3];
-      if(boardFuncs.positionExists(board, newSrc)) {
+      if(this.positionExists(board, newSrc)) {
         var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
         if(Math.abs(destPiece) % 2 !== player) {
           toCheck.push(newSrc.slice());
@@ -276,7 +276,7 @@ exports.positionIsAttacked = (board, pos, player) => {
         newSrc[1] += moveVec[i][1] * 2;
         newSrc[2] += moveVec[i][2];
         newSrc[3] += moveVec[i][3];
-        if(boardFuncs.positionExists(board, newSrc)) {
+        if(this.positionExists(board, newSrc)) {
           var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
           if(Math.abs(destPiece) % 2 !== player) {
             toCheck.push(newSrc.slice());
@@ -290,22 +290,22 @@ exports.positionIsAttacked = (board, pos, player) => {
     for(var i = 0;i < toCheck.length;i++) {
       var moves = pieceFuncs.moves(board, toCheck[i]);
       for(var j = 0;j < moves.length;j++) {
-        if(this.positionIsLatest(moves[j][0])) {
+        if(this.positionIsLatest(board, moves[j][0])) {
           if (
+            moves[j].length === 2 &&
             moves[j][1][0] === pos[0] &&
             moves[j][1][1] === pos[1] &&
             moves[j][1][2] === pos[2] &&
-            moves[j][1][3] === pos[3] &&
-            moves[j].length === 2
+            moves[j][1][3] === pos[3]
           ) {
             return true;
           }
           if (
+            moves[j].length === 3 &&
             moves[j][2][0] === pos[0] &&
             moves[j][2][1] === pos[1] &&
             moves[j][2][2] === pos[2] &&
-            moves[j][2][3] === pos[3] &&
-            moves[j].length === 3
+            moves[j][2][3] === pos[3]
           ) {
             return true;
           }

@@ -25,8 +25,8 @@ exports.notation = (notation) => {
   var regexCastling = notation.match(/^(\d+[bw]\.\s)\d+([\-\+]\d+)*:0\-0(\-0)*[\=\+\#]*/);
   if(regexRegular === null && regexCastling === null) { return false; }
   if(
-    (regexRegular !== null && regexRegular.length <= 0) ||
-    (regexCastling !== null && regexCastling.length <= 0)
+    (regexRegular !== null && regexRegular[0] !== notation) ||
+    (regexCastling !== null && regexCastling[0] !== notation)
   ) { return false; }
   return true;
 }
