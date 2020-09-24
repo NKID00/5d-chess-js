@@ -7,7 +7,7 @@ exports.char = (piece) => {
   if(piece === 5 || piece === 6) {
     return 'N';
   }
-  if(piece === 7 || piece === 8) {
+  if(Math.abs(piece) === 7 || Math.abs(piece) === 8) {
     return 'R';
   }
   if(piece === 9 || piece === 10) {
@@ -359,7 +359,6 @@ exports.moves = (board, src) => {
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0) {
-          res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 7) {
             currMove[1][4] = 3;
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -368,6 +367,9 @@ exports.moves = (board, src) => {
             currMove[1][4] = 7;
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 9;
+            res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+          else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
@@ -380,7 +382,6 @@ exports.moves = (board, src) => {
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
-          res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 7) {
             currMove[1][4] = 3;
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -389,6 +390,9 @@ exports.moves = (board, src) => {
             currMove[1][4] = 7;
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 9;
+            res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+          else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
@@ -400,7 +404,6 @@ exports.moves = (board, src) => {
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
-          res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 7) {
             currMove[1][4] = 3;
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -409,6 +412,9 @@ exports.moves = (board, src) => {
             currMove[1][4] = 7;
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 9;
+            res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+          else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
@@ -482,7 +488,6 @@ exports.moves = (board, src) => {
           if(destPiece === 0) {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2] - 1][currMove[1][3]];
             if(destPiece === 0) {
-              res.push([currMove[0].slice(), currMove[1].slice()]);
               if(currMove[1][2] === 7) {
                 currMove[1][4] = 3;
                 res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -491,6 +496,9 @@ exports.moves = (board, src) => {
                 currMove[1][4] = 7;
                 res.push([currMove[0].slice(), currMove[1].slice()]);
                 currMove[1][4] = 9;
+                res.push([currMove[0].slice(), currMove[1].slice()]);
+              }
+              else {
                 res.push([currMove[0].slice(), currMove[1].slice()]);
               }
             }
@@ -570,7 +578,6 @@ exports.moves = (board, src) => {
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0) {
-          res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 0) {
             currMove[1][4] = 4;
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -579,6 +586,9 @@ exports.moves = (board, src) => {
             currMove[1][4] = 8;
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 10;
+            res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+          else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
@@ -591,7 +601,6 @@ exports.moves = (board, src) => {
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
-          res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 0) {
             currMove[1][4] = 4;
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -600,6 +609,9 @@ exports.moves = (board, src) => {
             currMove[1][4] = 8;
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 10;
+            res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+          else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
@@ -611,7 +623,6 @@ exports.moves = (board, src) => {
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
-          res.push([currMove[0].slice(), currMove[1].slice()]);
           if(currMove[1][2] === 0) {
             currMove[1][4] = 4;
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -620,6 +631,9 @@ exports.moves = (board, src) => {
             currMove[1][4] = 8;
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 10;
+            res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+          else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
@@ -693,7 +707,6 @@ exports.moves = (board, src) => {
           if(destPiece === 0) {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2] + 1][currMove[1][3]];
             if(destPiece === 0) {
-              res.push([currMove[0].slice(), currMove[1].slice()]);
               if(currMove[1][2] === 0) {
                 currMove[1][4] = 4;
                 res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -702,6 +715,9 @@ exports.moves = (board, src) => {
                 currMove[1][4] = 8;
                 res.push([currMove[0].slice(), currMove[1].slice()]);
                 currMove[1][4] = 10;
+                res.push([currMove[0].slice(), currMove[1].slice()]);
+              }
+              else {
                 res.push([currMove[0].slice(), currMove[1].slice()]);
               }
             }
@@ -783,7 +799,7 @@ exports.moves = (board, src) => {
             src[1],
             src[2],
             3,
-          ]) && 
+          ]) &&
           board[src[0]][src[1]][src[2]][3] === 0) {
             if(!boardFuncs.positionIsAttacked(board,[
               src[0],
@@ -796,7 +812,7 @@ exports.moves = (board, src) => {
                 src[1],
                 src[2],
                 2,
-              ]) && 
+              ]) &&
               board[src[0]][src[1]][src[2]][2] === 0) {
                 if(!boardFuncs.positionIsAttacked(board,[
                   src[0],
@@ -809,14 +825,14 @@ exports.moves = (board, src) => {
                     src[1],
                     src[2],
                     1,
-                  ]) && 
+                  ]) &&
                   board[src[0]][src[1]][src[2]][1] === 0) {
                     if(boardFuncs.positionExists(board,[
                       src[0],
                       src[1],
                       src[2],
                       0,
-                    ]) && 
+                    ]) &&
                     (board[src[0]][src[1]][src[2]][0] === -7 || board[src[0]][src[1]][src[2]][0] === -8)) {
                       if((piece === -11 && src[2] === 0) || (piece === -12 && src[2] === 7)) {
                         res.push([
@@ -840,7 +856,7 @@ exports.moves = (board, src) => {
             src[1],
             src[2],
             5,
-          ]) && 
+          ]) &&
           board[src[0]][src[1]][src[2]][5] === 0) {
             if(!boardFuncs.positionIsAttacked(board,[
               src[0],
@@ -853,7 +869,7 @@ exports.moves = (board, src) => {
                 src[1],
                 src[2],
                 6,
-              ]) && 
+              ]) &&
               board[src[0]][src[1]][src[2]][6] === 0) {
                 if(!boardFuncs.positionIsAttacked(board,[
                   src[0],
@@ -866,7 +882,7 @@ exports.moves = (board, src) => {
                     src[1],
                     src[2],
                     7,
-                  ]) && 
+                  ]) &&
                   (board[src[0]][src[1]][src[2]][7] === -7 || board[src[0]][src[1]][src[2]][7] === -8)) {
                     if((piece === -11 && src[2] === 0) || (piece === -12 && src[2] === 7)) {
                       res.push([
