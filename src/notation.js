@@ -1,5 +1,6 @@
 const pieceFuncs = require('@local/piece');
 const boardFuncs = require('@local/board');
+const mateFuncs = require('@local/mate');
 
 exports.sanCoord = (input) => {
   var res = {
@@ -18,7 +19,7 @@ exports.sanCoord = (input) => {
   return res;
 }
 
-exports.moveNotation = (board, action, input, minimize = false, check = false, checkmate = false, stalemate = false) => {
+exports.moveNotation = (board, action, input, minimize = false) => {
   //(Action #)(Color). [Turn #][+/- Line #]:(Piece)[Coord]<[+/- New Line #]>[Dest Turn #][Dest +/- Line #]:[Capture][Promotion Piece][Dest Coord][Check][En Passant]
   var res = {
     str: '',
@@ -233,13 +234,13 @@ exports.moveNotation = (board, action, input, minimize = false, check = false, c
       if(input.length === 3) {
         res.str += 'e.p.';
       }
-      if(stalemate) {
+      if(mateFuncs.stalemate(moddedBoard, action + 1)) {
         res.str += '=';
       }
-      else if(checkmate) {
+      else if(mateFuncs.checkmate(moddedBoard, action + 1)) {
         res.str += '#';
       }
-      else if(check) {
+      else if(mateFuncs.checks(moddedBoard, action + 1).length > 0) {
         res.str += '+';
       }
     }
