@@ -4,7 +4,7 @@ Open source implementation of '5D Chess With Multiverse Time Travel' in the styl
 
 ## Demo
 
-Live demo on JSFiddle available [here](https://jsfiddle.net/alexbay218/57drakwg/43/)
+Live demo on JSFiddle available [here](https://jsfiddle.net/alexbay218/57drakwg/)
 
 ## Installation
 
@@ -35,7 +35,7 @@ console.log(chess.inCheckmate);
 
 Include this tag in the HTML before invoking the library:
 ``` html
-<script src="https://cdn.jsdelivr.net/npm/5d-chess-js"></script>
+<script src="https://unpkg.com/5d-chess-js/dist/5d-chess.js"></script>
 ```
 
 To use the library, the `Chess` class is exposed in the global scope. Here is the same 3 action checkmate example for in browser use.

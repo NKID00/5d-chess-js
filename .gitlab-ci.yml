@@ -9,14 +9,7 @@ install_package:
   artifacts:
     paths:
       - node_modules
-
-create_npmrc:
-  stage: build
-  script:
-    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-  artifacts:
-    paths:
-      - .npmrc
+      - dist
 
 test_package:
   stage: test
@@ -26,6 +19,7 @@ test_package:
 publish_package:
   stage: deploy
   script:
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
     - npm publish
   only:
     - release
