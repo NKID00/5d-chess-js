@@ -2,6 +2,10 @@
 
 Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with builtin notation support.
 
+## Demo
+
+Live demo on JSFiddle available [here](https://jsfiddle.net/alexbay218/57drakwg/43/)
+
 ## Installation
 
 ### Node.js
@@ -23,15 +27,15 @@ chess.move('2b. 2:Nb8:c6');
 chess.submit();
 chess.move('3w. 3:Qe2:h5');
 chess.submit();
-console.log(chess.inCheckmate());
 chess.print();
+console.log(chess.inCheckmate);
 ```
 
 ### In Browser
 
 Include this tag in the HTML before invoking the library:
 ``` html
-<script src="https://cdn.jsdelivr.net/npm/5d-chess-js/dist/5d-chess-js.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/5d-chess-js"></script>
 ```
 
 To use the library, the `Chess` class is exposed in the global scope. Here is the same 3 action checkmate example for in browser use.
@@ -48,8 +52,8 @@ chess.move('2b. 2:Nb8:c6');
 chess.submit();
 chess.move('3w. 3:Qe2:h5');
 chess.submit();
-console.log(chess.inCheckmate());
 chess.print();
+console.log(chess.inCheckmate);
 ```
 
 ## Notation and Terminology
@@ -398,7 +402,7 @@ If you can provide me an action list (object, json, or notation) or the board st
 
 I made the switch from GitHub to GitLab mid 2019 when I was starting a new long term project called KSS. Back then, GitHub did not have many of the features it does now, such as integrated CI/CD and more. GitLab was the superior product in almost every way. Furthermore, as a believer in the open source, it seem ironic that open source software would be hosted on closed source platforms. With Gitlab being closed source, I can be sure that if GitLab.org crumbles, I can still maintain the overall project structure via GitLab instances. This allows me to preserve the Git repo itself, but also the issues, labels, rules, pipelines, etc. that are fundamental to a project. With GitHub, developers do not have this guarantee and they also do not have full control over their project structure.
 
-For a (biased, but not untrue) comparison, visit this link here: https://about.gitlab.com/devops-tools/github/decision-kit.html
+For a (biased, but not untrue) comparison, visit this link [here](https://about.gitlab.com/devops-tools/github/decision-kit.html)
 
 ### Isn't the game copyrighted?
 

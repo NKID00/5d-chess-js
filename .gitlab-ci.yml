@@ -1,13 +1,22 @@
+# This file is a template, and might need editing before it works on your project.
 default:
   image: node:latest
 
 install_package:
   stage: build
   script:
-    - npm install
+    - npm install --unsafe-perm
   artifacts:
     paths:
       - node_modules
+
+create_npmrc:
+  stage: build
+  script:
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+  artifacts:
+    paths:
+      - .npmrc
 
 test_package:
   stage: test
@@ -20,3 +29,4 @@ publish_package:
     - npm publish
   only:
     - release
+
