@@ -80,7 +80,7 @@ This is the notation for a single move. It should exist as its own separate line
   - `(Action #)` - **[Required]** Action Number, the all moves within the referred action are required to indicate which action the move is a part of. Formatted as an integer starting from 1.
   - `(Color). ` - **[Required]** Lowercase character indicating player color (`b` or `w`) of the player that made the move. A `.` and space is required after the character.
   - `(Turn #)` - **[Required]** Turn number of the starting location of the piece to be moved. Formatted as an integer starting from 1.
-  - `[+/- Line #]` - Timeline number of the starting location of the piece to be moved. If timeline is 0, nothing should be in the term. A `+` or `-` character is required to precede the number (expressed as integer). 
+  - `[+/- Line #]` - Timeline number of the starting location of the piece to be moved. If timeline is 0, nothing should be in the term. A `+` or `-` character is required to precede the number (expressed as integer).
   - `[Piece]` - Piece character as found in SAN notation. Must be capitalized. King is `K` and Knight is `N` (pawn is an empty character). This term is not strictly required within library usage and is used for human readability purposes.
   - `(Coord)` - **[Required]** Coordinate of starting rank and file of the piece to be moved. Formatted in the SAN notation coordinate system `[a-h][1-8]`. First character must be lowercase.
   - `[<+/- New Line #>]` - Timeline number of newly created timelines. This term is required if new timelines are created or the destination location has a different turn and/or timeline of the starting location (in this case, if no timeline is created, `<>` is used). The internal number (within the `<>` separator), is not strictly required within library usage and is used for human readability purposes.
@@ -199,7 +199,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.import(import)**
 
-Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessable through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large board state. Will throw errors.
+Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large board state. Will throw errors.
 
   - import - List of actions to import (this will reset the internal state). Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
   - **Return** - Nothing.
@@ -303,7 +303,7 @@ Print the current internal state to console through `console.log()` function.
 
 ### Schemas
 
-These schemas define the various object types that the api interacts with.
+These schemas define the various object types that the API interacts with.
 
 **Position**
 
@@ -372,6 +372,8 @@ These schemas define the various object types that the api interacts with.
 {
   timeline: Integer,                                          // Timeline number of the timeline, 0 is neutral, negative integers are for black and positive integers are for white.
   player: String Enum ['white','black'],                      // Indicates the player that made the timeline.
+  active: Boolean,                                            // Indicates if the timeline is currently active
+  present: Boolean,                                           // Indicate if the timeline is currently present
   turns: Array,                                               // Array of Turn objects
     items: Turn
 }
@@ -387,6 +389,24 @@ These schemas define the various object types that the api interacts with.
     items: Timeline
 }
 ```
+
+## Internal Raw Format
+
+This library had a previous first attempt. It had a more traditional object-based format similar to the `Board` object format. This resulted in terrible performance, especially in generating actions.
+This version uses a 4D array to store the board state, with numbers as the piece indicator.
+
+Here is the format: `board[timeline][turn][rank][file] = piece`
+  - Timeline: starts from 0 (0, +1, +2, +3 => 0, 2, 4, 6 and -1, -2, -3 => 1, 3, 5)
+  - Turn: starts from 0 (white player: 1, 2, 3 => 0, 2, 4 and black player: 1, 2, 3 => 1, 3, 5)
+  - Rank: starts from 0 (1, 2, 3 => 7, 6 ,5)
+  - File: start from 0 (a, b, c => 0, 1, 2)
+  - Piece:
+    - Pawn: (white player: -2 [unmoved], 2 and black player: -1 [unmoved], 1)
+    - Bishop: (white player: 4 and black player: 3)
+    - Knight: (white player: 6 and black player: 5)
+    - Rook: (white player: -8 [unmoved], 8 and black player: -7 [unmoved], 7)
+    - Queen: (white player: 10 and black player: 9)
+    - King: (white player: -12 [unmoved], 12 and black player: -11 [unmoved], 11)
 
 ## FAQ
 

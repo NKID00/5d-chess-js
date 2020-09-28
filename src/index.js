@@ -1,14 +1,15 @@
 require('module-alias/register');
 
 const deepcopy = require('deep-copy');
-const boardFuncs = require('@local/board');
-const pieceFuncs = require('@local/piece');
 const actionFuncs = require('@local/action');
-const printFuncs = require('@local/print');
-const notationFuncs = require('@local/notation');
-const validateFuncs = require('@local/validate');
-const mateFuncs = require('@local/mate');
+const boardFuncs = require('@local/board');
 const parseFuncs = require('@local/parse');
+const pieceFuncs = require('@local/piece');
+const printFuncs = require('@local/print');
+const mateFuncs = require('@local/mate');
+const notationFuncs = require('@local/notation');
+const turnFuncs = require('@local/turn');
+const validateFuncs = require('@local/validate');
 
 class Chess {
   constructor(input) {
@@ -16,13 +17,24 @@ class Chess {
     if(input !== undefined) {
       this.import(input);
     }
+    this.raw = {
+      actionFuncs: actionFuncs,
+      boardFuncs: boardFuncs,
+      mateFuncs: mateFuncs,
+      notationFuncs: notationFuncs,
+      parseFuncs: parseFuncs,
+      pieceFuncs: pieceFuncs,
+      printFuncs: printFuncs,
+      turnFuncs: turnFuncs,
+      validateFuncs: validateFuncs
+    };
   }
   reset() {
-    this.currentBoard = boardFuncs.init();
-    this.currentAction = 0;
-    this.currentBoardHistory = [this.currentBoard];
-    this.currentActionHistory = [];
-    this.currentMoveBuffer = [];
+    this.rawBoard = boardFuncs.init();
+    this.rawAction = 0;
+    this.rawBoardHistory = [this.rawBoard];
+    this.rawActionHistory = [];
+    this.rawMoveBuffer = [];
   }
   convert(input) {
     var actions = [];
@@ -47,8 +59,8 @@ class Chess {
       catch(err) {
         if(typeof input === 'string') {
           var splitStr = input.replace(/\r\n/g, '\n').split('\n');
-          var tmpCurrAction = this.currentAction;
-          var tmpBoard = boardFuncs.copy(this.currentBoard);
+          var tmpCurrAction = this.rawAction;
+          var tmpBoard = boardFuncs.copy(this.rawBoard);
           var tmpAction = [];
           for(var i = 0;i < splitStr.length;i++) {
             if(splitStr[i].length > 0) {
@@ -142,31 +154,32 @@ class Chess {
         moves = this.convert(input)[0];
       }
     }
-    var tmpBoard = boardFuncs.copy(this.currentBoard);
+    var tmpBoard = boardFuncs.copy(this.rawBoard);
     for(var i = 0;i < moves.length;i++) {
-      if(!validateFuncs.move(tmpBoard, this.currentAction, moves[i])) {
-        throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.currentAction, moves[i]).str;
+      if(!validateFuncs.move(tmpBoard, this.rawAction, moves[i])) {
+        throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, moves[i]).str;
       }
       boardFuncs.move(tmpBoard, moves[i]);
     }
-    if(boardFuncs.present(tmpBoard, this.currentAction).length > 0) {
+    if(boardFuncs.present(tmpBoard, this.rawAction).length > 0) {
       throw 'Action is not complete, more moves are needed';
     }
     else {
-      this.currentBoard = tmpBoard;
-      this.currentBoardHistory.push(this.currentBoard);
-      this.currentActionHistory.push(deepcopy(moves));
-      this.currentAction++;
+      this.rawBoard = tmpBoard;
+      this.rawBoardHistory.push(this.rawBoard);
+      this.rawActionHistory.push(deepcopy(moves));
+      this.rawAction++;
     }
   }
   actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true) {
-    var actions = actionFuncs.actions(this.currentBoard, this.currentAction, activeOnly, presentOnly, newActiveTimelinesOnly);
+    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly);
+    if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
       var res = '';
       for(var i = 0;i < actions.length;i++) {
         if(this.actionable(actions[i])) {
           for(var j = 0;j < actions[i].length;j++) {
-            res += notationFuncs.moveNotation(this.currentBoard, this.currentAction, actions[i][j], format.includes('short')).str + '\n';
+            res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, actions[i][j], format.includes('short')).str + '\n';
           }
         }
       }
@@ -207,8 +220,8 @@ class Chess {
           moves = this.convert(input)[0];
         }
       }
-      var tmpCurrAction = this.currentAction;
-      var tmpBoard = boardFuncs.copy(this.currentBoard);
+      var tmpCurrAction = this.rawAction;
+      var tmpBoard = boardFuncs.copy(this.rawBoard);
       for(var i = 0;i < moves.length;i++) {
         if(!validateFuncs.move(tmpBoard, tmpCurrAction, moves[i])) {
           return false;
@@ -240,23 +253,24 @@ class Chess {
         }
       }
     }
-    var tmpCurrAction = this.currentAction;
-    var tmpBoard = boardFuncs.copy(this.currentBoard);
+    var tmpCurrAction = this.rawAction;
+    var tmpBoard = boardFuncs.copy(this.rawBoard);
     if(!this.moveable(move)) {
-      throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.currentAction, move).str;
+      throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, move).str;
     }
-    this.currentMoveBuffer.push(move);
+    this.rawMoveBuffer.push(move);
     boardFuncs.move(tmpBoard, move);
-    this.currentBoard = tmpBoard;
+    this.rawBoard = tmpBoard;
   }
   moves(format = 'object', activeOnly = true, presentOnly = true) {
     if(this.inCheckmate) { return []; }
     if(this.inStalemate) { return []; }
-    var moves = boardFuncs.moves(this.currentBoard, this.currentAction, activeOnly, presentOnly);
+    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly);
+    if(format === 'raw') { return moves; }
     if(format.includes('notation')) {
       var res = '';
       for(var i = 0;i < moves.length;i++) {
-        res += notationFuncs.moveNotation(this.currentBoard, this.currentAction, moves[i], format.includes('short')).str + '\n';
+        res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, moves[i], format.includes('short')).str + '\n';
       }
       return res;
     }
@@ -292,8 +306,8 @@ class Chess {
           }
         }
       }
-      var tmpBoard = boardFuncs.copy(this.currentBoard);
-      return validateFuncs.move(tmpBoard, this.currentAction, move);
+      var tmpBoard = boardFuncs.copy(this.rawBoard);
+      return validateFuncs.move(tmpBoard, this.rawAction, move);
     }
     catch(err) { return false; }
   }
@@ -310,30 +324,30 @@ class Chess {
     if(!this.submittable()) {
       throw 'Action is not complete, more moves are needed';
     }
-    this.currentBoardHistory.push(this.currentBoard);
-    this.currentActionHistory.push(deepcopy(this.currentMoveBuffer));
-    this.currentMoveBuffer = [];
-    this.currentAction++;
+    this.rawBoardHistory.push(this.rawBoard);
+    this.rawActionHistory.push(deepcopy(this.rawMoveBuffer));
+    this.rawMoveBuffer = [];
+    this.rawAction++;
   }
   submittable() {
     if(this.inCheckmate) { return false; }
     if(this.inStalemate) { return false; }
     if(this.inCheck) { return false; }
-    return boardFuncs.present(this.currentBoard, this.currentAction).length <= 0;
+    return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
   }
   undo() {
-    if(this.currentMoveBuffer.length > 0) {
-      var tmpBuffer = deepcopy(this.currentMoveBuffer);
+    if(this.rawMoveBuffer.length > 0) {
+      var tmpBuffer = deepcopy(this.rawMoveBuffer);
       tmpBuffer.pop();
-      var tmpBoard = boardFuncs.copy(this.currentBoardHistory[this.currentBoardHistory.length - 1]);
+      var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
-        if(!validateFuncs.move(tmpBoard, this.currentAction, tmpBuffer[i])) {
-          throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.currentAction, tmpBuffer[i]).str;
+        if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i])) {
+          throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]).str;
         }
         boardFuncs.move(tmpBoard, tmpBuffer[i]);
       }
-      this.currentBoard = boardFuncs.copy(tmpBoard);
-      this.currentMoveBuffer = deepcopy(tmpBuffer);
+      this.rawBoard = boardFuncs.copy(tmpBoard);
+      this.rawMoveBuffer = deepcopy(tmpBuffer);
     }
     else {
       throw 'No moves to undo.';
@@ -341,12 +355,12 @@ class Chess {
   }
   undoable() {
     try {
-      if(this.currentMoveBuffer.length > 0) {
-        var tmpBuffer = deepcopy(this.currentMoveBuffer);
+      if(this.rawMoveBuffer.length > 0) {
+        var tmpBuffer = deepcopy(this.rawMoveBuffer);
         tmpBuffer.pop();
-        var tmpBoard = boardFuncs.copy(this.currentBoardHistory[this.currentBoardHistory.length - 1]);
+        var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
         for(var i = 0;i < tmpBuffer.length;i++) {
-          if(!validateFuncs.move(tmpBoard, this.currentAction, tmpBuffer[i])) {
+          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i])) {
             return false;
           }
         }
@@ -357,26 +371,27 @@ class Chess {
     catch(err) { return false; }
   }
   get inCheckmate() {
-    return mateFuncs.checkmate(this.currentBoard, this.currentAction);
+    return mateFuncs.checkmate(this.rawBoard, this.rawAction);
   }
   get inCheck() {
-    return mateFuncs.checks(this.currentBoard, this.currentAction).length > 0;
+    return mateFuncs.checks(this.rawBoard, this.rawAction).length > 0;
   }
   get inStalemate() {
-    return mateFuncs.stalemate(this.currentBoard, this.currentAction);
+    return mateFuncs.stalemate(this.rawBoard, this.rawAction);
   }
   export(format = 'notation') {
-    if(format === 'json') { return JSON.stringify(this.currentActionHistory.map((e,i) => {
+    if(format === 'raw') { return this.rawActionHistory; }
+    if(format === 'json') { return JSON.stringify(this.rawActionHistory.map((e,i) => {
       return parseFuncs.fromAction(i,e);
     })); }
-    if(format === 'object') { return this.currentActionHistory.map((e,i) => {
+    if(format === 'object') { return this.rawActionHistory.map((e,i) => {
       return parseFuncs.fromAction(i,e);
     }); }
     var res = '';
     var tmpBoard = boardFuncs.copy(boardFuncs.init());
-    for(var i = 0;i < this.currentActionHistory.length;i++) {
-      for(var j = 0;j < this.currentActionHistory[i].length;j++) {
-        var currMove = this.currentActionHistory[i][j];
+    for(var i = 0;i < this.rawActionHistory.length;i++) {
+      for(var j = 0;j < this.rawActionHistory[i].length;j++) {
+        var currMove = this.rawActionHistory[i][j];
         boardFuncs.move(tmpBoard, currMove);
         if(format.includes('notation')) {
           res += notationFuncs.moveNotation(tmpBoard, i, currMove, format.includes('short')).str + '\n';
@@ -386,26 +401,26 @@ class Chess {
     return res;
   }
   print() {
-    console.log('Current Player: ' + (this.currentAction % 2 === 0 ? 'White' : 'Black'));
-    console.log('Action Number: ' + (Math.ceil(this.currentAction/2) + 1));
-    if(this.currentMoveBuffer.length > 0) {
+    console.log('Current Player: ' + (this.rawAction % 2 === 0 ? 'White' : 'Black'));
+    console.log('Action Number: ' + (Math.ceil(this.rawAction/2) + 1));
+    if(this.rawMoveBuffer.length > 0) {
       console.log('Move Stack:');
     }
-    for(var i = 0;i < this.currentMoveBuffer.length;i++) {
-      console.log('  ' + notationFuncs.moveNotation(this.currentBoard, this.currentAction, this.currentMoveBuffer[i]).str)
+    for(var i = 0;i < this.rawMoveBuffer.length;i++) {
+      console.log('  ' + notationFuncs.moveNotation(this.rawBoard, this.rawAction, this.rawMoveBuffer[i]).str)
     }
-    printFuncs.printBoard(this.currentBoard);
+    printFuncs.printBoard(this.rawBoard);
   }
   get board() {
-    return parseFuncs.fromBoard(this.currentBoard, this.currentAction);
+    return parseFuncs.fromBoard(this.rawBoard, this.rawAction);
   }
   get actionNumber() {
-    return Math.floor(this.currentAction/2) + 1;
+    return Math.floor(this.rawAction/2) + 1;
   }
   get boardHistory() {
     var res = [];
-    for(var i = 0;i < this.currentBoardHistory.length;i++) {
-      res.push(parseFuncs.fromBoard(this.currentBoardHistory[i], i));
+    for(var i = 0;i < this.rawBoardHistory.length;i++) {
+      res.push(parseFuncs.fromBoard(this.rawBoardHistory[i], i));
     }
     return res;
   }
@@ -414,13 +429,13 @@ class Chess {
   }
   get moveBuffer() {
     var res = [];
-    for(var i = 0;i < this.currentMoveBuffer.length;i++) {
-      res.push(parseFuncs.fromMove(this.currentMoveBuffer[i], i));
+    for(var i = 0;i < this.rawMoveBuffer.length;i++) {
+      res.push(parseFuncs.fromMove(this.rawMoveBuffer[i], i));
     }
     return res;
   }
   get player() {
-    return (this.currentAction % 2 === 0 ? 'white' : 'black');
+    return (this.rawAction % 2 === 0 ? 'white' : 'black');
   }
 }
 
