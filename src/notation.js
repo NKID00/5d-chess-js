@@ -1,6 +1,6 @@
-const pieceFuncs = require('@local/piece');
 const boardFuncs = require('@local/board');
 const mateFuncs = require('@local/mate');
+const pieceFuncs = require('@local/piece');
 
 exports.sanCoord = (input) => {
   var res = {

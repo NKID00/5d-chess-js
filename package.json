@@ -1,6 +1,6 @@
 {
   "name": "5d-chess-js",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library.",
   "main": "./dist/5d-chess.js",
   "browser": {
@@ -12,6 +12,7 @@
   "scripts": {
     "cli": "nodemon ./src/cli.js",
     "test": "jest",
+    "bench": "node ./src/bench.js",
     "profile": "clinic flame -- node ./src/bench.js",
     "prepare": "npm run-script build",
     "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js"

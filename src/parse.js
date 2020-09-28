@@ -1,3 +1,4 @@
+const boardFuncs = require('@local/board');
 const notationFuncs = require('@local/notation');
 const pieceFuncs = require('@local/piece');
 
@@ -112,7 +113,7 @@ exports.fromAction = (action, moves) => {
 }
 
 exports.toPiece = (pieceObj) => {
-  var res = 0;
+  var res = 1 + (pieceObj.player === 'white' ? 1 : 0);
   if(pieceObj.piece === 'B') {
     res = 3 + (pieceObj.player === 'white' ? 1 : 0);
   }
@@ -200,7 +201,7 @@ exports.toTimeline = (timelineObj) => {
   return res;
 }
 
-exports.fromTimeline = (board, timeline) => {
+exports.fromTimeline = (board, action, timeline) => {
   var res = {};
   if(timeline === 0) {
     res.timeline = 0;
@@ -213,6 +214,8 @@ exports.fromTimeline = (board, timeline) => {
   }
   res.player = (timeline % 2 === 0 ? 'white' : 'black');
   res.turns = [];
+  res.active = boardFuncs.active(board).includes(timeline);
+  res.present = boardFuncs.present(board, action).includes(timeline);
   var currTimeline = board[timeline];
   for(var i = 0;i < currTimeline.length;i++) {
     if(currTimeline[i] !== undefined) {
@@ -241,7 +244,7 @@ exports.fromBoard = (board, action) => {
   res.timelines = [];
   for(var i = 0;i < board.length;i++) {
     if(board[i] !== undefined) {
-      res.timelines.push(this.fromTimeline(board, i));
+      res.timelines.push(this.fromTimeline(board, action, i));
     }
   }
   return res;

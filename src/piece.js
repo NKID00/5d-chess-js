@@ -317,6 +317,7 @@ exports.moves = (board, src) => {
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0 || (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
+          if(piece < 0) { currMove[1][4] = Math.abs(piece); }
           res.push(currMove);
         }
       }
@@ -344,6 +345,7 @@ exports.moves = (board, src) => {
         if(boardFuncs.positionExists(board, currMove[1])) {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
           if(destPiece === 0 || (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
+            if(piece < 0) { currMove[1][4] = Math.abs(piece); }
             res.push([currMove[0].slice(),currMove[1].slice()]);
           }
           else { blocking = true; }

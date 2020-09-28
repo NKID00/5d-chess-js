@@ -2,14 +2,15 @@ require('module-alias/register');
 
 var repl = require('repl');
 var r = repl.start('node> ');
-r.context.boardFuncs = require('@local/board');
-r.context.pieceFuncs = require('@local/piece');
 r.context.actionFuncs = require('@local/action');
-r.context.printFuncs = require('@local/print');
-r.context.parseFuncs = require('@local/parse');
-r.context.validateFuncs = require('@local/validate');
-r.context.notationFuncs = require('@local/notation');
+r.context.boardFuncs = require('@local/board');
 r.context.mateFuncs = require('@local/mate');
+r.context.notationFuncs = require('@local/notation');
+r.context.parseFuncs = require('@local/parse');
+r.context.pieceFuncs = require('@local/piece');
+r.context.printFuncs = require('@local/print');
+r.context.validateFuncs = require('@local/validate');
+
 r.context.Chess = require('@local/index');
 r.context.chess = new r.context.Chess();
 

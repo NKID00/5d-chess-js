@@ -1,7 +1,6 @@
 const Chess = require('@local/index');
 const parseFuncs = require('@local/parse');
 const deepequal = require('deep-equal');
-const deepcopy = require('deep-copy');
 
 test('Position Parsing', () => {
   var pos1 = [1,2,3,4];
@@ -21,15 +20,15 @@ test('Position Parsing', () => {
 test('Board Parsing', () => {
   var chess = new Chess();
   chess.import('1w. 1:e2:e3\n1b. 1:f7:f6\n2w. 2:Qd1<>2:e2');
-  var board1 = deepcopy(chess.currentBoard);
-  var board2 = parseFuncs.toBoard(parseFuncs.fromBoard(deepcopy(board1)));
-  expect(deepequal(board1,board1)).toBe(true);
+  var board1 = chess.rawBoard;
+  var board2 = parseFuncs.toBoard(parseFuncs.fromBoard(board1));
+  expect(deepequal(board1,board2)).toBe(true);
   chess.import('1w. 1:e2:e3\n1b. 1:f7:f6\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\n3w. 3:Qe2:h5');
-  var board1 = deepcopy(chess.currentBoard);
-  var board2 = parseFuncs.toBoard(parseFuncs.fromBoard(deepcopy(board1)));
-  expect(deepequal(board1,board1)).toBe(true);
+  var board1 = chess.rawBoard;
+  var board2 = parseFuncs.toBoard(parseFuncs.fromBoard(board1));
+  expect(deepequal(board1,board2)).toBe(true);
   chess.import('1w. 1:e2:e3\n1b. 1:f7:f6\n2w. 2:Nb1<>1:b3\n2b. 1+1:a7:a6\n3w. 2+1:c2:c3\n3b. 2:Nb8:c6\n3b. 2+1:Nb8:c6\n4w. 3:d1:h5\n4w. 3+1:d1:c2#');
-  var board1 = deepcopy(chess.currentBoard);
-  var board2 = parseFuncs.toBoard(parseFuncs.fromBoard(deepcopy(board1)));
-  expect(deepequal(board1,board1)).toBe(true);
-})
+  var board1 = chess.rawBoard;
+  var board2 = parseFuncs.toBoard(parseFuncs.fromBoard(board1));
+  expect(deepequal(board1,board2)).toBe(true);
+});
