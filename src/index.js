@@ -231,11 +231,13 @@ class Chess {
       if(typeof input === 'object') {
         move = parseFuncs.toMove(deepcopy(input));
       }
-      try {
-        move = parseFuncs.toMove(JSON.parse(input));
-      }
-      catch(err) {
-        move = this.convert(input)[0][0];
+      else {
+        try {
+          move = parseFuncs.toMove(JSON.parse(input));
+        }
+        catch(err) {
+          move = this.convert(input)[0][0];
+        }
       }
     }
     var tmpCurrAction = this.currentAction;
@@ -281,11 +283,13 @@ class Chess {
         if(typeof input === 'object') {
           move = parseFuncs.toMove(deepcopy(input));
         }
-        try {
-          move = parseFuncs.toMove(JSON.parse(input));
-        }
-        catch(err) {
-          move = this.convert(input)[0][0];
+        else {
+          try {
+            move = parseFuncs.toMove(JSON.parse(input));
+          }
+          catch(err) {
+            move = this.convert(input)[0][0];
+          }
         }
       }
       var tmpBoard = boardFuncs.copy(this.currentBoard);
