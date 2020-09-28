@@ -6,6 +6,7 @@ r.context.boardFuncs = require('@local/board');
 r.context.pieceFuncs = require('@local/piece');
 r.context.actionFuncs = require('@local/action');
 r.context.printFuncs = require('@local/print');
+r.context.parseFuncs = require('@local/parse');
 r.context.validateFuncs = require('@local/validate');
 r.context.notationFuncs = require('@local/notation');
 r.context.mateFuncs = require('@local/mate');
