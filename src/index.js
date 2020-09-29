@@ -17,6 +17,17 @@ class Chess {
     if(input !== undefined) {
       this.import(input);
     }
+    this.raw = {
+      actionFuncs: actionFuncs,
+      boardFuncs: boardFuncs,
+      mateFuncs: mateFuncs,
+      notationFuncs: notationFuncs,
+      parseFuncs: parseFuncs,
+      pieceFuncs: pieceFuncs,
+      printFuncs: printFuncs,
+      turnFuncs: turnFuncs,
+      validateFuncs: validateFuncs
+    };
   }
   reset() {
     this.rawBoard = boardFuncs.init();
@@ -448,17 +459,6 @@ class Chess {
   }
   get player() {
     return (this.rawAction % 2 === 0 ? 'white' : 'black');
-  }
-  raw={
-    actionFuncs: actionFuncs,
-    boardFuncs: boardFuncs,
-    mateFuncs: mateFuncs,
-    notationFuncs: notationFuncs,
-    parseFuncs: parseFuncs,
-    pieceFuncs: pieceFuncs,
-    printFuncs: printFuncs,
-    turnFuncs: turnFuncs,
-    validateFuncs: validateFuncs
   }
 }
 
