@@ -66,6 +66,9 @@ exports.toMove = (moveObj) => {
     res[1][4] = 11 + (moveObj.player === 'white' ? 1 : 0);
     res[3][4] = 7 + (moveObj.player === 'white' ? 1 : 0);
   }
+  else if(moveObj.tmpNewPiece !== null) {
+    res[1][4] = moveObj.tmpNewPiece;
+  }
   return res;
 }
 
@@ -75,6 +78,7 @@ exports.fromMove = (move) => {
     enPassant: null,
     castling: null
   };
+  res.tmpNewPiece = move[1][4] ? move[1][4] : null;
   res.start = this.fromPosition(move[0]);
   res.end = this.fromPosition(move[1]);
   res.player = (move[0][1] % 2 === 0 ? 'white' : 'black');
@@ -107,7 +111,7 @@ exports.fromAction = (action, moves) => {
   res.player = (action % 2 === 0 ? 'white' : 'black');
   res.moves = [];
   for(var i = 0;i < moves.length;i++) {
-    res.push(this.fromMove(moves[i]));
+    res.moves.push(this.fromMove(moves[i]));
   }
   return res;
 }
