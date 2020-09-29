@@ -241,6 +241,12 @@ Generate all possible submittable actions. Does not modify internal state, but w
   - newActiveTimelinesOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if the action will only create active timelines (i.e. cannot create inactive timelines).
   - **Return** - List of actions. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
 
+**.checks([format])**
+
+Generate all opponent moves that can capture the king (assuming a null move on any present timelines that still have not advanced). Does not modify internal state, but will throw errors.
+
+  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
+
 **.move(move)**
 
 Plays an move as the current player. Will modify internal state and will throw errors.
@@ -257,7 +263,7 @@ Check if a move is playable as the current player and can submit. Does not modif
 
 **.moves([format, activeOnly, presentOnly])**
 
-Generate all possible submittable actions. Does not modify internal state, but will throw errors. **Warning! Due to the complexity of 5D chess, performance may severely suffer if the board is large enough. Calling this function with more than 3 present timelines is not advised.**
+Generate all possible moves. Does not modify internal state, but will throw errors.
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
   - activeOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only active timelines.

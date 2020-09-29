@@ -359,6 +359,29 @@ class Chess {
     }
     catch(err) { return false; }
   }
+  checks(format = 'object') {
+    if(this.inCheckmate) { return []; }
+    if(this.inStalemate) { return []; }
+    var moves = mateFuncs.checks(this.rawBoard, this.rawAction);
+    if(format === 'raw') { return moves; }
+    if(format.includes('notation')) {
+      var res = '';
+      for(var i = 0;i < moves.length;i++) {
+        res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, moves[i], format.includes('short')).str + '\n';
+      }
+      return res;
+    }
+    res = [];
+    for(var i = 0;i < moves.length;i++) {
+      if(this.moveable(moves[i])) {
+        res.push(parseFuncs.fromMove(moves[i]));
+      }
+    }
+    if(format === 'json') {
+      return JSON.stringify(res);
+    }
+    return res;
+  }
   get inCheckmate() {
     return mateFuncs.checkmate(this.rawBoard, this.rawAction);
   }
