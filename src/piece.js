@@ -347,6 +347,7 @@ exports.moves = (board, src) => {
           if(destPiece === 0 || (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
             if(piece < 0) { currMove[1][4] = Math.abs(piece); }
             res.push([currMove[0].slice(),currMove[1].slice()]);
+            if(Math.abs(destPiece) % 2 !== Math.abs(piece) % 2) { blocking = true; }
           }
           else { blocking = true; }
         }
@@ -441,12 +442,12 @@ exports.moves = (board, src) => {
           ])) {
             var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
             if(destPiece === -2) {
-              res.push([currMove[0].slice(), currMove[1].slice(),
+              res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
                 currMove[1][1],
                 currMove[1][2]-1,
                 currMove[1][3]
-              ]);
+              ]]);
             }
           }
         }
@@ -470,12 +471,12 @@ exports.moves = (board, src) => {
           ])) {
             var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
             if(destPiece === -2) {
-              res.push([currMove[0].slice(), currMove[1].slice(),
+              res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
                 currMove[1][1],
                 currMove[1][2]-1,
                 currMove[1][3]
-              ]);
+              ]]);
             }
           }
         }
@@ -660,12 +661,12 @@ exports.moves = (board, src) => {
           ])) {
             var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
             if(destPiece === -1) {
-              res.push([currMove[0].slice(), currMove[1].slice(),
+              res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
                 currMove[1][1],
-                currMove[1][2]-1,
+                currMove[1][2]+1,
                 currMove[1][3]
-              ]);
+              ]]);
             }
           }
         }
@@ -689,12 +690,12 @@ exports.moves = (board, src) => {
           ])) {
             var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
             if(destPiece === -1) {
-              res.push([currMove[0].slice(), currMove[1].slice(),
+              res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
                 currMove[1][1],
-                currMove[1][2]-1,
+                currMove[1][2]+1,
                 currMove[1][3]
-              ]);
+              ]]);
             }
           }
         }
