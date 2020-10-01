@@ -394,7 +394,7 @@ class Chess {
     return res;
   }
   get inCheckmate() {
-    return mateFuncs.checkmate(this.rawBoard, this.rawAction);
+    return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction);
   }
   get inCheck() {
     return mateFuncs.checks(this.rawBoard, this.rawAction).length > 0;
