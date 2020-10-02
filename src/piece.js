@@ -651,7 +651,7 @@ exports.moves = (board, src) => {
         currMove[1][2]+1,
         currMove[1][3]
       ])) {
-        var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
+        var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]+1][currMove[1][3]];
         if(destPiece === 1) {
           if(boardFuncs.positionExists(board, [
             currMove[1][0],
@@ -659,7 +659,7 @@ exports.moves = (board, src) => {
             currMove[1][2]-1,
             currMove[1][3]
           ])) {
-            var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
+            var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]-1][currMove[1][3]];
             if(destPiece === -1) {
               res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
@@ -680,7 +680,7 @@ exports.moves = (board, src) => {
         currMove[1][2]+1,
         currMove[1][3]
       ])) {
-        var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
+        var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]+1][currMove[1][3]];
         if(destPiece === 1) {
           if(boardFuncs.positionExists(board, [
             currMove[1][0],
@@ -688,7 +688,7 @@ exports.moves = (board, src) => {
             currMove[1][2]-1,
             currMove[1][3]
           ])) {
-            var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
+            var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]-1][currMove[1][3]];
             if(destPiece === -1) {
               res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
