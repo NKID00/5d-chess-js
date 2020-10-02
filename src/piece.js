@@ -347,7 +347,7 @@ exports.moves = (board, src) => {
           if(destPiece === 0 || (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
             if(piece < 0) { currMove[1][4] = Math.abs(piece); }
             res.push([currMove[0].slice(),currMove[1].slice()]);
-            if(Math.abs(destPiece) % 2 !== Math.abs(piece) % 2) { blocking = true; }
+            if(Math.abs(destPiece) % 2 !== Math.abs(piece) % 2 && destPiece !== 0) { blocking = true; }
           }
           else { blocking = true; }
         }
