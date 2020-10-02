@@ -21,7 +21,7 @@ exports.action = (board, action, moves) => {
 }
 
 exports.notation = (notation) => {
-  var regexRegular = notation.match(/^(\d+[bw]\.\s)\d+([\-\+]\d+)*:[BNRQK]*[a-h][1-8]((<([\-\+]\d+)*>)+\d*([\-\+]\d+)*)*:x*[BNRQ]*[a-h][1-8](.e.p)*[\=\+\#]*/);
+  var regexRegular = notation.match(/^(\d+[bw]\.\s)\d+([\-\+]\d+)*:[BNRQK]*[a-h][1-8]((<([\-\+]\d+)*>)+\d*([\-\+]\d+)*)*:x*[BNRQ]*[a-h][1-8](e\.p\.)*[\=\+\#]*/);
   var regexCastling = notation.match(/^(\d+[bw]\.\s)\d+([\-\+]\d+)*:0\-0(\-0)*[\=\+\#]*/);
   if(regexRegular === null && regexCastling === null) { return false; }
   if(

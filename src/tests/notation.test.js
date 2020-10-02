@@ -1,5 +1,5 @@
 const Chess = require('@local/index');
-const boardFuncs = require('@local/board');
+const deepequal = require('deep-equal');
 
 test('Check notation differences has same output', () => {
   var chess1 = new Chess();
@@ -26,6 +26,6 @@ test('Check notation differences has same output', () => {
   chess3.submit();
   var chess4 = new Chess();
   chess4.import('1w. 1:e2:e3\n1b. 1:f7:f6\r\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\r\n3w. 3:Qe2:h5');
-  expect(boardFuncs.compare(chess1.currentBoard, chess3.currentBoard)).toBe(0);
-  expect(boardFuncs.compare(chess1.currentBoard, chess4.currentBoard)).toBe(0);
+  expect(deepequal(chess1.rawBoard, chess3.rawBoard)).toBe(true);
+  expect(deepequal(chess1.rawBoard, chess4.rawBoard)).toBe(true);
 });

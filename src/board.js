@@ -74,10 +74,12 @@ exports.move = (board, move) => {
     }
     if(move[2] !== undefined) {
       var src2 = move[2];
-      var dest2 = move[3];
-      var destPiece2 = dest2[4] ? dest2[4] : board[src2[0]][src2[1]][src2[2]][src2[3]];
-      if(dest2 !== undefined) {
-        board[dest2[0]][dest2[1] + 1][dest2[2]][dest2[3]] = destPiece2;
+      if(move[3] !== undefined) {
+        var dest2 = move[3];
+        var destPiece2 = dest2[4] ? dest2[4] : board[src2[0]][src2[1]][src2[2]][src2[3]];
+        if(dest2 !== undefined) {
+          board[dest2[0]][dest2[1] + 1][dest2[2]][dest2[3]] = destPiece2;
+        }
       }
       board[src2[0]][src2[1] + 1][src2[2]][src2[3]] = 0;
     }

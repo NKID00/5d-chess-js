@@ -105,7 +105,8 @@ exports.moveNotation = (board, action, input, minimize = false) => {
       res.arr[1][2] = tmpDestCoord.arr[0];
       res.arr[1][3] = tmpDestCoord.arr[1];
       tmp = tmp.substr(2);
-      if(tmp.includes('.e.p')) {
+      if(tmp.includes('e.p.')) {
+        res.arr[2] = [];
         res.arr[2][0] = res.arr[0][0];
         res.arr[2][1] = res.arr[0][1];
         res.arr[2][2] = res.arr[0][2];
