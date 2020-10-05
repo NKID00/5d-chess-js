@@ -21,12 +21,12 @@ chess.move('1b. 1:f7:f6');
 chess.submit();
 chess.move('2w. 2:Qd1:e2');
 chess.submit();
-chess.move('2b. 2:g7:g6');
+chess.move('2b. 2:a7:a6');
 chess.submit();
 chess.move('3w. 3:Qe2:h5');
 chess.submit();
 chess.print(); console.log(chess.moves('notation_short'));
-chess.inCheckmate();
+chess.inCheckmate;
 
 
 chess.import('1w. 1:e2:e3\n1b. 1:f7:f6\r\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\r\n3w. 3:Qe2:h5');
