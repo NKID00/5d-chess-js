@@ -217,18 +217,20 @@ Resets the internal state to the initial board state.
 
   - **Return** - Nothing.
 
-**.action(action)**
+**.action(action, [skipDetection])**
 
 Plays an action as the current player and submits the move. Will modify internal state and will throw errors.
 
   - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
-**.actionable(action)**
+**.actionable(action, [skipDetection])**
 
 Check if an action is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
   - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the action is playable and submittable.
 
 **.actions([format, activeOnly, presentOnly, newActiveTimelinesOnly])**
@@ -254,32 +256,36 @@ Plays an move as the current player. Will modify internal state and will throw e
   - move - The move to play as the current player. Can be a notation string, `Move` object, or JSON string of a `Move` object.
   - **Return** - Nothing.
 
-**.moveable(action)**
+**.moveable(action, [skipDetection])**
 
 Check if a move is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
   - move - The move to play as the current player. Can be a notation string, `Move` object, or JSON string of a `Move` object.
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the move is playable.
 
-**.moves([format, activeOnly, presentOnly])**
+**.moves([format, activeOnly, presentOnly, skipDetection])**
 
 Generate all possible moves. Does not modify internal state, but will throw errors.
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
   - activeOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only active timelines.
   - presentOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only present timelines (will override `activeOnly` argument).
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - List of moves. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
 
-**.submit()**
+**.submit([skipDetection])**
 
 Submit all moves in move buffer and switch the current player to the other player. Advances the action number counter. Will modify internal state and will throw errors.
 
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
-**.submittable()**
+**.submittable([skipDetection])**
 
 Check if the player can submit all moves in move buffer. Does not modify internal state and will not throw errors.
 
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the current internal state is submittable.
 
 **.undo()**
