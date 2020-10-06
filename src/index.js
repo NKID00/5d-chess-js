@@ -124,12 +124,14 @@ class Chess {
     }
     catch(err) { return false; }
   }
-  action(input) {
-    if(this.inCheckmate) {
-      throw 'Cannot submit, currently in checkmate.';
-    }
-    if(this.inStalemate) {
-      throw 'Cannot submit, currently in stalemate.';
+  action(input, skipDetection = false) {
+    if(!skipDetection) {
+      if(this.inCheckmate) {
+        throw 'Cannot submit, currently in checkmate.';
+      }
+      if(this.inStalemate) {
+        throw 'Cannot submit, currently in stalemate.';
+      }
     }
     var moves = [];
     if(Array.isArray(input)) {
@@ -196,10 +198,12 @@ class Chess {
     }
     return res;
   }
-  actionable(input) {
+  actionable(input, skipDetection = false) {
     try {
-      if(this.inCheckmate) { return false; }
-      if(this.inStalemate) { return false; }
+      if(!skipDetection) {
+        if(this.inCheckmate) { return false; }
+        if(this.inStalemate) { return false; }
+      }
       var moves = [];
       if(Array.isArray(input)) {
         var tmp = deepcopy(input);
@@ -262,9 +266,11 @@ class Chess {
     boardFuncs.move(tmpBoard, move);
     this.rawBoard = tmpBoard;
   }
-  moves(format = 'object', activeOnly = true, presentOnly = true) {
-    if(this.inCheckmate) { return []; }
-    if(this.inStalemate) { return []; }
+  moves(format = 'object', activeOnly = true, presentOnly = true, skipDetection = false) {
+    if(!skipDetection) {
+      if(this.inCheckmate) { return []; }
+      if(this.inStalemate) { return []; }
+    }
     var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly);
     if(format === 'raw') { return moves; }
     if(format.includes('notation')) {
@@ -285,10 +291,12 @@ class Chess {
     }
     return res;
   }
-  moveable(input) {
+  moveable(input, skipDetection = false) {
     try {
-      if(this.inCheckmate) { return false; }
-      if(this.inStalemate) { return false; }
+      if(!skipDetection) {
+        if(this.inCheckmate) { return false; }
+        if(this.inStalemate) { return false; }
+      }
       var move = [];
       if(Array.isArray(input)) {
         move = deepcopy(input);
@@ -311,15 +319,17 @@ class Chess {
     }
     catch(err) { return false; }
   }
-  submit() {
-    if(this.inCheckmate) {
-      throw 'Cannot submit, currently in checkmate.';
-    }
-    if(this.inStalemate) {
-      throw 'Cannot submit, currently in stalemate.';
-    }
-    if(this.inCheck) {
-      throw 'Cannot submit, currently in check.';
+  submit(skipDetection = false) {
+    if(!skipDetection) {
+      if(this.inCheckmate) {
+        throw 'Cannot submit, currently in checkmate.';
+      }
+      if(this.inStalemate) {
+        throw 'Cannot submit, currently in stalemate.';
+      }
+      if(this.inCheck) {
+        throw 'Cannot submit, currently in check.';
+      }
     }
     if(!this.submittable()) {
       throw 'Action is not complete, more moves are needed';
@@ -329,10 +339,12 @@ class Chess {
     this.rawMoveBuffer = [];
     this.rawAction++;
   }
-  submittable() {
-    if(this.inCheckmate) { return false; }
-    if(this.inStalemate) { return false; }
-    if(this.inCheck) { return false; }
+  submittable(skipDetection = false) {
+    if(!skipDetection) {
+      if(this.inCheckmate) { return false; }
+      if(this.inStalemate) { return false; }
+      if(this.inCheck) { return false; }
+    }
     return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
   }
   undo() {
