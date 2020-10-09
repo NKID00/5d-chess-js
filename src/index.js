@@ -106,19 +106,19 @@ class Chess {
     }
     catch(err) { return false; }
   }
-  import(input) {
+  import(input, skipDetection = false) {
     this.reset();
     var actions = this.convert(input);
     for(var i = 0;i < actions.length;i++) {
-      this.action(actions[i]);
+      this.action(actions[i], skipDetection);
     }
   }
-  importable(input) {
+  importable(input, skipDetection = false) {
     try {
       this.reset();
       var actions = this.convert(input);
       for(var i = 0;i < actions.length;i++) {
-        if(!this.actionable(actions[i])) { return false; }
+        if(!this.actionable(actions[i], skipDetection)) { return false; }
       }
       return true;
     }
@@ -173,13 +173,13 @@ class Chess {
       this.rawAction++;
     }
   }
-  actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true) {
+  actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, skipDetection = false) {
     var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly);
     if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
       var res = '';
       for(var i = 0;i < actions.length;i++) {
-        if(this.actionable(actions[i])) {
+        if(this.actionable(actions[i], skipDetection)) {
           for(var j = 0;j < actions[i].length;j++) {
             res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, actions[i][j], format.includes('short')).str + '\n';
           }
@@ -189,7 +189,7 @@ class Chess {
     }
     res = [];
     for(var i = 0;i < actions.length;i++) {
-      if(this.actionable(actions[i])) {
+      if(this.actionable(actions[i], skipDetection)) {
         res.push(parseFuncs.fromAction(actions[i]));
       }
     }
@@ -239,7 +239,7 @@ class Chess {
     }
     catch(err) { return false; }
   }
-  move(input) {
+  move(input, skipDetection = false) {
     var move = [];
     if(Array.isArray(input)) {
       move = deepcopy(input);
@@ -259,7 +259,7 @@ class Chess {
     }
     var tmpCurrAction = this.rawAction;
     var tmpBoard = boardFuncs.copy(this.rawBoard);
-    if(!this.moveable(move)) {
+    if(!this.moveable(move, skipDetection)) {
       throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, move).str;
     }
     this.rawMoveBuffer.push(move);
