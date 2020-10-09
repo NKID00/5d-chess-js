@@ -282,7 +282,7 @@ class Chess {
     }
     res = [];
     for(var i = 0;i < moves.length;i++) {
-      if(this.moveable(moves[i])) {
+      if(this.moveable(moves[i], skipDetection)) {
         res.push(parseFuncs.fromMove(moves[i]));
       }
     }
@@ -331,7 +331,7 @@ class Chess {
         throw 'Cannot submit, currently in check.';
       }
     }
-    if(!this.submittable()) {
+    if(!this.submittable(skipDetection)) {
       throw 'Action is not complete, more moves are needed';
     }
     this.rawBoardHistory.push(this.rawBoard);
