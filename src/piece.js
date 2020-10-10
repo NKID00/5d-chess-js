@@ -555,6 +555,27 @@ exports.moves = (board, src) => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
+          //Black forward double square LT movement
+          currMove = [src.slice(), src.slice()];
+          if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+            currMove[1][0] += 4;
+            if(currMove[1][0] < 0) {
+              currMove[1][0] = (currMove[1][0] * -1) + 1;
+            }
+          }
+          else {
+            currMove[1][0] -= 4;
+            if(currMove[1][0] < 0) {
+              currMove[1][0] = (currMove[1][0] * -1) - 1;
+            }
+          }
+          if(piece === -1) { currMove[1][4] = 1; }
+          if(boardFuncs.positionExists(board, currMove[1])) {
+            var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
+            if(destPiece === 0) {
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
+          }
         }
       }
       //Black forward single square capture LT movement
@@ -774,6 +795,27 @@ exports.moves = (board, src) => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0) {
           res.push([currMove[0].slice(), currMove[1].slice()]);
+          //White forward double square LT movement
+          currMove = [src.slice(), src.slice()];
+          if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+            currMove[1][0] -= 4;
+            if(currMove[1][0] < 0) {
+              currMove[1][0] = (currMove[1][0] * -1) + 1;
+            }
+          }
+          else {
+            currMove[1][0] += 4;
+            if(currMove[1][0] < 0) {
+              currMove[1][0] = (currMove[1][0] * -1) - 1;
+            }
+          }
+          if(piece === -2) { currMove[1][4] = 2; }
+          if(boardFuncs.positionExists(board, currMove[1])) {
+            var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
+            if(destPiece === 0) {
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
+          }
         }
       }
       //White forward single square capture LT movement
