@@ -233,26 +233,28 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
   return res;
 }
 
-exports.positionIsAttacked = (board, pos, player) => {
+exports.positionIsAttacked = (board, pos, player, singleBoard = false) => {
   var toCheck = [];
   if(this.positionExists(board, pos)) {
     var movePos = pieceFuncs.movePos(6); //Knight movement
     var moveVec = pieceFuncs.movePos(10); //Queen movement
     for(var i = 0;i < movePos.length;i++) {
       var newSrc = pos.slice();
-      if(newSrc[0] === 0 || newSrc[0] % 2 === 0) {
-        newSrc[0] += movePos[i][0] * 2;
-        if(newSrc[0] < 0) {
-          newSrc[0] = (newSrc[0] * -1) + 1;
+      if(!singleBoard) {
+        if(newSrc[0] === 0 || newSrc[0] % 2 === 0) {
+          newSrc[0] += movePos[i][0] * 2;
+          if(newSrc[0] < 0) {
+            newSrc[0] = (newSrc[0] * -1) + 1;
+          }
         }
-      }
-      else {
-        newSrc[0] -= movePos[i][0] * 2;
-        if(newSrc[0] < 0) {
-          newSrc[0] = (newSrc[0] * -1) - 1;
+        else {
+          newSrc[0] -= movePos[i][0] * 2;
+          if(newSrc[0] < 0) {
+            newSrc[0] = (newSrc[0] * -1) - 1;
+          }
         }
+        newSrc[1] += movePos[i][1] * 2;
       }
-      newSrc[1] += movePos[i][1] * 2;
       newSrc[2] += movePos[i][2];
       newSrc[3] += movePos[i][3];
       if(this.positionExists(board, newSrc)) {
