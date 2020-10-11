@@ -329,15 +329,12 @@ exports.moves = (board, src) => {
       var currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
         currMove[1][0] += movePos[i][0] * 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) + 1;
-        }
       }
       else {
         currMove[1][0] -= movePos[i][0] * 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+      }
+      if(currMove[1][0] < 0) {
+        currMove[1][0] = (currMove[1][0] * -1) - 1;
       }
       currMove[1][1] += movePos[i][1] * 2;
       currMove[1][2] += movePos[i][2];
@@ -357,15 +354,12 @@ exports.moves = (board, src) => {
       while(!blocking) {
         if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
           currMove[1][0] += moveVecs[i][0] * 2;
-          if(currMove[1][0] < 0) {
-            currMove[1][0] = (currMove[1][0] * -1) + 1;
-          }
         }
         else {
           currMove[1][0] += moveVecs[i][0] * -2;
-          if(currMove[1][0] < 0) {
-            currMove[1][0] = (currMove[1][0] * -1) - 1;
-          }
+        }
+        if(currMove[1][0] < 0) {
+          currMove[1][0] = (currMove[1][0] * -1) - 1;
         }
         currMove[1][1] += moveVecs[i][1] * 2;
         currMove[1][2] += moveVecs[i][2];
@@ -540,15 +534,12 @@ exports.moves = (board, src) => {
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
         currMove[1][0] += 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) + 1;
-        }
       }
       else {
         currMove[1][0] -= 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+      }
+      if(currMove[1][0] < 0) {
+        currMove[1][0] = (currMove[1][0] * -1) - 1;
       }
       if(piece === -1) { currMove[1][4] = 1; }
       if(boardFuncs.positionExists(board, currMove[1])) {
@@ -559,15 +550,12 @@ exports.moves = (board, src) => {
           currMove = [src.slice(), src.slice()];
           if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
             currMove[1][0] += 4;
-            if(currMove[1][0] < 0) {
-              currMove[1][0] = (currMove[1][0] * -1) + 1;
-            }
           }
           else {
             currMove[1][0] -= 4;
-            if(currMove[1][0] < 0) {
-              currMove[1][0] = (currMove[1][0] * -1) - 1;
-            }
+          }
+          if(currMove[1][0] < 0) {
+            currMove[1][0] = (currMove[1][0] * -1) - 1;
           }
           if(piece === -1) { currMove[1][4] = 1; }
           if(boardFuncs.positionExists(board, currMove[1])) {
@@ -582,15 +570,12 @@ exports.moves = (board, src) => {
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
         currMove[1][0] += 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) + 1;
-        }
       }
       else {
         currMove[1][0] -= 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+      }
+      if(currMove[1][0] < 0) {
+        currMove[1][0] = (currMove[1][0] * -1) - 1;
       }
       currMove[1][1] += 2;
       if(piece === -1) { currMove[1][4] = 1; }
@@ -603,15 +588,12 @@ exports.moves = (board, src) => {
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
         currMove[1][0] += 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) + 1;
-        }
       }
       else {
         currMove[1][0] -= 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+      }
+      if(currMove[1][0] < 0) {
+        currMove[1][0] = (currMove[1][0] * -1) - 1;
       }
       currMove[1][1] -= 2;
       if(piece === -1) { currMove[1][4] = 1; }
@@ -780,15 +762,12 @@ exports.moves = (board, src) => {
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
         currMove[1][0] -= 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) + 1;
-        }
       }
       else {
         currMove[1][0] += 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+      }
+      if(currMove[1][0] < 0) {
+        currMove[1][0] = (currMove[1][0] * -1) - 1;
       }
       if(piece === -2) { currMove[1][4] = 2; }
       if(boardFuncs.positionExists(board, currMove[1])) {
@@ -799,15 +778,12 @@ exports.moves = (board, src) => {
           currMove = [src.slice(), src.slice()];
           if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
             currMove[1][0] -= 4;
-            if(currMove[1][0] < 0) {
-              currMove[1][0] = (currMove[1][0] * -1) + 1;
-            }
           }
           else {
             currMove[1][0] += 4;
-            if(currMove[1][0] < 0) {
-              currMove[1][0] = (currMove[1][0] * -1) - 1;
-            }
+          }
+          if(currMove[1][0] < 0) {
+            currMove[1][0] = (currMove[1][0] * -1) - 1;
           }
           if(piece === -2) { currMove[1][4] = 2; }
           if(boardFuncs.positionExists(board, currMove[1])) {
@@ -822,15 +798,12 @@ exports.moves = (board, src) => {
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
         currMove[1][0] -= 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) + 1;
-        }
       }
       else {
         currMove[1][0] += 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+      }
+      if(currMove[1][0] < 0) {
+        currMove[1][0] = (currMove[1][0] * -1) - 1;
       }
       currMove[1][1] += 2;
       if(piece === -2) { currMove[1][4] = 2; }
@@ -843,15 +816,12 @@ exports.moves = (board, src) => {
       currMove = [src.slice(), src.slice()];
       if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
         currMove[1][0] -= 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) + 1;
-        }
       }
       else {
         currMove[1][0] += 2;
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+      }
+      if(currMove[1][0] < 0) {
+        currMove[1][0] = (currMove[1][0] * -1) - 1;
       }
       currMove[1][1] -= 2;
       if(piece === -2) { currMove[1][4] = 2; }

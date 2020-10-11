@@ -1,6 +1,6 @@
 const Chess = require('@local/index');
 
-test('En Passant Castling', () => {
+test('En Passant and Castling', () => {
   var chess = new Chess();
   expect(() => {
     chess.import('1w. 1:e2:e4\n1b. 1:a7:a6\n2w. 2:e4:e5\n2b. 2:d7:d5');
