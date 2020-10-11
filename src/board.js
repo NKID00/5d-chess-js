@@ -158,6 +158,9 @@ exports.present = (board, action) => {
       if(lowestTurn === currMax) {
         res.push(activeTimelines[i]);
       }
+      else if(lowestTurn > currMax) {
+        return [];
+      }
     }
   }
   return res;
