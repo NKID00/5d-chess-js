@@ -41,11 +41,11 @@ exports.checkmate = (board, action) => {
   if(checks.length > 0) {
     var lowestTurn = -1;
     for(var i = 0;i < checks.length;i++) {
-      if(!checkedTimelines.includes(checks[i][1][0])) {
-        checkedTimelines.push(checks[i][1][0]);
+      if(!checkedTimelines.includes(checks[i][0][0])) {
+        checkedTimelines.push(checks[i][0][0]);
       }
-      if(lowestTurn === -1 || checks[i][1][1] < lowestTurn) {
-        lowestTurn = checks[i][1][1];
+      if(lowestTurn === -1 || checks[i][0][1] < lowestTurn) {
+        lowestTurn = checks[i][0][1];
       }
     }
     if(lowestTurn !== -1) {
