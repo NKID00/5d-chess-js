@@ -73,6 +73,7 @@ class Chess {
               }
               catch(err) {
                 throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
+                console.error(err);
               }
               if(tmpNotation.action > tmpCurrAction) {
                 if(tmpAction.length > 0) {
@@ -423,10 +424,10 @@ class Chess {
     for(var i = 0;i < this.rawActionHistory.length;i++) {
       for(var j = 0;j < this.rawActionHistory[i].length;j++) {
         var currMove = this.rawActionHistory[i][j];
-        boardFuncs.move(tmpBoard, currMove);
         if(format.includes('notation')) {
           res += notationFuncs.moveNotation(tmpBoard, i, currMove, format.includes('short')).str + '\n';
         }
+        boardFuncs.move(tmpBoard, currMove);
       }
     }
     return res;
