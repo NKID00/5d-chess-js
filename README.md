@@ -69,7 +69,7 @@ Terms used in the notation of 5d Chess JS:
   - Timeline: A movable dimension within the game. Timelines contain multiple boards across turns.
   - Rank: A movable dimension within the game. Same as standard chess.
   - File: A movable dimension within the game. Same as standard chess.
-  - Board: A board is considered as the full board state between actions. Contains all timelines, turns, and singular chessboards with all pieces.
+  - Full Board: A full board is considered as the full board state between actions. Contains all timelines, turns, and singular chessboards with all pieces.
 
 ### Notation
 
@@ -161,7 +161,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.board**
 
-  - **Return** - Current board state as a `Board` object.
+  - **Return** - Current full board state as a `Board` object.
 
 **.actionNumber**
 
@@ -199,7 +199,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.import(import)**
 
-Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large board state. Will throw errors.
+Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large full board state. Will throw errors.
 
   - import - List of actions to import (this will reset the internal state). Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
   - **Return** - Nothing.
@@ -213,7 +213,7 @@ Check if the imported data is valid and can be imported. Does not modify interna
 
 **.reset()**
 
-Resets the internal state to the initial board state.
+Resets the internal state to the initial full board state.
 
   - **Return** - Nothing.
 
@@ -235,7 +235,7 @@ Check if an action is playable as the current player and can submit. Does not mo
 
 **.actions([format, activeOnly, presentOnly, newActiveTimelinesOnly])**
 
-Generate all possible submittable actions. Does not modify internal state, but will throw errors. **Warning! Due to the complexity of 5D chess, performance may severely suffer if the board is large enough. Calling this function with more than 3 present timelines is not advised.**
+Generate all possible submittable actions. Does not modify internal state, but will throw errors. **Warning! Due to the complexity of 5D chess, performance may severely suffer if the full board is large enough. Calling this function with more than 3 present timelines is not advised.**
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
   - activeOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves in the action come from only active timelines.
@@ -362,7 +362,7 @@ These schemas define the various object types that the API interacts with.
 {
   piece: String SAN Piece ['B','N','R','Q','K'],              // SAN Piece character of the piece (empty character is pawn).
   player: String Enum ['white','black'],                      // Indicates the player that the piece belongs to.
-  position: Position,                                         // Position object of the location of the piece on board.
+  position: Position,                                         // Position object of the location of the piece on a board.
   hasMoved: null || Boolean                                   // Indicate if the piece has moved, used only for pawns, rooks, and kings (will be null for other pieces)
 }
 ```
@@ -405,7 +405,7 @@ These schemas define the various object types that the API interacts with.
 ## Internal Raw Format
 
 This library had a previous first attempt. It had a more traditional object-based format similar to the `Board` object format. This resulted in terrible performance, especially in generating actions.
-This version uses a 4D array to store the board state, with numbers as the piece indicator.
+This version uses a 4D array to store the full board state, with numbers as the piece indicator.
 
 Here is the format: `board[timeline][turn][rank][file] = piece`
   - Timeline: starts from 0 (0, +1, +2, +3 => 0, 2, 4, 6 and -1, -2, -3 => 1, 3, 5)
@@ -426,9 +426,9 @@ Here is the format: `board[timeline][turn][rank][file] = piece`
 
 Yes (maybe).
 
-### You incorrectly evaluated this board as a checkmate (or not a checkmate)!
+### You incorrectly evaluated this full board as a checkmate (or not a checkmate)!
 
-If you can provide me an action list (object, json, or notation) or the board state, and submit it as an issue, I can get right on it. This goes for any other bugs. A good way to verify if it is correct or not is to repeat the same moves in the same order in '5D Chess With Multiverse Time Travel' and see if it matches this library.
+If you can provide me an action list (object, json, or notation) or the full board state, and submit it as an issue, I can get right on it. This goes for any other bugs. A good way to verify if it is correct or not is to repeat the same moves in the same order in '5D Chess With Multiverse Time Travel' and see if it matches this library.
 
 ### Why is this on GitLab instead of GitHub?
 
