@@ -841,7 +841,7 @@ exports.moves = (board, src) => {
       if(src[3] === 4) {
         //Queenside Castling Movement
         currMove = [src.slice(), src.slice()];
-        if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2)) {
+        if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2, true)) {
           if(boardFuncs.positionExists(board,[
             src[0],
             src[1],
@@ -854,7 +854,7 @@ exports.moves = (board, src) => {
               src[1],
               src[2],
               3,
-            ], Math.abs(piece) % 2)) {
+            ], Math.abs(piece) % 2, true)) {
               if(boardFuncs.positionExists(board,[
                 src[0],
                 src[1],
@@ -867,7 +867,7 @@ exports.moves = (board, src) => {
                   src[1],
                   src[2],
                   2,
-                ], Math.abs(piece) % 2)) {
+                ], Math.abs(piece) % 2, true)) {
                   if(boardFuncs.positionExists(board,[
                     src[0],
                     src[1],
@@ -898,7 +898,7 @@ exports.moves = (board, src) => {
           }
         }
         //Kingside Castling Movement
-        if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2)) {
+        if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2, true)) {
           if(boardFuncs.positionExists(board,[
             src[0],
             src[1],
@@ -911,7 +911,7 @@ exports.moves = (board, src) => {
               src[1],
               src[2],
               5,
-            ], Math.abs(piece) % 2)) {
+            ], Math.abs(piece) % 2, true)) {
               if(boardFuncs.positionExists(board,[
                 src[0],
                 src[1],
@@ -924,7 +924,7 @@ exports.moves = (board, src) => {
                   src[1],
                   src[2],
                   6,
-                ], Math.abs(piece) % 2)) {
+                ], Math.abs(piece) % 2, true)) {
                   if(boardFuncs.positionExists(board,[
                     src[0],
                     src[1],
