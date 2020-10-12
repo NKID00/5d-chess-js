@@ -31,46 +31,41 @@ exports.checks = (board, action) => {
   return res;
 }
 
-exports.checkmate = (board, action) => {
+exports.checkmate = (board, action, debug = false) => {
   if(this.stalemate(board, action)) {
     return false;
   }
   var moves = boardFuncs.moves(board, action, false, false);
   var checks = this.checks(board, action);
-  var checkedTimelines = [];
-  if(checks.length > 0) {
-    var lowestTurn = -1;
-    for(var i = 0;i < checks.length;i++) {
-      if(!checkedTimelines.includes(checks[i][0][0])) {
-        checkedTimelines.push(checks[i][0][0]);
-      }
-      if(lowestTurn === -1 || checks[i][0][1] < lowestTurn) {
-        lowestTurn = checks[i][0][1];
-      }
-    }
-    if(lowestTurn !== -1) {
-      for(var i = 0;i < moves.length;i++) {
-        var tmpBoard = boardFuncs.copy(board);
-        boardFuncs.move(tmpBoard, moves[i]);
-        if(!checkedTimelines.includes(moves[i][0][0]) ||
-          (checkedTimelines.includes(moves[i][0][0]) &&
-          (Math.abs(board[moves[i][0][0]][moves[i][0][1]][moves[i][0][2]][moves[i][0][3]]) === 11 ||
-          Math.abs(board[moves[i][0][0]][moves[i][0][1]][moves[i][0][2]][moves[i][0][3]]) === 12))
-        ) {
-          var tmpPresentTimelines = boardFuncs.present(tmpBoard, action);
-          if(tmpPresentTimelines.length > 0) {
-            var tmpTimeline = tmpBoard[tmpPresentTimelines[0]];
-            if((tmpTimeline.length - 1) < lowestTurn) {
-              return false; //Not checkmate since it is possible to travel back further than earliest check with non-checked timeline (or with the king)
-            }
-          }
+  for(var i = 0;i < moves.length;i++) {
+    var tmpBoard = boardFuncs.copy(board);
+    boardFuncs.move(tmpBoard, moves[i]);
+    var tmpChecks = this.checks(tmpBoard, action);
+    if(tmpChecks.length <= 0) { return false; }
+  }
+  // Fast pass looking for moves solving checks
+  var recurse1 = (board, action, checks = []) => {
+    var moves = boardFuncs.moves(board, action, false, false);
+    if(checks.length <= 0) { checks = this.checks(board, action); }
+    if(checks.length <= 0) { return false; }
+    for(var i = 0;i < moves.length;i++) {
+      var tmpBoard = boardFuncs.copy(board);
+      boardFuncs.move(tmpBoard, moves[i]);
+      var tmpChecks = this.checks(tmpBoard, action);
+      var solvedACheck = tmpChecks.length < checks.length;
+      if(solvedACheck) {
+        if(!recurse1(tmpBoard, action, tmpChecks)) {
+          return false;
         }
       }
     }
+    return true;
   }
-  var recurse = (board, action, checks) => {
+  if(!recurse1(board, action)) { return false; }
+  // Slow pass looking for moves changing checks
+  var recurse2 = (board, action, checks = []) => {
     var moves = boardFuncs.moves(board, action, false, false);
-    var checks = this.checks(board, action);
+    if(checks.length <= 0) { checks = this.checks(board, action); }
     if(checks.length <= 0) { return false; }
     for(var i = 0;i < moves.length;i++) {
       var tmpBoard = boardFuncs.copy(board);
@@ -85,14 +80,14 @@ exports.checkmate = (board, action) => {
         if(!containsCurr) { solvedACheck = true; }
       }
       if(solvedACheck) {
-        if(!recurse(tmpBoard, action, tmpChecks)) {
+        if(!recurse2(tmpBoard, action, tmpChecks)) {
           return false;
         }
       }
     }
     return true;
   }
-  return recurse(board, action, checks);
+  return recurse2(board, action);
 }
 
 exports.stalemate = (board, action) => {

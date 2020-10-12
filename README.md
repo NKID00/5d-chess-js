@@ -75,7 +75,7 @@ Terms used in the notation of 5d Chess JS:
 
 Notation used: `(Action #)(Color). (Turn #)[+/- Line #]:[Piece](Coord)[<+/- New Line #>][Dest Turn #][Dest +/- Line #]:[Capture][Promotion Piece](Dest Coord)[En Passant][Check/Checkmate/Stalemate]`
 
-This is the notation for a single move. It should exist as its own separate line. Multiple lines of moves are grouped together as actions
+This is the notation for a single move. To delimit between moves, either a newline or semicolon is acceptable.
 
   - `(Action #)` - **[Required]** Action Number, the all moves within the referred action are required to indicate which action the move is a part of. Formatted as an integer starting from 1.
   - `(Color). ` - **[Required]** Lowercase character indicating player color (`b` or `w`) of the player that made the move. A `.` and space is required after the character.
@@ -351,7 +351,7 @@ These schemas define the various object types that the API interacts with.
 {
   action: Integer,                                            // Action number of the action.
   player: String Enum ['white','black'],                      // Indicates the player that is making the action.
-  moves: Array,                                               // Array of Move objects
+  moves: Array,                                               // Array of Move objects (ordered from first move to the last)
     items: Move
 }
 ```
