@@ -100,7 +100,7 @@ benchCurrActions();
 chess.move('3w. 2-1:Nb1<+2>+0:b3');
 chess.move('3w. 2+1:Nb3:d4');
 chess.submit();
-//benchCurrActions();
+benchCurrActions();
 chess.move('3b. 2:Nb8<-2>1:b6');
 chess.move('3b. 2-1:Nb8<-3>+0:b6');
 chess.move('3b. 2+1:a7:a6');

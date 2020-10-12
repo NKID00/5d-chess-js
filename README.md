@@ -351,7 +351,7 @@ These schemas define the various object types that the API interacts with.
 {
   action: Integer,                                            // Action number of the action.
   player: String Enum ['white','black'],                      // Indicates the player that is making the action.
-  moves: Array,                                               // Array of Move objects
+  moves: Array,                                               // Array of Move objects (ordered from first move to the last)
     items: Move
 }
 ```

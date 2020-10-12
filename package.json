@@ -12,8 +12,8 @@
   "scripts": {
     "cli": "nodemon ./src/cli.js",
     "test": "jest",
-    "bench": "node ./src/bench.js",
-    "profile": "clinic flame -- node ./src/bench.js",
+    "bench": "node --max_old_space_size=8192 ./src/bench.js",
+    "profile": "clinic flame -- node --max_old_space_size=8192 ./src/bench.js",
     "prepare": "npm run-script build",
     "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js"
   },
