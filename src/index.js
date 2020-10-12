@@ -7,6 +7,7 @@ const parseFuncs = require('@local/parse');
 const pieceFuncs = require('@local/piece');
 const printFuncs = require('@local/print');
 const mateFuncs = require('@local/mate');
+//const mateGpuFuncs = require('@local/mate.gpu');
 const notationFuncs = require('@local/notation');
 const turnFuncs = require('@local/turn');
 const validateFuncs = require('@local/validate');
@@ -58,7 +59,7 @@ class Chess {
       }
       catch(err) {
         if(typeof input === 'string') {
-          var splitStr = input.replace(/\r\n/g, '\n').split('\n');
+          var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n');
           var tmpCurrAction = this.rawAction;
           var tmpBoard = boardFuncs.copy(this.rawBoard);
           var tmpAction = [];
@@ -66,10 +67,9 @@ class Chess {
             if(splitStr[i].length > 0) {
               var tmpNotation = {};
               try {
-                if(!validateFuncs.notation(splitStr[i])) {
-                  throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
+                if(validateFuncs.notation(splitStr[i])) {
+                  tmpNotation = notationFuncs.moveNotation(tmpBoard, tmpCurrAction, splitStr[i]);
                 }
-                tmpNotation = notationFuncs.moveNotation(tmpBoard, tmpCurrAction, splitStr[i]);
               }
               catch(err) {
                 throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
@@ -94,7 +94,7 @@ class Chess {
           }
         }
         else {
-          throw 'Input not recognized. Input should be an Array, JSON string of an array, or notation string delimited by newlines.';
+          throw 'Input not recognized. Input should be an Array, JSON string of an array, or notation string delimited by newlines or semicolons.';
         }
       }
     }
@@ -111,22 +111,21 @@ class Chess {
     this.reset();
     var actions = this.convert(input);
     for(var i = 0;i < actions.length;i++) {
-      this.action(actions[i], skipDetection);
+      try {
+        this.action(actions[i], skipDetection);
+      }
+      catch(err) {}
     }
   }
   importable(input, skipDetection = false) {
     try {
-      this.reset();
       var actions = this.convert(input);
-      for(var i = 0;i < actions.length;i++) {
-        if(!this.actionable(actions[i], skipDetection)) { return false; }
-      }
       return true;
     }
     catch(err) { return false; }
   }
   action(input, skipDetection = false) {
-    if(!skipDetection) {
+    if(skipDetection) {
       if(this.inCheckmate) {
         throw 'Cannot submit, currently in checkmate.';
       }
@@ -191,7 +190,7 @@ class Chess {
     res = [];
     for(var i = 0;i < actions.length;i++) {
       if(this.actionable(actions[i], skipDetection)) {
-        res.push(parseFuncs.fromAction(actions[i]));
+        res.push(parseFuncs.fromAction(this.rawAction, actions[i]));
       }
     }
     if(format === 'json') {
@@ -201,7 +200,7 @@ class Chess {
   }
   actionable(input, skipDetection = false) {
     try {
-      if(!skipDetection) {
+      if(skipDetection) {
         if(this.inCheckmate) { return false; }
         if(this.inStalemate) { return false; }
       }
@@ -268,7 +267,7 @@ class Chess {
     this.rawBoard = tmpBoard;
   }
   moves(format = 'object', activeOnly = true, presentOnly = true, skipDetection = false) {
-    if(!skipDetection) {
+    if(skipDetection) {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
     }
@@ -283,18 +282,16 @@ class Chess {
     }
     res = [];
     for(var i = 0;i < moves.length;i++) {
-      if(this.moveable(moves[i], skipDetection)) {
-        res.push(parseFuncs.fromMove(moves[i]));
-      }
+      res.push(parseFuncs.fromMove(moves[i]));
     }
     if(format === 'json') {
       return JSON.stringify(res);
     }
     return res;
   }
-  moveable(input, skipDetection = false) {
+  moveable(input, skipDetection = false, moveGen = []) {
     try {
-      if(!skipDetection) {
+      if(skipDetection) {
         if(this.inCheckmate) { return false; }
         if(this.inStalemate) { return false; }
       }
@@ -315,13 +312,16 @@ class Chess {
           }
         }
       }
+      if(moveGen.length <= 0) {
+        moveGen = boardFuncs.moves(this.rawBoard, this.rawAction, false, false);
+      }
       var tmpBoard = boardFuncs.copy(this.rawBoard);
-      return validateFuncs.move(tmpBoard, this.rawAction, move);
+      return validateFuncs.move(tmpBoard, this.rawAction, move, moveGen);
     }
     catch(err) { return false; }
   }
   submit(skipDetection = false) {
-    if(!skipDetection) {
+    if(skipDetection) {
       if(this.inCheckmate) {
         throw 'Cannot submit, currently in checkmate.';
       }
@@ -341,7 +341,7 @@ class Chess {
     this.rawAction++;
   }
   submittable(skipDetection = false) {
-    if(!skipDetection) {
+    if(skipDetection) {
       if(this.inCheckmate) { return false; }
       if(this.inStalemate) { return false; }
       if(this.inCheck) { return false; }
@@ -404,6 +404,10 @@ class Chess {
   }
   get inCheckmate() {
     return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction);
+  }
+  get inGpuCheckmate() {
+    return this.inCheckmate;
+    //return (this.rawMoveBuffer.length <= 0) && mateGpuFuncs.checkmate(this.rawBoard, this.rawAction);
   }
   get inCheck() {
     return mateFuncs.checks(this.rawBoard, this.rawAction).length > 0;
