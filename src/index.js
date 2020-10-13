@@ -70,6 +70,9 @@ class Chess {
                 if(validateFuncs.notation(splitStr[i])) {
                   tmpNotation = notationFuncs.moveNotation(tmpBoard, tmpCurrAction, splitStr[i]);
                 }
+                else {
+                  console.error('Line is not considered notation: ' + splitStr[i]);
+                }
               }
               catch(err) {
                 throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
@@ -111,10 +114,15 @@ class Chess {
     this.reset();
     var actions = this.convert(input);
     for(var i = 0;i < actions.length;i++) {
-      try {
-        this.action(actions[i], skipDetection);
+      for(var j = 0;j < actions[i].length;j++) {
+        this.move(actions[i][j], skipDetection);
       }
-      catch(err) {}
+      try {
+        this.submit(skipDetection);
+      }
+      catch(err) {
+        console.error('Error submitting');
+      }
     }
   }
   importable(input, skipDetection = false) {
@@ -125,7 +133,7 @@ class Chess {
     catch(err) { return false; }
   }
   action(input, skipDetection = false) {
-    if(skipDetection) {
+    if(!skipDetection) {
       if(this.inCheckmate) {
         throw 'Cannot submit, currently in checkmate.';
       }
@@ -156,22 +164,10 @@ class Chess {
         moves = this.convert(input)[0];
       }
     }
-    var tmpBoard = boardFuncs.copy(this.rawBoard);
     for(var i = 0;i < moves.length;i++) {
-      if(!validateFuncs.move(tmpBoard, this.rawAction, moves[i])) {
-        throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, moves[i]).str;
-      }
-      boardFuncs.move(tmpBoard, moves[i]);
+      this.move(moves[i], skipDetection);
     }
-    if(boardFuncs.present(tmpBoard, this.rawAction).length > 0) {
-      throw 'Action is not complete, more moves are needed';
-    }
-    else {
-      this.rawBoard = tmpBoard;
-      this.rawBoardHistory.push(this.rawBoard);
-      this.rawActionHistory.push(deepcopy(moves));
-      this.rawAction++;
-    }
+    this.submit(skipDetection);
   }
   actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, skipDetection = false) {
     var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly);
@@ -200,7 +196,7 @@ class Chess {
   }
   actionable(input, skipDetection = false) {
     try {
-      if(skipDetection) {
+      if(!skipDetection) {
         if(this.inCheckmate) { return false; }
         if(this.inStalemate) { return false; }
       }
@@ -267,7 +263,7 @@ class Chess {
     this.rawBoard = tmpBoard;
   }
   moves(format = 'object', activeOnly = true, presentOnly = true, skipDetection = false) {
-    if(skipDetection) {
+    if(!skipDetection) {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
     }
@@ -291,7 +287,7 @@ class Chess {
   }
   moveable(input, skipDetection = false, moveGen = []) {
     try {
-      if(skipDetection) {
+      if(!skipDetection) {
         if(this.inCheckmate) { return false; }
         if(this.inStalemate) { return false; }
       }
@@ -321,7 +317,7 @@ class Chess {
     catch(err) { return false; }
   }
   submit(skipDetection = false) {
-    if(skipDetection) {
+    if(!skipDetection) {
       if(this.inCheckmate) {
         throw 'Cannot submit, currently in checkmate.';
       }
@@ -341,7 +337,7 @@ class Chess {
     this.rawAction++;
   }
   submittable(skipDetection = false) {
-    if(skipDetection) {
+    if(!skipDetection) {
       if(this.inCheckmate) { return false; }
       if(this.inStalemate) { return false; }
       if(this.inCheck) { return false; }
