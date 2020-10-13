@@ -168,37 +168,61 @@ exports.present = (board, action) => {
 
 exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
   var res = [];
-  var timelines = [];
   if(presentOnly) {
-    var present = this.present(board);
-    for(var p = 0;p < present.length;p++) {
-      if(board[present[p]]) {
-        timelines.push(board[present[p]]);
+    var presentTimelines = this.present(board, action);
+    for(var i = 0;i < presentTimelines.length;i++) {
+      if(board[presentTimelines[i]]) {
+        var currTimeline = board[presentTimelines[i]];
+        var latestTurn = currTimeline[currTimeline.length - 1];
+        if((currTimeline.length - 1) % 2 === action % 2) {
+          for(var r = 0;latestTurn && r < latestTurn.length;r++) {
+            for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
+              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
+                var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f]);
+                for(var j = 0;j < moves.length;j++) {
+                  res.push(moves[j]);
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
   else if(activeOnly) {
-    var active = this.active(board);
-    for(var a = 0;a < active.length;a++) {
-      if(board[active[a]]) {
-        timelines.push(board[active[a]]);
+    var activeTimelines = this.active(board);
+    for(var i = 0;i < activeTimelines.length;i++) {
+      if(board[activeTimelines[i]]) {
+        var currTimeline = board[activeTimelines[i]];
+        var latestTurn = currTimeline[currTimeline.length - 1];
+        if((currTimeline.length - 1) % 2 === action % 2) {
+          for(var r = 0;latestTurn && r < latestTurn.length;r++) {
+            for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
+              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
+                var moves = pieceFuncs.moves(board, [activeTimelines[i], currTimeline.length - 1, r, f]);
+                for(var j = 0;j < moves.length;j++) {
+                  res.push(moves[j]);
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
   else {
-    timelines = board;
-  }
-  for(var l = 0;timelines && l < timelines.length;l++) {
-    var currTimeline = timelines[l];
-    if(currTimeline) {
-      var latestTurn = currTimeline[currTimeline.length - 1];
-      if((currTimeline.length - 1) % 2 === action % 2) {
-        for(var r = 0;latestTurn && r < latestTurn.length;r++) {
-          for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
-            if(latestTurn[r][f] !== 0 && Math.abs(latestTurn[r][f]) % 2 === action % 2) {
-              var moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f]);
-              for(var j = 0;j < moves.length;j++) {
-                res.push(moves[j]);
+    for(var l = 0;board && l < board.length;l++) {
+      var currTimeline = board[l];
+      if(currTimeline) {
+        var latestTurn = currTimeline[currTimeline.length - 1];
+        if((currTimeline.length - 1) % 2 === action % 2) {
+          for(var r = 0;latestTurn && r < latestTurn.length;r++) {
+            for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
+              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
+                var moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f]);
+                for(var j = 0;j < moves.length;j++) {
+                  res.push(moves[j]);
+                }
               }
             }
           }
@@ -208,6 +232,7 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
   }
   return res;
 }
+
 
 exports.positionIsAttacked = (board, pos, player, singleBoard = false) => {
   var toCheck = [];
