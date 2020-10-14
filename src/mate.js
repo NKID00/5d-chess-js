@@ -1,3 +1,4 @@
+const present = require('present');
 const boardFuncs = require('@local/board');
 const turnFuncs = require('@local/turn');
 
@@ -31,20 +32,21 @@ exports.checks = (board, action) => {
   return res;
 }
 
-exports.checkmate = (board, action, debug = false) => {
+exports.checkmate = (board, action, maxTime = 60000) => {
   if(this.stalemate(board, action)) {
     return false;
   }
+
+  // Super fast single pass looking for moves solving checks
   var moves = boardFuncs.moves(board, action, false, false);
-  var checks = this.checks(board, action);
   for(var i = 0;i < moves.length;i++) {
     var tmpBoard = boardFuncs.copy(board);
     boardFuncs.move(tmpBoard, moves[i]);
     var tmpChecks = this.checks(tmpBoard, action);
     if(tmpChecks.length <= 0) { return false; }
   }
-  // Fast pass looking for moves solving checks
-  var recurse1 = (board, action, checks = []) => {
+  // Fast pass looking for moves solving checks using DFS
+  var recurse = (board, action, checks = []) => {
     var moves = boardFuncs.moves(board, action, false, false);
     if(checks.length <= 0) { checks = this.checks(board, action); }
     if(checks.length <= 0) { return false; }
@@ -54,40 +56,74 @@ exports.checkmate = (board, action, debug = false) => {
       var tmpChecks = this.checks(tmpBoard, action);
       var solvedACheck = tmpChecks.length < checks.length;
       if(solvedACheck) {
-        if(!recurse1(tmpBoard, action, tmpChecks)) {
+        if(!recurse(tmpBoard, action, tmpChecks)) {
           return false;
         }
       }
     }
     return true;
   }
-  if(!recurse1(board, action)) { return false; }
-  // Slow pass looking for moves changing checks
-  var recurse2 = (board, action, checks = []) => {
-    var moves = boardFuncs.moves(board, action, false, false);
-    if(checks.length <= 0) { checks = this.checks(board, action); }
-    if(checks.length <= 0) { return false; }
-    for(var i = 0;i < moves.length;i++) {
-      var tmpBoard = boardFuncs.copy(board);
-      boardFuncs.move(tmpBoard, moves[i]);
-      var tmpChecks = this.checks(tmpBoard, action);
-      var solvedACheck = false;
-      for(var j = 0;!solvedACheck && j < checks.length;j++) {
-        var containsCurr = false;
-        for(var k = 0;!containsCurr && k < tmpChecks.length;k++) {
-          if(this.moveCompare(checks[j], tmpChecks[k]) === 0) { containsCurr = true; }
-        }
-        if(!containsCurr) { solvedACheck = true; }
-      }
-      if(solvedACheck) {
-        if(!recurse2(tmpBoard, action, tmpChecks)) {
-          return false;
-        }
+  if(!recurse(board, action)) { return false; }
+
+  var checkSig = (checks) => {
+    var res = {
+      length: checks.length,
+      sig: []
+    };
+    checks.sort(this.moveCompare);
+    res.sig = checks.flat(2);
+    return res;
+  };
+  var nodeSort = (n1, n2) => {
+    if(n1.checkSig.length !== n2.checkSig.length) {
+      return n1.checkSig.length - n2.checkSig.length;
+    }
+    if(n1.checkSig.sig.length !== n2.checkSig.sig.length) {
+      return n1.checkSig.sig.length - n2.checkSig.sig.length;
+    }
+    for(var i = 0;i < n1.checkSig.sig.length;i++) {
+      if(n1.checkSig.sig[i] !== n2.checkSig.sig[i]) {
+        return n1.checkSig.sig[i] - n2.checkSig.sig[i];
       }
     }
-    return true;
+    return n1.board.length - n2.board.length;
+  };
+
+  var exhausted = false;
+  var moveTree = [{
+    board: board,
+    checkSig: checkSig(this.checks(board, action))
+  }];
+  var moveTreeIndex = 0;
+  //Slow BFS exhaustive search prioritizing check solving, check changing, then timeline changing moves
+  var start = present();
+  while(moveTreeIndex < moveTree.length) {
+    if(present() - start > maxTime) { return true; }
+    var currNode = moveTree[moveTreeIndex];
+    if(currNode) {
+      var moves = boardFuncs.moves(currNode.board, action, false, false);
+      var tmpMoveTree = [];
+      for(var i = 0;i < moves.length;i++) {
+        var tmpBoard = boardFuncs.copy(currNode.board);
+        boardFuncs.move(tmpBoard, moves[i]);
+        var tmpChecks = this.checks(tmpBoard, action);
+        if(tmpChecks.length <= 0) { return false; }
+        var tmpCheckSig = checkSig(tmpChecks);
+        tmpMoveTree.push({
+          board: tmpBoard,
+          checkSig: tmpCheckSig
+        });
+      }
+      tmpMoveTree.sort(nodeSort);
+      for(var i = 0;i < tmpMoveTree.length;i++) {
+        moveTree.push(tmpMoveTree[i]);
+      }
+      moveTree.splice(0, 1);
+      moveTreeIndex--;
+    }
+    moveTreeIndex++;
   }
-  return recurse2(board, action);
+  return true;
 }
 
 exports.stalemate = (board, action) => {
