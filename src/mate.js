@@ -1,3 +1,4 @@
+const present = require('present');
 const boardFuncs = require('@local/board');
 const turnFuncs = require('@local/turn');
 
@@ -31,7 +32,7 @@ exports.checks = (board, action) => {
   return res;
 }
 
-exports.checkmate = (board, action) => {
+exports.checkmate = (board, action, maxTime = 60000) => {
   if(this.stalemate(board, action)) {
     return false;
   }
@@ -95,7 +96,9 @@ exports.checkmate = (board, action) => {
   }];
   var moveTreeIndex = 0;
   //Slow BFS exhaustive search prioritizing check solving, check changing, then timeline changing moves
+  var start = present();
   while(moveTreeIndex < moveTree.length) {
+    if(present() - start > maxTime) { return true; }
     var currNode = moveTree[moveTreeIndex];
     if(currNode) {
       var moves = boardFuncs.moves(currNode.board, action, false, false);

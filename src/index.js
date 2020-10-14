@@ -29,6 +29,7 @@ class Chess {
       turnFuncs: turnFuncs,
       validateFuncs: validateFuncs
     };
+    this.checkmateTimeout = 60000;
   }
   reset() {
     this.rawBoard = boardFuncs.init();
@@ -399,7 +400,7 @@ class Chess {
     return res;
   }
   get inCheckmate() {
-    return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction);
+    return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction, this.checkmateTimeout);
   }
   get inGpuCheckmate() {
     return this.inCheckmate;

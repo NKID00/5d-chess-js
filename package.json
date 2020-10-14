@@ -56,7 +56,8 @@
     "deep-equal": "^2.0.3",
     "gpu.js": "^2.10.4",
     "module-alias": "^2.2.2",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "present": "^1.0.0"
   },
   "devDependencies": {
     "browserify": "^16.5.2",
