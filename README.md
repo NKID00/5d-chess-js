@@ -199,6 +199,10 @@ These fields are implemented as a getter function. If getter functions are unsup
 
   - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function)
 
+**.hash**
+
+  - **Return** String of md5 hash of the board data.
+
 ### Functions
 
 **.import(import)**

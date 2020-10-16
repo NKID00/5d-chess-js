@@ -3,6 +3,7 @@ require('module-alias/register');
 const deepcopy = require('deep-copy');
 const actionFuncs = require('@local/action');
 const boardFuncs = require('@local/board');
+const hashFuncs = require('@local/hash');
 const parseFuncs = require('@local/parse');
 const pieceFuncs = require('@local/piece');
 const printFuncs = require('@local/print');
@@ -21,6 +22,7 @@ class Chess {
     this.raw = {
       actionFuncs: actionFuncs,
       boardFuncs: boardFuncs,
+      hashFuncs: hashFuncs,
       mateFuncs: mateFuncs,
       notationFuncs: notationFuncs,
       parseFuncs: parseFuncs,
@@ -411,6 +413,9 @@ class Chess {
   }
   get inStalemate() {
     return mateFuncs.stalemate(this.rawBoard, this.rawAction);
+  }
+  get hash() {
+    return hashFuncs.hash(this.rawBoard);
   }
   export(format = 'notation') {
     if(format === 'raw') { return this.rawActionHistory; }

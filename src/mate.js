@@ -74,7 +74,7 @@ exports.checkmate = (board, action, maxTime = 60000) => {
     res.sig = checks.flat(2);
     return res;
   };
-  var nodeSort = (n1, n2) => {
+  var nodeSort = (n2, n1) => {
     if(n1.checkSig.length !== n2.checkSig.length) {
       return n1.checkSig.length - n2.checkSig.length;
     }
