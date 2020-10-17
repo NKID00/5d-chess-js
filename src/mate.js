@@ -36,6 +36,7 @@ exports.checkmate = (board, action, maxTime = 60000) => {
   if(this.stalemate(board, action)) {
     return false;
   }
+  var start = present();
 
   // Super fast single pass looking for moves solving checks
   var moves = boardFuncs.moves(board, action, false, false);
@@ -44,12 +45,14 @@ exports.checkmate = (board, action, maxTime = 60000) => {
     boardFuncs.move(tmpBoard, moves[i]);
     var tmpChecks = this.checks(tmpBoard, action);
     if(tmpChecks.length <= 0) { return false; }
+    if((present() - start) > maxTime) { return true; }
   }
   // Fast pass looking for moves solving checks using DFS
   var recurse = (board, action, checks = []) => {
     var moves = boardFuncs.moves(board, action, false, false);
     if(checks.length <= 0) { checks = this.checks(board, action); }
     if(checks.length <= 0) { return false; }
+    if((present() - start) > maxTime) { return true; }
     for(var i = 0;i < moves.length;i++) {
       var tmpBoard = boardFuncs.copy(board);
       boardFuncs.move(tmpBoard, moves[i]);
@@ -96,9 +99,8 @@ exports.checkmate = (board, action, maxTime = 60000) => {
   }];
   var moveTreeIndex = 0;
   //Slow BFS exhaustive search prioritizing check solving, check changing, then timeline changing moves
-  var start = present();
   while(moveTreeIndex < moveTree.length) {
-    if(present() - start > maxTime) { return true; }
+    if((present() - start) > maxTime) { return true; }
     var currNode = moveTree[moveTreeIndex];
     if(currNode) {
       var moves = boardFuncs.moves(currNode.board, action, false, false);
