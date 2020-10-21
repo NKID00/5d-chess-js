@@ -1,7 +1,7 @@
 const pieceFuncs = require('@local/piece');
 const turnFuncs = require('@local/turn');
 
-exports.init = () => {
+exports.init = (variant = '') => {
   return [[[
     [-7, 5, 3, 9,-11, 3, 5,-7],
     [-1,-1,-1,-1,-1,-1,-1,-1],
