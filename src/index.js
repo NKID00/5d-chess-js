@@ -327,9 +327,9 @@ class Chess {
       if(this.inStalemate) {
         throw 'Cannot submit, currently in stalemate.';
       }
-      if(this.inCheck) {
-        throw 'Cannot submit, currently in check.';
-      }
+    }
+    if(this.inCheck) {
+      throw 'Cannot submit, currently in check.';
     }
     if(!this.submittable(skipDetection)) {
       throw 'Action is not complete, more moves are needed';
@@ -343,8 +343,8 @@ class Chess {
     if(!skipDetection) {
       if(this.inCheckmate) { return false; }
       if(this.inStalemate) { return false; }
-      if(this.inCheck) { return false; }
     }
+    if(this.inCheck) { return false; }
     return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
   }
   undo() {
