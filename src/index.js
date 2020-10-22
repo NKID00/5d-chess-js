@@ -9,16 +9,13 @@ const pieceFuncs = require('@local/piece');
 const printFuncs = require('@local/print');
 const mateFuncs = require('@local/mate');
 //const mateGpuFuncs = require('@local/mate.gpu');
+const metadataFuncs = require('@local/metadata');
 const notationFuncs = require('@local/notation');
 const turnFuncs = require('@local/turn');
 const validateFuncs = require('@local/validate');
 
 class Chess {
-  constructor(input) {
-    this.reset();
-    if(input !== undefined) {
-      this.import(input);
-    }
+  constructor(input, variant) {
     this.raw = {
       actionFuncs: actionFuncs,
       boardFuncs: boardFuncs,
@@ -32,9 +29,22 @@ class Chess {
       validateFuncs: validateFuncs
     };
     this.checkmateTimeout = 60000;
+    this.metadata = {
+      variant: 'standard'
+    };
+    if(variant !== undefined) {
+      this.metadata.variant = variant;
+    }
+    this.reset();
+    if(input !== undefined) {
+      this.import(input);
+    }
   }
-  reset() {
-    this.rawBoard = boardFuncs.init();
+  reset(variant) {
+    if(variant !== undefined) {
+      this.metadata.variant = variant;
+    }
+    this.rawBoard = boardFuncs.init(this.metadata.variant);
     this.rawAction = 0;
     this.rawBoardHistory = [this.rawBoard];
     this.rawActionHistory = [];
@@ -62,6 +72,7 @@ class Chess {
       }
       catch(err) {
         if(typeof input === 'string') {
+          Object.assign(this.metadata, metadataFuncs.strToObj(input));
           var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n');
           var tmpCurrAction = this.rawAction;
           var tmpBoard = boardFuncs.copy(this.rawBoard);
@@ -113,7 +124,10 @@ class Chess {
     }
     catch(err) { return false; }
   }
-  import(input, skipDetection = false) {
+  import(input, variant, skipDetection = false) {
+    if(variant !== undefined) {
+      this.metadata.variant = variant;
+    }
     this.reset();
     var actions = this.convert(input);
     for(var i = 0;i < actions.length;i++) {
@@ -164,7 +178,7 @@ class Chess {
         }
       }
       catch(err) {
-        moves = this.convert(input)[0];
+        moves = this.convert([input])[0];
       }
     }
     for(var i = 0;i < moves.length;i++) {
@@ -426,7 +440,8 @@ class Chess {
       return parseFuncs.fromAction(i,e);
     }); }
     var res = '';
-    var tmpBoard = boardFuncs.copy(boardFuncs.init());
+    res += metadataFuncs.objToStr(this.metadata);
+    var tmpBoard = boardFuncs.copy(boardFuncs.init(this.metadata.variant));
     for(var i = 0;i < this.rawActionHistory.length;i++) {
       for(var j = 0;j < this.rawActionHistory[i].length;j++) {
         var currMove = this.rawActionHistory[i][j];
