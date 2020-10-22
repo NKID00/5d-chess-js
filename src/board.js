@@ -1,7 +1,19 @@
 const pieceFuncs = require('@local/piece');
 const turnFuncs = require('@local/turn');
 
-exports.init = (variant = '') => {
+exports.init = (variant) => {
+  if(variant === 'defended_pawn') {
+    return [[[
+      [-7, 9, 3, 5,-11, 3, 5,-7],
+      [-1,-1,-1,-1,-1,-1,-1,-1],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-2,-2,-2,-2,-2,-2,-2,-2],
+      [-8,10, 4, 6,-12, 4, 6,-8]
+    ]]];
+  }
   return [[[
     [-7, 5, 3, 9,-11, 3, 5,-7],
     [-1,-1,-1,-1,-1,-1,-1,-1],

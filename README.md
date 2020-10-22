@@ -56,28 +56,68 @@ chess.print();
 console.log(chess.inCheckmate);
 ```
 
+## Supported Variants
+
+Currently supported variants:
+
+ - Standard - This uses the standard chess layout (use the string literal "standard" for functions and metadata tag).
+ - Defended Pawn - This variant switches the queen and queenside knight (use the string literal "defended_pawn" for functions and metadata tag).
+
 ## Notation and Terminology
 
 ### Terms
 
 Terms used in the notation of 5d Chess JS:
 
-  - Move: A move is considered as a single movement of a piece (Capturing, En Passant, and Castling are considered a single move).
-  - Action: A collection of moves that when submitted results in other player's time to play.
-  - Action Number: A number starting from 1 that indicates both the current player and how many actions has been taken. Increments by 1 every time an action is played
-  - Turn: A movable dimension within the game. A single turn has both white and black actions.
-  - Timeline: A movable dimension within the game. Timelines contain multiple boards across turns.
-  - Rank: A movable dimension within the game. Same as standard chess.
-  - File: A movable dimension within the game. Same as standard chess.
-  - Full Board: A full board is considered as the full board state between actions. Contains all timelines, turns, and singular chessboards with all pieces.
+  - Move - A move is considered as a single movement of a piece (Capturing, En Passant, and Castling are considered a single move).
+  - Action - A collection of moves that when submitted results in other player's time to play.
+  - Action Number - A number starting from 1 that indicates both the current player and how many actions has been taken. Increments by 1 every time an action is played
+  - Turn - A movable dimension within the game. A single turn has both white and black actions.
+  - Timeline - A movable dimension within the game. Timelines contain multiple boards across turns.
+  - Rank - A movable dimension within the game. Same as standard chess.
+  - File - A movable dimension within the game. Same as standard chess.
+  - Full Board - A full board is considered as the full board state between actions. Contains all timelines, turns, and singular chessboards with all pieces.
 
 ### Notation
+
+Metadata section: `[(Key) "(Value)"]`
+
+This is used to store metadata information about the game in the same style as chess PGN tags.
+
+Valid characters for the Value is alphanumeric characters, `_`, `-`, and `.`.
+
+Valid characters for the Value is alphanumeric characters, `_`, `-`, `/`, `*`, `.`, and space.
+
+The only required metadata is the `Variant` key. This is automatically added on export.
+
+Recommended tags are the STR set (Seven Tag Roster):
+
+ - `Event` - The name of the tournament or match event.
+ - `Site` - The location of the event. This is in City, Region COUNTRY format, where COUNTRY is the three-letter International Olympic Committee code for the country. An example is New York City, NY USA. For Internet play, use 'Internet' as the value. Use '??' for unknown values.
+ - `Date` - The starting date of the game, in YYYY.MM.DD form. Use '??' for unknown values.
+ - `Round` - The playing round ordinal of the game within the event.
+ - `White` - The player of the white pieces, in Lastname, Firstname format (may be anything for bots or usernames).
+ - `Black` - The player of the black pieces, same format as White.
+ - `Result` - The result of the game. Recorded as White score, dash, then Black score, or * (other, e.g., the game is ongoing).
+
+```
+Example:
+
+[Event "Random Bot Test"]
+[Site "Internet"]
+[Date "2020.22.2020"]
+[Round "1"]
+[White "Random Bot"]
+[Black "Random Bot"]
+[Result "1-0"]
+[Variant "defended_pawn"]
+```
 
 Notation used: `(Action #)(Color). (Turn #)[+/- Line #]:[Piece](Coord)[<+/- New Line #>][Dest Turn #][Dest +/- Line #]:[Capture][Promotion Piece](Dest Coord)[En Passant][Check/Checkmate/Stalemate]`
 
 This is the notation for a single move. To delimit between moves, either a newline or semicolon is acceptable.
 
-  - `(Action #)` - **[Required]** Action Number, the all moves within the referred action are required to indicate which action the move is a part of. Formatted as an integer starting from 1.
+ - `(Action #)` - **[Required]** Action Number, the all moves within the referred action are required to indicate which action the move is a part of. Formatted as an integer starting from 1.
   - `(Color). ` - **[Required]** Lowercase character indicating player color (`b` or `w`) of the player that made the move. A `.` and space is required after the character.
   - `(Turn #)` - **[Required]** Turn number of the starting location of the piece to be moved. Formatted as an integer starting from 1.
   - `[+/- Line #]` - Timeline number of the starting location of the piece to be moved. If timeline is 0, nothing should be in the term. A `+` or `-` character is required to precede the number (expressed as integer).
@@ -148,11 +188,12 @@ chess.print();
 
 ### Constructor
 
-**Chess([import])**
+**Chess([import, variant])**
 
 Creates a new instance of the `Chess` class.
 
   - import - *[Optional]* List of actions to import. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
+  - variant = *[Optional]* String of variant to use, required if import is not notation string.
   - **Return** - A new `Chess` object.
 
 ### Fields
@@ -201,7 +242,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.hash**
 
-  - **Return** String of md5 hash of the board data.
+  - **Return** - String of md5 hash of the board data.
 
 ### Functions
 
@@ -210,6 +251,8 @@ These fields are implemented as a getter function. If getter functions are unsup
 Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large full board state. Will throw errors.
 
   - import - List of actions to import (this will reset the internal state). Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
+  - variant = *[Optional]* String of variant to use, required if import is not notation string.
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
 **.importable(import)**
@@ -217,19 +260,21 @@ Imports data to have the internal state match the state that the imported data r
 Check if the imported data is valid and can be imported. Does not modify internal state and will not throw errors.
 
   - import - List of actions to import (this will reset the internal state). Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the imported data is valid and can be imported.
 
 **.reset()**
 
 Resets the internal state to the initial full board state.
 
+  - variant = *[Optional]* String of variant to use, required if import is not notation string.
   - **Return** - Nothing.
 
 **.action(action, [skipDetection])**
 
 Plays an action as the current player and submits the move. Will modify internal state and will throw errors.
 
-  - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
+  - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
