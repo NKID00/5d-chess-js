@@ -89,8 +89,8 @@ class Chess {
                 }
               }
               catch(err) {
-                throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
                 console.error(err);
+                throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
               }
               if(tmpNotation.action > tmpCurrAction) {
                 if(tmpAction.length > 0) {
@@ -99,7 +99,7 @@ class Chess {
                 }
                 tmpCurrAction = tmpNotation.action;
               }
-              else if(tmpNotation.action < tmpCurrAction) {
+              else if(typeof tmpNotation.action === 'number' && tmpNotation.action < tmpCurrAction) {
                 throw 'Input order has been tampered and an error has occurred at line: ' + splitStr[i];
               }
               boardFuncs.move(tmpBoard, tmpNotation.arr);
@@ -128,6 +128,7 @@ class Chess {
     if(variant !== undefined) {
       this.metadata.variant = variant;
     }
+    this.reset();
     var actions = this.convert(input);
     this.reset();
     for(var i = 0;i < actions.length;i++) {
