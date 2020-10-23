@@ -73,7 +73,7 @@ class Chess {
       catch(err) {
         if(typeof input === 'string') {
           Object.assign(this.metadata, metadataFuncs.strToObj(input));
-          var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n');
+          var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').filter(e => !e.includes('[') && e !== '');
           var tmpCurrAction = this.rawAction;
           var tmpBoard = boardFuncs.copy(this.rawBoard);
           var tmpAction = [];
