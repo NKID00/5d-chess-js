@@ -128,8 +128,8 @@ class Chess {
     if(variant !== undefined) {
       this.metadata.variant = variant;
     }
-    this.reset();
     var actions = this.convert(input);
+    this.reset();
     for(var i = 0;i < actions.length;i++) {
       for(var j = 0;j < actions[i].length;j++) {
         this.move(actions[i][j], skipDetection);
