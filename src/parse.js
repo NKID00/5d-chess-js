@@ -63,11 +63,6 @@ exports.toMove = (moveObj) => {
   if(moveObj.castling !== null) {
     res[2] = this.toPosition(moveObj.castling.start);
     res[3] = this.toPosition(moveObj.castling.end);
-    res[1][4] = 11 + (moveObj.player === 'white' ? 1 : 0);
-    res[3][4] = 7 + (moveObj.player === 'white' ? 1 : 0);
-  }
-  else if(moveObj.tmpNewPiece !== null) {
-    res[1][4] = moveObj.tmpNewPiece;
   }
   return res;
 }
@@ -78,7 +73,6 @@ exports.fromMove = (move) => {
     enPassant: null,
     castling: null
   };
-  res.tmpNewPiece = move[1][4] ? move[1][4] : null;
   res.start = this.fromPosition(move[0]);
   res.end = this.fromPosition(move[1]);
   res.player = (move[0][1] % 2 === 0 ? 'white' : 'black');
@@ -145,17 +139,7 @@ exports.fromPiece = (board, pos) => {
   res.position = this.fromPosition(pos);
   res.piece = pieceFuncs.char(piece);
   res.player = (Math.abs(piece) % 2 === 0 ? 'white' : 'black');
-  res.hasMoved = null;
-  if(
-    Math.abs(piece) === 1 ||
-    Math.abs(piece) === 2 ||
-    Math.abs(piece) === 7 ||
-    Math.abs(piece) === 8 ||
-    Math.abs(piece) === 11 ||
-    Math.abs(piece) === 12
-  ) {
-    res.hasMoved = piece >= 0;
-  }
+  res.hasMoved = piece > 0;
   return res;
 }
 

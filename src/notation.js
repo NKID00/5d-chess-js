@@ -112,12 +112,6 @@ exports.moveNotation = (board, action, input, minimize = false) => {
         res.arr[2][2] = res.arr[0][2];
         res.arr[2][3] = res.arr[1][3];
       }
-      if(boardFuncs.positionExists(board, res.arr[0])){
-        var srcPiece = board[res.arr[0][0]][res.arr[0][1]][res.arr[0][2]][res.arr[0][3]];
-        if(srcPiece < 0) {
-          res.arr[1][4] = Math.abs(srcPiece);
-        }
-      }
     }
     else {
       res.arr[2] = [];
@@ -134,16 +128,12 @@ exports.moveNotation = (board, action, input, minimize = false) => {
         res.arr[1][2] = res.arr[0][2];
         res.arr[2][2] = res.arr[0][2];
         res.arr[3][2] = res.arr[0][2];
-        res.arr[1][4] = 11;
-        res.arr[3][4] = 7;
       }
       else {
         res.arr[0][2] = 7;
         res.arr[1][2] = res.arr[0][2];
         res.arr[2][2] = res.arr[0][2];
         res.arr[3][2] = res.arr[0][2];
-        res.arr[1][4] = 12;
-        res.arr[3][4] = 8;
       }
       if(tmp.includes('0-0-0')) {
         res.arr[1][3] = 2;
