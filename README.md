@@ -416,7 +416,7 @@ These schemas define the various object types that the API interacts with.
   piece: String SAN Piece ['B','N','R','Q','K'],              // SAN Piece character of the piece (empty character is pawn).
   player: String Enum ['white','black'],                      // Indicates the player that the piece belongs to.
   position: Position,                                         // Position object of the location of the piece on a board.
-  hasMoved: null || Boolean                                   // Indicate if the piece has moved, used only for pawns, rooks, and kings (will be null for other pieces)
+  hasMoved: Boolean                                           // Indicate if the piece has moved
 }
 ```
 

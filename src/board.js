@@ -4,25 +4,25 @@ const turnFuncs = require('@local/turn');
 exports.init = (variant) => {
   if(variant === 'defended_pawn') {
     return [[[
-      [-7, 9, 3, 5,-11, 3, 5,-7],
+      [-7,-9,-3,-5,-11,-3,-5,-7],
       [-1,-1,-1,-1,-1,-1,-1,-1],
       [ 0, 0, 0, 0, 0, 0, 0, 0],
       [ 0, 0, 0, 0, 0, 0, 0, 0],
       [ 0, 0, 0, 0, 0, 0, 0, 0],
       [ 0, 0, 0, 0, 0, 0, 0, 0],
       [-2,-2,-2,-2,-2,-2,-2,-2],
-      [-8,10, 4, 6,-12, 4, 6,-8]
+      [-8,-10,-4,-6,-12,-4,-6,-8]
     ]]];
   }
   return [[[
-    [-7, 5, 3, 9,-11, 3, 5,-7],
+    [-7,-5,-3,-9,-11,-3,-5,-7],
     [-1,-1,-1,-1,-1,-1,-1,-1],
     [ 0, 0, 0, 0, 0, 0, 0, 0],
     [ 0, 0, 0, 0, 0, 0, 0, 0],
     [ 0, 0, 0, 0, 0, 0, 0, 0],
     [ 0, 0, 0, 0, 0, 0, 0, 0],
     [-2,-2,-2,-2,-2,-2,-2,-2],
-    [-8, 6, 4,10,-12, 4, 6,-8]
+    [-8,-6,-4,10,-12,-4,-6,-8]
   ]]];
 }
 
@@ -51,7 +51,7 @@ exports.move = (board, move) => {
     var src = move[0];
     var dest = move[1];
     var newTurn = turnFuncs.copy(board, src[0], src[1]);
-    var destPiece = dest[4] ? dest[4] : newTurn[src[2]][src[3]];
+    var destPiece = dest[4] ? dest[4] : Math.abs(newTurn[src[2]][src[3]]);
     if(destPiece !== undefined && destPiece !== 0) {
       newTurn[src[2]][src[3]] = 0;
       if(dest !== undefined) {
@@ -88,7 +88,7 @@ exports.move = (board, move) => {
       var src2 = move[2];
       if(move[3] !== undefined) {
         var dest2 = move[3];
-        var destPiece2 = dest2[4] ? dest2[4] : board[src2[0]][src2[1]][src2[2]][src2[3]];
+        var destPiece2 = dest2[4] ? dest2[4] : Math.abs(board[src2[0]][src2[1]][src2[2]][src2[3]]);
         if(dest2 !== undefined) {
           board[dest2[0]][dest2[1] + 1][dest2[2]][dest2[3]] = destPiece2;
         }
