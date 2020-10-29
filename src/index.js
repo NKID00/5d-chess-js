@@ -41,11 +41,11 @@ class Chess {
     }
   }
   reset(variant) {
-    if(variant !== undefined) {
+    if(typeof variant !== 'undefined') {
       this.metadata.variant = variant;
     }
     this.rawBoard = boardFuncs.init(this.metadata.variant);
-    this.rawAction = this.metadata === 'turn_zero' ? 1 : 0;
+    this.rawAction = this.metadata.variant === 'turn_zero' ? 1 : 0;
     this.rawBoardHistory = [this.rawBoard];
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
