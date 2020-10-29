@@ -42,8 +42,8 @@ exports.turnArray = (board, timeline, turn) => {
     for(var r = 0;r < board[timeline][turn].length;r++) {
       if(board[timeline][turn][r]) {
         for(var f = 0;f < board[timeline][turn][r].length;f++) {
-          var piece = board[timeline][turn][r][f];
-          if(piece === -1 || piece === 1) {
+          var piece = Math.abs(board[timeline][turn][r][f]);
+          if(piece === 1) {
             res[r + 1][f + 1] = 'p';
           }
           else if(piece === 3) {
@@ -52,16 +52,16 @@ exports.turnArray = (board, timeline, turn) => {
           else if(piece === 5) {
             res[r + 1][f + 1] = 'n';
           }
-          else if(piece === -7 || piece === 7) {
+          else if(piece === 7) {
             res[r + 1][f + 1] = 'r';
           }
           else if(piece === 9) {
             res[r + 1][f + 1] = 'q';
           }
-          else if(piece === -11 || piece === 11) {
+          else if(piece === 11) {
             res[r + 1][f + 1] = 'k';
           }
-          else if(piece === -2 || piece === 2) {
+          else if(piece === 2) {
             res[r + 1][f + 1] = 'P';
           }
           else if(piece === 4) {
@@ -70,13 +70,13 @@ exports.turnArray = (board, timeline, turn) => {
           else if(piece === 6) {
             res[r + 1][f + 1] = 'N';
           }
-          else if(piece === -8 || piece === 8) {
+          else if(piece === 8) {
             res[r + 1][f + 1] = 'R';
           }
           else if(piece === 10) {
             res[r + 1][f + 1] = 'Q';
           }
-          else if(piece === -12 || piece === 12) {
+          else if(piece === 12) {
             res[r + 1][f + 1] = 'K';
           }
         }

@@ -168,74 +168,75 @@ exports.moveNotation = (board, action, input, minimize = false) => {
     }
     res.str += ':';
     if(input.length === 2 || input.length === 3) {
-      if(board === undefined) {console.log(board);console.log(intput)}
-      var piece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
-      res.str += pieceFuncs.char(piece);
-      res.str += this.sanCoord([input[0][2],input[0][3]]).str;
-      if(
-        ((input[0][1] === input[1][1] && !minimize) || input[0][1] !== input[1][1]) ||
-        ((input[0][0] === input[1][0] && !minimize) || input[0][0] !== input[1][0])
-      ) {
-        res.str += '<';
-        var maxTimeline = 0;
-        for(var i = 0;i < board.length;i++) {
-          if(board[i] !== undefined && i % 2 === action % 2) { maxTimeline = i; }
-        }
-        var moddedBoard = boardFuncs.copy(board);
-        boardFuncs.move(moddedBoard, input);
-        var newMaxTimeline = 0;
-        for(var i = 0;i < moddedBoard.length;i++) {
-          if(moddedBoard[i] !== undefined && i % 2 === action % 2) { newMaxTimeline = i; }
-        }
-        if(maxTimeline !== newMaxTimeline) {
-          if(newMaxTimeline % 2 === 0) {
-            res.str += '+' + Math.ceil(newMaxTimeline/2);
+      if(boardFuncs.positionExists(board, input[0])) {
+        var piece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
+        res.str += pieceFuncs.char(piece);
+        res.str += this.sanCoord([input[0][2],input[0][3]]).str;
+        if(
+          ((input[0][1] === input[1][1] && !minimize) || input[0][1] !== input[1][1]) ||
+          ((input[0][0] === input[1][0] && !minimize) || input[0][0] !== input[1][0])
+        ) {
+          res.str += '<';
+          var maxTimeline = 0;
+          for(var i = 0;i < board.length;i++) {
+            if(board[i] !== undefined && i % 2 === action % 2) { maxTimeline = i; }
           }
-          else {
-            res.str += '-' + Math.ceil(newMaxTimeline/2);
+          var moddedBoard = boardFuncs.copy(board);
+          boardFuncs.move(moddedBoard, input);
+          var newMaxTimeline = 0;
+          for(var i = 0;i < moddedBoard.length;i++) {
+            if(moddedBoard[i] !== undefined && i % 2 === action % 2) { newMaxTimeline = i; }
+          }
+          if(maxTimeline !== newMaxTimeline) {
+            if(newMaxTimeline % 2 === 0) {
+              res.str += '+' + Math.ceil(newMaxTimeline/2);
+            }
+            else {
+              res.str += '-' + Math.ceil(newMaxTimeline/2);
+            }
+          }
+          res.str += '>';
+        }
+        if((input[0][1] === input[1][1] && !minimize) || input[0][1] !== input[1][1]) {
+          res.str += Math.ceil((input[1][1]+1)/2);
+        }
+        if((input[0][0] === input[1][0] && !minimize) || input[0][0] !== input[1][0]) {
+          if(input[1][0] !== 0) {
+            if(input[1][0] % 2 === 0) {
+              res.str += '+' + Math.ceil(input[1][0]/2);
+            }
+            else {
+              res.str += '-' + Math.ceil(input[1][0]/2);
+            }
+          }
+          else if(input[0][0] !== input[1][0]) {
+            res.str += '+0';
           }
         }
-        res.str += '>';
-      }
-      if((input[0][1] === input[1][1] && !minimize) || input[0][1] !== input[1][1]) {
-        res.str += Math.ceil((input[1][1]+1)/2);
-      }
-      if((input[0][0] === input[1][0] && !minimize) || input[0][0] !== input[1][0]) {
-        if(input[1][0] !== 0) {
-          if(input[1][0] % 2 === 0) {
-            res.str += '+' + Math.ceil(input[1][0]/2);
-          }
-          else {
-            res.str += '-' + Math.ceil(input[1][0]/2);
+        res.str += ':';
+        var destPiece = board[input[1][0]][input[1][1]][input[1][2]][input[1][3]];
+        if((destPiece !== 0 && Math.abs(piece) % 2 !== Math.abs(destPiece) % 2) || input.length === 3) {
+          res.str += 'x';
+        }
+        if(input[1][4] !== undefined) {
+          var srcPiece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
+          if(Math.abs(srcPiece) === 1 || Math.abs(srcPiece) === 2) {
+            res.str += pieceFuncs.char(input[1][4]);
           }
         }
-        else if(input[0][0] !== input[1][0]) {
-          res.str += '+0';
+        res.str += this.sanCoord([input[1][2],input[1][3]]).str;
+        if(input.length === 3) {
+          res.str += 'e.p.';
         }
-      }
-      res.str += ':';
-      var destPiece = board[input[1][0]][input[1][1]][input[1][2]][input[1][3]];
-      if((destPiece !== 0 && Math.abs(piece) % 2 !== Math.abs(destPiece) % 2) || input.length === 3) {
-        res.str += 'x';
-      }
-      if(input[1][4] !== undefined) {
-        var srcPiece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
-        if(Math.abs(srcPiece) === 1 || Math.abs(srcPiece) === 2) {
-          res.str += pieceFuncs.char(input[1][4]);
+        if(mateFuncs.stalemate(moddedBoard, action + 1)) {
+          res.str += '=';
         }
-      }
-      res.str += this.sanCoord([input[1][2],input[1][3]]).str;
-      if(input.length === 3) {
-        res.str += 'e.p.';
-      }
-      if(mateFuncs.stalemate(moddedBoard, action + 1)) {
-        res.str += '=';
-      }
-      else if(mateFuncs.checkmate(moddedBoard, action + 1)) {
-        res.str += '#';
-      }
-      else if(mateFuncs.checks(moddedBoard, action + 1).length > 0) {
-        res.str += '+';
+        else if(mateFuncs.checkmate(moddedBoard, action + 1)) {
+          res.str += '#';
+        }
+        else if(mateFuncs.checks(moddedBoard, action + 1).length > 0) {
+          res.str += '+';
+        }
       }
     }
     else if(input.length === 4) {
