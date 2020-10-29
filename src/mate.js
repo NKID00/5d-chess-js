@@ -77,7 +77,7 @@ exports.checkmate = (board, action, maxTime = 60000) => {
     res.sig = checks.flat(2);
     return res;
   };
-  var nodeSort = (n2, n1) => {
+  var nodeSort = (n1, n2) => {
     if(n1.checkSig.length !== n2.checkSig.length) {
       return n1.checkSig.length - n2.checkSig.length;
     }
@@ -116,7 +116,7 @@ exports.checkmate = (board, action, maxTime = 60000) => {
           checkSig: tmpCheckSig
         });
       }
-      tmpMoveTree.sort(nodeSort);
+      tmpMoveTree.sort((e1, e2) => nodeSort(currNode, e2) - nodeSort(currNode, e1));
       for(var i = 0;i < tmpMoveTree.length;i++) {
         moveTree.push(tmpMoveTree[i]);
       }

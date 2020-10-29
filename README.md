@@ -246,7 +246,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 ### Functions
 
-**.import(import)**
+**.import(import, [variant, skipDetection])**
 
 Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large full board state. Will throw errors.
 
