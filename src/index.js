@@ -45,7 +45,7 @@ class Chess {
       this.metadata.variant = variant;
     }
     this.rawBoard = boardFuncs.init(this.metadata.variant);
-    this.rawAction = 0;
+    this.rawAction = this.metadata === 'turn_zero' ? 1 : 0;
     this.rawBoardHistory = [this.rawBoard];
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
