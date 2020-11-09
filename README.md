@@ -62,8 +62,9 @@ Currently supported variants:
 
  - Standard - This uses the standard chess layout (use the string literal `standard` for functions and metadata tag).
  - Defended Pawn - This variant switches the queen and queenside knight (use the string literal `defended_pawn` for functions and metadata tag).
- - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (use the string literal `turn_zero` for functions and metadata tag).
  - Half Reflected - This variant switches the black queen and black king (use the string literal `half_reflected` for functions and metadata tag).
+ - Princess - This variant uses the princess piece instead of the queen. The princess piece can only travel up to two dimensions (use the string literal `princess` for functions and metadata tag).
+ - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (use the string literal `turn_zero` for functions and metadata tag).
 
 ## Notation and Terminology
 
