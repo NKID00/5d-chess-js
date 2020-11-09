@@ -1,5 +1,6 @@
 const pieceFuncs = require('@local/piece');
 const turnFuncs = require('@local/turn');
+const parseFuncs = require('@local/parse');
 
 exports.init = (variant) => {
   if(variant === 'defended_pawn') {
@@ -14,7 +15,31 @@ exports.init = (variant) => {
       [-8,-10,-4,-6,-12,-4,-6,-8]
     ]]];
   }
-  if(variant === 'turn_zero') {
+  else if(variant === 'half_reflected') {
+    return [[[
+      [-7,-5,-3,-11,-9,-3,-5,-7],
+      [-1,-1,-1,-1,-1,-1,-1,-1],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-2,-2,-2,-2,-2,-2,-2,-2],
+      [-8,-6,-4,10,-12,-4,-6,-8]
+    ]]];
+  }
+  else if(variant === 'princess') {
+    return [[[
+      [-7,-5,-3,-13,-11,-3,-5,-7],
+      [-1,-1,-1,-1,-1,-1,-1,-1],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-2,-2,-2,-2,-2,-2,-2,-2],
+      [-8,-6,-4,14,-12,-4,-6,-8]
+    ]]];
+  }
+  else if(variant === 'turn_zero') {
     return [[
       undefined,
       [
@@ -39,17 +64,8 @@ exports.init = (variant) => {
       ]
     ]];
   }
-  if(variant === 'half_reflected') {
-    return [[[
-      [-7,-5,-3,-11,-9,-3,-5,-7],
-      [-1,-1,-1,-1,-1,-1,-1,-1],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [-2,-2,-2,-2,-2,-2,-2,-2],
-      [-8,-6,-4,10,-12,-4,-6,-8]
-    ]]];
+  else if(typeof variant === 'object') {
+    return parseFuncs.toBoard(variant);
   }
   return [[[
     [-7,-5,-3,-9,-11,-3,-5,-7],
@@ -215,7 +231,7 @@ exports.present = (board, action) => {
   return res;
 }
 
-exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
+exports.moves = (board, action, activeOnly = true, presentOnly = true, variant = 'standard') => {
   var res = [];
   if(presentOnly) {
     var presentTimelines = this.present(board, action);
@@ -227,7 +243,7 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true) => {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
               if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
-                var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f]);
+                var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f], variant);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
                 }

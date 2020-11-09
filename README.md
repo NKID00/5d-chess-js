@@ -195,7 +195,7 @@ chess.print();
 Creates a new instance of the `Chess` class.
 
   - import - *[Optional]* List of actions to import. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
-  - variant = *[Optional]* String of variant to use, required if import is not notation string.
+  - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
   - **Return** - A new `Chess` object.
 
 ### Fields
@@ -253,7 +253,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large full board state. Will throw errors.
 
   - import - List of actions to import (this will reset the internal state). Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
-  - variant = *[Optional]* String of variant to use, required if import is not notation string.
+  - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
@@ -269,7 +269,7 @@ Check if the imported data is valid and can be imported. Does not modify interna
 
 Resets the internal state to the initial full board state.
 
-  - variant = *[Optional]* String of variant to use, required if import is not notation string.
+  - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
   - **Return** - Nothing.
 
 **.action(action, [skipDetection])**
@@ -428,6 +428,8 @@ These schemas define the various object types that the API interacts with.
 {
   turn: Integer,                                              // Turn number of the position, starts from 1.
   player: String Enum ['white','black'],                      // Indicates the player that the turn belongs to.
+  width: Integer                                              // Indicates the width of the board this turn object refers to.
+  height: Integer                                             // Indicates the height of the board this turn object refers to.
   pieces: Array,                                              // Array of Piece objects
     items: Piece
 }
@@ -452,6 +454,8 @@ These schemas define the various object types that the API interacts with.
 {
   action: Integer,                                            // Action number of the player that is making the next action.
   player: String Enum ['white','black'],                      // Indicates the player that is making the next action.
+  width: Integer                                              // Indicates the width of the boards within the full board.
+  height: Integer                                             // Indicates the height of the boards within the full board.
   timelines: Array,                                           // Array of Timeline Objects
     items: Timeline
 }

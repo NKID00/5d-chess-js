@@ -61,6 +61,9 @@ exports.turnArray = (board, timeline, turn) => {
           else if(piece === 11) {
             res[r + 1][f + 1] = 'k';
           }
+          else if(piece === 13) {
+            res[r + 1][f + 1] = 's';
+          }
           else if(piece === 2) {
             res[r + 1][f + 1] = 'P';
           }
@@ -78,6 +81,9 @@ exports.turnArray = (board, timeline, turn) => {
           }
           else if(piece === 12) {
             res[r + 1][f + 1] = 'K';
+          }
+          else if(piece === 14) {
+            res[r + 1][f + 1] = 'S';
           }
         }
       }

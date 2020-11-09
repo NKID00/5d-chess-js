@@ -16,11 +16,11 @@ exports.blankAction = (board, action) => {
   }
 }
 
-exports.checks = (board, action) => {
+exports.checks = (board, action, variant = 'standard') => {
   var res = [];
   var tmpBoard = boardFuncs.copy(board);
   this.blankAction(tmpBoard, action);
-  var moves = boardFuncs.moves(tmpBoard, action + 1, false, false);
+  var moves = boardFuncs.moves(tmpBoard, action + 1, false, false, variant);
   for(var i = 0;i < moves.length;i++) {
     if(moves[i].length === 2 && boardFuncs.positionExists(tmpBoard, moves[i][1])) {
       var destPiece = tmpBoard[moves[i][1][0]][moves[i][1][1]][moves[i][1][2]][moves[i][1][3]];
@@ -32,31 +32,31 @@ exports.checks = (board, action) => {
   return res;
 }
 
-exports.checkmate = (board, action, maxTime = 60000) => {
-  if(this.stalemate(board, action)) {
+exports.checkmate = (board, action, maxTime = 60000, variant = 'standard') => {
+  if(this.stalemate(board, action, variant)) {
     return false;
   }
   var start = present();
 
   // Super fast single pass looking for moves solving checks
-  var moves = boardFuncs.moves(board, action, false, false);
+  var moves = boardFuncs.moves(board, action, false, false, variant);
   for(var i = 0;i < moves.length;i++) {
     var tmpBoard = boardFuncs.copy(board);
     boardFuncs.move(tmpBoard, moves[i]);
-    var tmpChecks = this.checks(tmpBoard, action);
+    var tmpChecks = this.checks(tmpBoard, action, variant);
     if(tmpChecks.length <= 0) { return false; }
     if((present() - start) > maxTime) { return true; }
   }
   // Fast pass looking for moves solving checks using DFS
   var recurse = (board, action, checks = []) => {
-    var moves = boardFuncs.moves(board, action, false, false);
-    if(checks.length <= 0) { checks = this.checks(board, action); }
+    var moves = boardFuncs.moves(board, action, false, false, variant);
+    if(checks.length <= 0) { checks = this.checks(board, action, variant); }
     if(checks.length <= 0) { return false; }
     if((present() - start) > maxTime) { return true; }
     for(var i = 0;i < moves.length;i++) {
       var tmpBoard = boardFuncs.copy(board);
       boardFuncs.move(tmpBoard, moves[i]);
-      var tmpChecks = this.checks(tmpBoard, action);
+      var tmpChecks = this.checks(tmpBoard, action, variant);
       var solvedACheck = tmpChecks.length < checks.length;
       if(solvedACheck) {
         if(!recurse(tmpBoard, action, tmpChecks)) {
@@ -95,7 +95,7 @@ exports.checkmate = (board, action, maxTime = 60000) => {
   var exhausted = false;
   var moveTree = [{
     board: board,
-    checkSig: checkSig(this.checks(board, action))
+    checkSig: checkSig(this.checks(board, action, variant))
   }];
   var moveTreeIndex = 0;
   //Slow BFS exhaustive search prioritizing check solving, check changing, then timeline changing moves
@@ -103,12 +103,12 @@ exports.checkmate = (board, action, maxTime = 60000) => {
     if((present() - start) > maxTime) { return true; }
     var currNode = moveTree[moveTreeIndex];
     if(currNode) {
-      var moves = boardFuncs.moves(currNode.board, action, false, false);
+      var moves = boardFuncs.moves(currNode.board, action, false, false, variant);
       var tmpMoveTree = [];
       for(var i = 0;i < moves.length;i++) {
         var tmpBoard = boardFuncs.copy(currNode.board);
         boardFuncs.move(tmpBoard, moves[i]);
-        var tmpChecks = this.checks(tmpBoard, action);
+        var tmpChecks = this.checks(tmpBoard, action, variant);
         if(tmpChecks.length <= 0) { return false; }
         var tmpCheckSig = checkSig(tmpChecks);
         tmpMoveTree.push({
@@ -128,9 +128,9 @@ exports.checkmate = (board, action, maxTime = 60000) => {
   return true;
 }
 
-exports.stalemate = (board, action) => {
-  var moves = boardFuncs.moves(board, action, true, true);
-  var checks = this.checks(board, action);
+exports.stalemate = (board, action, variant = 'standard') => {
+  var moves = boardFuncs.moves(board, action, true, true, variant);
+  var checks = this.checks(board, action, variant);
   var presentTimelines = boardFuncs.present(board, action);
   return moves.length <= 0 && checks.length <= 0 && presentTimelines.length > 0;
 }

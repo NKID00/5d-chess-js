@@ -21,6 +21,7 @@ class Chess {
       boardFuncs: boardFuncs,
       hashFuncs: hashFuncs,
       mateFuncs: mateFuncs,
+      metadataFuncs: metadataFuncs,
       notationFuncs: notationFuncs,
       parseFuncs: parseFuncs,
       pieceFuncs: pieceFuncs,
@@ -46,6 +47,9 @@ class Chess {
     }
     this.rawBoard = boardFuncs.init(this.metadata.variant);
     this.rawAction = this.metadata.variant === 'turn_zero' ? 2 : 0;
+    if(typeof this.metadata.variant === 'object') {
+      this.rawAction = (this.metadata.variant.action - 1) * 2 + (this.metadata.variant.player === 'white' ? 0 : 1);
+    }
     this.rawBoardHistory = [this.rawBoard];
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
@@ -188,7 +192,7 @@ class Chess {
     this.submit(skipDetection);
   }
   actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, skipDetection = false) {
-    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly);
+    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.variant);
     if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
       var res = '';
@@ -241,7 +245,7 @@ class Chess {
       var tmpCurrAction = this.rawAction;
       var tmpBoard = boardFuncs.copy(this.rawBoard);
       for(var i = 0;i < moves.length;i++) {
-        if(!validateFuncs.move(tmpBoard, tmpCurrAction, moves[i])) {
+        if(!validateFuncs.move(tmpBoard, tmpCurrAction, moves[i], this.metadata.variant)) {
           return false;
         }
         boardFuncs.move(tmpBoard, moves[i]);
@@ -285,7 +289,7 @@ class Chess {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
     }
-    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly);
+    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, this.metadata.variant);
     if(format === 'raw') { return moves; }
     if(format.includes('notation')) {
       var res = '';
@@ -327,10 +331,10 @@ class Chess {
         }
       }
       if(moveGen.length <= 0) {
-        moveGen = boardFuncs.moves(this.rawBoard, this.rawAction, false, false);
+        moveGen = boardFuncs.moves(this.rawBoard, this.rawAction, false, false, this.metadata.variant);
       }
       var tmpBoard = boardFuncs.copy(this.rawBoard);
-      return validateFuncs.move(tmpBoard, this.rawAction, move, moveGen);
+      return validateFuncs.move(tmpBoard, this.rawAction, move, moveGen, this.metadata.variant);
     }
     catch(err) { return false; }
   }
@@ -368,7 +372,7 @@ class Chess {
       tmpBuffer.pop();
       var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
-        if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i])) {
+        if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.variant)) {
           throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]).str;
         }
         boardFuncs.move(tmpBoard, tmpBuffer[i]);
@@ -387,7 +391,7 @@ class Chess {
         tmpBuffer.pop();
         var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
         for(var i = 0;i < tmpBuffer.length;i++) {
-          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i])) {
+          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.variant)) {
             return false;
           }
         }
@@ -417,17 +421,17 @@ class Chess {
     return res;
   }
   get inCheckmate() {
-    return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction, this.checkmateTimeout);
+    return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction, this.checkmateTimeout, this.metadata.variant);
   }
   get inGpuCheckmate() {
-    return this.inCheckmate;
+    return this.inCheckmate();
     //return (this.rawMoveBuffer.length <= 0) && mateGpuFuncs.checkmate(this.rawBoard, this.rawAction);
   }
   get inCheck() {
-    return mateFuncs.checks(this.rawBoard, this.rawAction).length > 0;
+    return mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.variant).length > 0;
   }
   get inStalemate() {
-    return mateFuncs.stalemate(this.rawBoard, this.rawAction);
+    return mateFuncs.stalemate(this.rawBoard, this.rawAction, this.metadata.variant);
   }
   get hash() {
     return hashFuncs.hash(this.rawBoard);
