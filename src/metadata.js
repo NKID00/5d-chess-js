@@ -5,6 +5,11 @@ exports.strToObj = (str) => {
     var regex = strArr[i].match(/\[([\w\.\-]+)\s\"([\w\.\-\/\*\s]+)\"\]/);
     if(regex !== null) {
       obj[regex[1].toLowerCase()] = regex[2];
+      try {
+        var tmp = JSON.parse(regex[2]);
+        obj[regex[1].toLowerCase()] = tmp;
+      }
+      catch(err) {}
     }
   }
   return obj;
@@ -14,7 +19,12 @@ exports.objToStr = (obj) => {
   var str = '';
   var objArr = Object.keys(obj);
   for(var i = 0;i < objArr.length;i++) {
-    str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + obj[objArr[i]] + '\"]\n';
+    if(typeof obj[objArr[i]] === 'object') {
+      str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + JSON.stringify(obj[objArr[i]]) + '\"]\n';
+    }
+    else {
+      str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + obj[objArr[i]] + '\"]\n';
+    }
   }
   return str;
 }

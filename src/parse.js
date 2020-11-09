@@ -145,9 +145,9 @@ exports.fromPiece = (board, pos) => {
 
 exports.toTurn = (turnObj) => {
   var res = [];
-  for(var r = 0;r < 8;r++) {
+  for(var r = 0;r < turnObj.height;r++) {
     res.push([]);
-    for(var f = 0;f < 8;f++) {
+    for(var f = 0;f < turnObj.width;f++) {
       res[r][f] = 0;
     }
   }
@@ -164,7 +164,9 @@ exports.fromTurn = (board, timeline, turn) => {
   res.turn = Math.floor(turn/2) + 1;
   res.player = (turn % 2 === 0 ? 'white' : 'black');
   res.pieces = [];
+  res.width = 0;
   var currTurn = board[timeline][turn];
+  res.height = currTurn.length;
   for(var r = 0;r < currTurn.length;r++) {
     for(var f = 0;f < currTurn[r].length;f++) {
       if(currTurn[r][f] !== 0) {
@@ -174,6 +176,9 @@ exports.fromTurn = (board, timeline, turn) => {
           r,
           f
         ]));
+      }
+      if(res.width < currTurn[r].length) {
+        res.width = currTurn[r].length;
       }
     }
   }
@@ -233,6 +238,18 @@ exports.fromBoard = (board, action) => {
   for(var i = 0;i < board.length;i++) {
     if(board[i] !== undefined) {
       res.timelines.push(this.fromTimeline(board, action, i));
+    }
+  }
+  res.width = 0;
+  res.height = 0;
+  for(var l = 0;l < res.timelines.length;l++) {
+    for(var t = 0;t < res.timelines[l].turns.length;t++) {
+      if(res.width < res.timelines[l].turns[t].width) {
+        res.width = res.timelines[l].turns[t].width;
+      }
+      if(res.height < res.timelines[l].turns[t].height) {
+        res.height = res.timelines[l].turns[t].height;
+      }
     }
   }
   return res;

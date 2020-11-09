@@ -16,6 +16,9 @@ exports.char = (piece) => {
   if(Math.abs(piece) === 11 || Math.abs(piece) === 12) {
     return 'K';
   }
+  if(Math.abs(piece) === 13 || Math.abs(piece) === 14) {
+    return 'P';
+  }
   return '';
 }
 
@@ -322,10 +325,91 @@ exports.moveVecs = (piece) => {
       [-1,-1,-1,-1]
     ];
   }
+  if(Math.abs(piece) === 13 || Math.abs(piece) === 14) {
+    return [
+      [ 0, 0, 0, 1],
+      [ 0, 0, 0,-1],
+
+      [ 0, 0, 1, 0],
+      [ 0, 0,-1, 0],
+
+      [ 0, 0, 1, 1],
+      [ 0, 0, 1,-1],
+      [ 0, 0,-1, 1],
+      [ 0, 0,-1,-1],
+
+      [ 0, 1, 0, 0],
+      [ 0,-1, 0, 0],
+
+      [ 0, 1, 0, 1],
+      [ 0, 1, 0,-1],
+      [ 0,-1, 0, 1],
+      [ 0,-1, 0,-1],
+
+      [ 0, 1, 1, 0],
+      [ 0, 1,-1, 0],
+      [ 0,-1, 1, 0],
+      [ 0,-1,-1, 0],
+
+      [ 0, 1, 1, 1],
+      [ 0, 1, 1,-1],
+      [ 0, 1,-1, 1],
+      [ 0, 1,-1,-1],
+      [ 0,-1, 1, 1],
+      [ 0,-1, 1,-1],
+      [ 0,-1,-1, 1],
+      [ 0,-1,-1,-1],
+
+      [ 1, 0, 0, 0],
+      [-1, 0, 0, 0],
+
+      [ 1, 0, 0, 1],
+      [ 1, 0, 0,-1],
+      [-1, 0, 0, 1],
+      [-1, 0, 0,-1],
+
+      [ 1, 0, 1, 0],
+      [ 1, 0,-1, 0],
+      [-1, 0, 1, 0],
+      [-1, 0,-1, 0],
+
+      [ 1, 0, 1, 1],
+      [ 1, 0, 1,-1],
+      [ 1, 0,-1, 1],
+      [ 1, 0,-1,-1],
+      [-1, 0, 1, 1],
+      [-1, 0, 1,-1],
+      [-1, 0,-1, 1],
+      [-1, 0,-1,-1],
+
+      [ 1, 1, 0, 0],
+      [ 1,-1, 0, 0],
+      [-1, 1, 0, 0],
+      [-1,-1, 0, 0],
+
+      [ 1, 1, 0, 1],
+      [ 1, 1, 0,-1],
+      [ 1,-1, 0, 1],
+      [ 1,-1, 0,-1],
+      [-1, 1, 0, 1],
+      [-1, 1, 0,-1],
+      [-1,-1, 0, 1],
+      [-1,-1, 0,-1],
+
+      [ 1, 1, 1, 0],
+      [ 1, 1,-1, 0],
+      [ 1,-1, 1, 0],
+      [ 1,-1,-1, 0],
+      [-1, 1, 1, 0],
+      [-1, 1,-1, 0],
+      [-1,-1, 1, 0],
+      [-1,-1,-1, 0]
+    ];
+  }
   return [];
 }
 
-exports.moves = (board, src) => {
+exports.moves = (board, src, variant = 'standard') => {
   var res = [];
   if(boardFuncs.positionExists(board, src)) {
     var piece = board[src[0]][src[1]][src[2]][src[3]];
@@ -393,8 +477,14 @@ exports.moves = (board, src) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 7;
             res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 9;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
+            if(variant !== 'princess') {
+              currMove[1][4] = 9;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
+            else {
+              currMove[1][4] = 13;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
           }
           else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -415,8 +505,14 @@ exports.moves = (board, src) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 7;
             res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 9;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
+            if(variant !== 'princess') {
+              currMove[1][4] = 9;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
+            else {
+              currMove[1][4] = 13;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
           }
           else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -436,8 +532,14 @@ exports.moves = (board, src) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 7;
             res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 9;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
+            if(variant !== 'princess') {
+              currMove[1][4] = 9;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
+            else {
+              currMove[1][4] = 13;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
           }
           else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -519,8 +621,14 @@ exports.moves = (board, src) => {
                 res.push([currMove[0].slice(), currMove[1].slice()]);
                 currMove[1][4] = 7;
                 res.push([currMove[0].slice(), currMove[1].slice()]);
-                currMove[1][4] = 9;
-                res.push([currMove[0].slice(), currMove[1].slice()]);
+                if(variant !== 'princess') {
+                  currMove[1][4] = 9;
+                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                }
+                else {
+                  currMove[1][4] = 13;
+                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                }
               }
               else {
                 res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -613,8 +721,14 @@ exports.moves = (board, src) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 8;
             res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 10;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
+            if(variant !== 'princess') {
+              currMove[1][4] = 10;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
+            else {
+              currMove[1][4] = 14;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
           }
           else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -635,8 +749,14 @@ exports.moves = (board, src) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 8;
             res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 10;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
+            if(variant !== 'princess') {
+              currMove[1][4] = 10;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
+            else {
+              currMove[1][4] = 14;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
           }
           else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -656,8 +776,14 @@ exports.moves = (board, src) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             currMove[1][4] = 8;
             res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 10;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
+            if(variant !== 'princess') {
+              currMove[1][4] = 10;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
+            else {
+              currMove[1][4] = 14;
+              res.push([currMove[0].slice(), currMove[1].slice()]);
+            }
           }
           else {
             res.push([currMove[0].slice(), currMove[1].slice()]);
@@ -739,8 +865,14 @@ exports.moves = (board, src) => {
                 res.push([currMove[0].slice(), currMove[1].slice()]);
                 currMove[1][4] = 8;
                 res.push([currMove[0].slice(), currMove[1].slice()]);
-                currMove[1][4] = 10;
-                res.push([currMove[0].slice(), currMove[1].slice()]);
+                if(variant !== 'princess') {
+                  currMove[1][4] = 10;
+                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                }
+                else {
+                  currMove[1][4] = 14;
+                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                }
               }
               else {
                 res.push([currMove[0].slice(), currMove[1].slice()]);

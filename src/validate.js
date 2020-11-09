@@ -1,19 +1,19 @@
 const boardFuncs = require('@local/board');
 
-exports.move = (board, action, move, moveGen = []) => {
+exports.move = (board, action, move, moveGen = [], variant = 'standard') => {
   if(moveGen.length <= 0) {
-    moveGen = boardFuncs.moves(board, action, false, false);
+    moveGen = boardFuncs.moves(board, action, false, false, variant);
   }
   for(var i = 0;i < moveGen.length;i++) {
-    if(this.compareMove(moveGen[i],move) === 0) { return true; }
+    if(this.compareMove(moveGen[i], move) === 0) { return true; }
   }
   return false;
 }
 
-exports.action = (board, action, moves) => {
+exports.action = (board, action, moves, variant = 'standard') => {
   var newBoard = boardFuncs.copy(board);
   for(var i = 0;i < moves.length;i++) {
-    if(!this.move(newBoard, action, moves[i])) { return false; }
+    if(!this.move(newBoard, action, moves[i], variant)) { return false; }
     boardFuncs.move(newBoard, moves[i]);
   }
   if(boardFuncs.present(newBoard, action).length > 0) {
