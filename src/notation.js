@@ -99,6 +99,9 @@ exports.moveNotation = (board, action, input, minimize = false) => {
         if(tmpDestPiece === 'K') {
           res.arr[1][4] = (action % 2 === 0 ? 12 : 11);
         }
+        if(tmpDestPiece === 'P') {
+          res.arr[1][4] = (action % 2 === 0 ? 14 : 13);
+        }
         tmp = tmp.replace(/^[A-Z]*/, '');
       }
       var tmpDestCoord = this.sanCoord(tmp.substr(0,2));
