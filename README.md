@@ -63,7 +63,7 @@ Currently supported variants:
  - Standard - This uses the standard chess layout (use the string literal `standard` for functions and metadata tag).
  - Defended Pawn - This variant switches the queen and queenside knight (use the string literal `defended_pawn` for functions and metadata tag).
  - Half Reflected - This variant switches the black queen and black king (use the string literal `half_reflected` for functions and metadata tag).
- - Princess - This variant uses the princess piece instead of the queen. The princess piece can only travel up to two dimensions (use the string literal `princess` for functions and metadata tag).
+ - Princess - This variant replaces the queen with a princess, a piece that only has rook + bishop movement (use the string literal `princess` for functions and metadata tag). Note the SAN piece equivalent is `P`, whereas it shows up as `S` in `.print()` (notation uses the SAN piece equivalent).
  - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (use the string literal `turn_zero` for functions and metadata tag).
 
 ## Notation and Terminology
@@ -108,7 +108,7 @@ Example:
 
 [Event "Random Bot Test"]
 [Site "Internet"]
-[Date "2020.22.2020"]
+[Date "2020.10.22"]
 [Round "1"]
 [White "Random Bot"]
 [Black "Random Bot"]
@@ -312,7 +312,7 @@ Plays an move as the current player. Will modify internal state and will throw e
   - move - The move to play as the current player. Can be a notation string, `Move` object, or JSON string of a `Move` object.
   - **Return** - Nothing.
 
-**.moveable(action, [skipDetection])**
+**.moveable(move, [skipDetection])**
 
 Check if a move is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 

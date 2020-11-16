@@ -34,7 +34,7 @@ exports.moveNotation = (board, action, input, minimize = false) => {
       var tmpAction = tmpActionArr[0];
       res.action = (Number(tmpAction.substr(0,tmpAction.length - 1)) - 1) * 2 + (tmpAction.charAt(tmpAction.length - 1) === 'w' ? 0 : 1);
     }
-    tmp = tmp.replace(/^\d+[bw]\.\s/, '');
+    tmp = tmp.replace(/^\d+[bw]\.\s+/, '');
     var tmpSrcTurnArr = tmp.match(/^\d+/);
     if(tmpSrcTurnArr && tmpSrcTurnArr.length > 0) {
       var tmpSrcTurn = Number(tmpSrcTurnArr[0]);
@@ -98,6 +98,9 @@ exports.moveNotation = (board, action, input, minimize = false) => {
         }
         if(tmpDestPiece === 'K') {
           res.arr[1][4] = (action % 2 === 0 ? 12 : 11);
+        }
+        if(tmpDestPiece === 'P') {
+          res.arr[1][4] = (action % 2 === 0 ? 14 : 13);
         }
         tmp = tmp.replace(/^[A-Z]*/, '');
       }
