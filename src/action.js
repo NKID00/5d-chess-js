@@ -1,20 +1,20 @@
 const boardFuncs = require('@local/board');
 
-exports.actions = (board, action, activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, variant = 'standard') => {
-  var recurse =  (board, action, layer = 0, totalMoves = 0, totalLayers = 0, totalIndex = []) => {
+exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, variant = 'standard') => {
+  var recurse =  (board, actionNum, layer = 0, totalMoves = 0, totalLayers = 0, totalIndex = []) => {
     var returnArr = [];
-    var moves = boardFuncs.moves(board, action, activeOnly, presentOnly, variant);
+    var moves = boardFuncs.moves(board, actionNum, activeOnly, presentOnly, variant);
     for(var i = 0;i < moves.length;i++) {
       var moddedBoard = boardFuncs.copy(board);
       if(
         !newActiveTimelinesOnly ||
-        (newActiveTimelinesOnly && (this.newTimelineIsActive(moddedBoard, action) || (!this.newTimelineIsActive(moddedBoard, action) && boardFuncs.positionIsLatest(moddedBoard, moves[i][1]))))
+        (newActiveTimelinesOnly && (this.newTimelineIsActive(moddedBoard, actionNum) || (!this.newTimelineIsActive(moddedBoard, actionNum) && boardFuncs.positionIsLatest(moddedBoard, moves[i][1]))))
       ) {
         boardFuncs.move(moddedBoard, moves[i]);
         totalMoves++;
-        if(boardFuncs.present(moddedBoard, action).length > 0) {
+        if(boardFuncs.present(moddedBoard, actionNum).length > 0) {
           totalIndex[layer] = i;
-          var recurseRes = recurse(moddedBoard, action, layer + 1, totalMoves, totalLayers, totalIndex);
+          var recurseRes = recurse(moddedBoard, actionNum, layer + 1, totalMoves, totalLayers, totalIndex);
           var nextLayer = recurseRes[0];
           totalMoves = recurseRes[1];
           totalLayers = recurseRes[2] > layer ? recurseRes[2] : layer;
@@ -37,7 +37,7 @@ exports.actions = (board, action, activeOnly = true, presentOnly = true, newActi
     }
     return [returnArr, totalMoves, totalLayers, totalIndex];
   }
-  return recurse(board, action)[0];
+  return recurse(board, actionNum)[0];
 }
 
 exports.move = (board, moves) => {
@@ -46,7 +46,7 @@ exports.move = (board, moves) => {
   }
 }
 
-exports.newTimelineIsActive = (board, action) => {
+exports.newTimelineIsActive = (board, actionNum) => {
   var minTimeline = 0;
   var maxTimeline = 0;
   for(var l = 0;board && l < board.length;l++) {
@@ -59,7 +59,7 @@ exports.newTimelineIsActive = (board, action) => {
       }
     }
   }
-  if(action % 2 === 0) {
+  if(actionNum % 2 === 0) {
     return (minTimeline + 1) >= maxTimeline;
   }
   return (minTimeline + 1) <= maxTimeline;

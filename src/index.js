@@ -1,14 +1,14 @@
 require('module-alias/register');
 
-const deepcopy = require('deep-copy');
 const actionFuncs = require('@local/action');
 const boardFuncs = require('@local/board');
+const convertFuncs = require('@local/convert');
+const copyFuncs = require('@local/copy');
 const hashFuncs = require('@local/hash');
 const parseFuncs = require('@local/parse');
 const pieceFuncs = require('@local/piece');
 const printFuncs = require('@local/print');
 const mateFuncs = require('@local/mate');
-//const mateGpuFuncs = require('@local/mate.gpu');
 const metadataFuncs = require('@local/metadata');
 const notationFuncs = require('@local/notation');
 const turnFuncs = require('@local/turn');
@@ -19,6 +19,7 @@ class Chess {
     this.raw = {
       actionFuncs: actionFuncs,
       boardFuncs: boardFuncs,
+      convertFuncs: convertFuncs,
       hashFuncs: hashFuncs,
       mateFuncs: mateFuncs,
       metadataFuncs: metadataFuncs,
@@ -41,6 +42,20 @@ class Chess {
       this.import(input);
     }
   }
+  copy() {
+    var newInstance = new Chess();
+    newInstance.checkmateTimeout = this.checkmateTimeout;
+    newInstance.metadata = Objec.assign({}, this.metadata);
+    newInstance.rawAction = this.rawAction;
+    newInstance.rawBoardHistory = [];
+    for(var i = 0;i < this.rawBoardHistory.length;i++) {
+      newInstance.rawBoardHistory.push(boardFuncs.copy(this.rawBoardHistory[i]));
+    }
+    newInstance.rawBoard = boardFuncs.copy(this.rawBoard);
+    newInstance.rawActionHistory = copyFuncs.actions(this.rawActionHistory);
+    newInstance.rawMoveBuffer = copyFuncs.action(this.rawMoveBuffer);
+    return newInstance;
+  }
   reset(variant) {
     if(typeof variant !== 'undefined') {
       this.metadata.variant = variant;
@@ -54,87 +69,15 @@ class Chess {
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
   }
-  convert(input) {
-    var actions = [];
-    if(Array.isArray(input)) {
-      var tmp = deepcopy(input);
-      if(tmp.length > 0 && !Array.isArray(tmp[0])) {
-        for(var i = 0;i < tmp.length;i++) {
-          actions.push(parseFuncs.toAction(tmp[i]));
-        }
-      }
-      else {
-        actions = tmp;
-      }
-    }
-    else {
-      try {
-        var tmp = JSON.parse(input);
-        for(var i = 0;i < tmp.length;i++) {
-          actions.push(parseFuncs.toAction(tmp[i]));
-        }
-      }
-      catch(err) {
-        if(typeof input === 'string') {
-          Object.assign(this.metadata, metadataFuncs.strToObj(input));
-          var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').filter(e => !e.includes('[') && e !== '');
-          var tmpCurrAction = this.rawAction;
-          var tmpBoard = boardFuncs.copy(this.rawBoard);
-          var tmpAction = [];
-          for(var i = 0;i < splitStr.length;i++) {
-            if(splitStr[i].length > 0) {
-              var tmpNotation = {};
-              try {
-                if(validateFuncs.notation(splitStr[i])) {
-                  tmpNotation = notationFuncs.moveNotation(tmpBoard, tmpCurrAction, splitStr[i]);
-                }
-                else {
-                  console.error('Line is not considered notation: ' + splitStr[i]);
-                }
-              }
-              catch(err) {
-                console.error(err);
-                throw 'Notation invalid and an error has occurred at line: ' + splitStr[i];
-              }
-              if(tmpNotation.action > tmpCurrAction) {
-                if(tmpAction.length > 0) {
-                  actions.push(tmpAction);
-                  tmpAction = [];
-                }
-                tmpCurrAction = tmpNotation.action;
-              }
-              else if(typeof tmpNotation.action === 'number' && tmpNotation.action < tmpCurrAction) {
-                throw 'Input order has been tampered and an error has occurred at line: ' + splitStr[i];
-              }
-              boardFuncs.move(tmpBoard, tmpNotation.arr);
-              tmpAction.push(tmpNotation.arr);
-            }
-          }
-          if(tmpAction.length > 0) {
-            actions.push(tmpAction);
-          }
-        }
-        else {
-          throw 'Input not recognized. Input should be an Array, JSON string of an array, or notation string delimited by newlines or semicolons.';
-        }
-      }
-    }
-    return actions;
-  }
-  convertable(input) {
-    try {
-      this.convert(input);
-      return true;
-    }
-    catch(err) { return false; }
-  }
   import(input, variant, skipDetection = false) {
     if(variant !== undefined) {
       this.metadata.variant = variant;
     }
+    if(typeof input === 'string') {
+      Object.assign(this.metadata, metadataFuncs.strToObj(input));
+    }
     this.reset();
-    var actions = this.convert(input);
-    this.reset();
+    var actions = convertFuncs.actions(input);
     for(var i = 0;i < actions.length;i++) {
       for(var j = 0;j < actions[i].length;j++) {
         this.move(actions[i][j], skipDetection);
@@ -149,7 +92,28 @@ class Chess {
   }
   importable(input, skipDetection = false) {
     try {
-      var actions = this.convert(input);
+      var newInstance = this.copy();
+      newInstance.import(input, skipDetection);
+      return true;
+    }
+    catch(err) { return false; }
+  }
+  pass(skipDetection = false) {
+    if(!skipDetection) {
+      if(this.inCheckmate) {
+        throw 'Cannot submit, currently in checkmate.';
+      }
+      if(this.inStalemate) {
+        throw 'Cannot submit, currently in stalemate.';
+      }
+    }
+    mateFuncs.blankAction(this.rawBoard, this.rawAction);
+    this.submit(skipDetection);
+  }
+  passable(skipDetection =  false) {
+    try {
+      var newInstance = this.copy();
+      newInstance.pass(skipDetection);
       return true;
     }
     catch(err) { return false; }
@@ -163,29 +127,7 @@ class Chess {
         throw 'Cannot submit, currently in stalemate.';
       }
     }
-    var moves = [];
-    if(Array.isArray(input)) {
-      var tmp = deepcopy(input);
-      if(tmp.length > 0 && !Array.isArray(tmp[0])) {
-        for(var i = 0;i < tmp.length;i++) {
-          moves.push(parseFuncs.toMove(tmp[i]));
-        }
-      }
-      else {
-        moves = tmp;
-      }
-    }
-    else {
-      try {
-        var tmp = JSON.parse(input);
-        for(var i = 0;i < tmp.length;i++) {
-          moves.push(parseFuncs.toMove(tmp[i]));
-        }
-      }
-      catch(err) {
-        moves = this.convert([input])[0];
-      }
-    }
+    var moves = convertFuncs.action(input);
     for(var i = 0;i < moves.length;i++) {
       this.move(moves[i], skipDetection);
     }
@@ -197,7 +139,7 @@ class Chess {
     if(format.includes('notation')) {
       var res = '';
       for(var i = 0;i < actions.length;i++) {
-        if(this.actionable(actions[i], skipDetection)) {
+        if(skipDetection || this.actionable(actions[i], skipDetection)) {
           for(var j = 0;j < actions[i].length;j++) {
             res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, actions[i][j], format.includes('short')).str + '\n';
           }
@@ -207,7 +149,7 @@ class Chess {
     }
     res = [];
     for(var i = 0;i < actions.length;i++) {
-      if(this.actionable(actions[i], skipDetection)) {
+      if(skipDetection || this.actionable(actions[i], skipDetection)) {
         res.push(parseFuncs.fromAction(this.rawAction, actions[i]));
       }
     }
@@ -218,71 +160,21 @@ class Chess {
   }
   actionable(input, skipDetection = false) {
     try {
-      if(!skipDetection) {
-        if(this.inCheckmate) { return false; }
-        if(this.inStalemate) { return false; }
-      }
-      var moves = [];
-      if(Array.isArray(input)) {
-        var tmp = deepcopy(input);
-        if(tmp.length > 0 && !Array.isArray(tmp[0])) {
-          for(var i = 0;i < tmp.length;i++) {
-            moves.push(parseFuncs.toMove(tmp[i]));
-          }
-        }
-        else {
-          moves = tmp;
-        }
-      }
-      else {
-        try {
-          moves = JSON.parse(input);
-        }
-        catch(err) {
-          moves = this.convert(input)[0];
-        }
-      }
-      var tmpCurrAction = this.rawAction;
-      var tmpBoard = boardFuncs.copy(this.rawBoard);
-      for(var i = 0;i < moves.length;i++) {
-        if(!validateFuncs.move(tmpBoard, tmpCurrAction, moves[i], this.metadata.variant)) {
-          return false;
-        }
-        boardFuncs.move(tmpBoard, moves[i]);
-      }
-      if(boardFuncs.present(tmpBoard, tmpCurrAction).length > 0) {
-        return false;
-      }
+      var newInstance = this.copy();
+      newInstance.action(input, skipDetection);
       return true;
     }
     catch(err) { return false; }
   }
   move(input, skipDetection = false) {
-    var move = [];
-    if(Array.isArray(input)) {
-      move = deepcopy(input);
-    }
-    else {
-      if(typeof input === 'object') {
-        move = parseFuncs.toMove(deepcopy(input));
+    var move = convertFuncs.move(input);
+    if(!skipDetection) {
+      if(!this.moveable(move, skipDetection)) {
+        throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(this.rawBoard, this.rawAction, move).str;
       }
-      else {
-        try {
-          move = parseFuncs.toMove(JSON.parse(input));
-        }
-        catch(err) {
-          move = this.convert(input)[0][0];
-        }
-      }
-    }
-    var tmpCurrAction = this.rawAction;
-    var tmpBoard = boardFuncs.copy(this.rawBoard);
-    if(!this.moveable(move, skipDetection)) {
-      throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, move).str;
     }
     this.rawMoveBuffer.push(move);
-    boardFuncs.move(tmpBoard, move);
-    this.rawBoard = tmpBoard;
+    boardFuncs.move(this.rawBoard, move);
   }
   moves(format = 'object', activeOnly = true, presentOnly = true, skipDetection = false) {
     if(!skipDetection) {
@@ -309,32 +201,8 @@ class Chess {
   }
   moveable(input, skipDetection = false, moveGen = []) {
     try {
-      if(!skipDetection) {
-        if(this.inCheckmate) { return false; }
-        if(this.inStalemate) { return false; }
-      }
-      var move = [];
-      if(Array.isArray(input)) {
-        move = deepcopy(input);
-      }
-      else {
-        if(typeof input === 'object') {
-          move = parseFuncs.toMove(deepcopy(input));
-        }
-        else {
-          try {
-            move = parseFuncs.toMove(JSON.parse(input));
-          }
-          catch(err) {
-            move = this.convert(input)[0][0];
-          }
-        }
-      }
-      if(moveGen.length <= 0) {
-        moveGen = boardFuncs.moves(this.rawBoard, this.rawAction, false, false, this.metadata.variant);
-      }
-      var tmpBoard = boardFuncs.copy(this.rawBoard);
-      return validateFuncs.move(tmpBoard, this.rawAction, move, moveGen, this.metadata.variant);
+      var move = convertFuncs.move(input);
+      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.metadata.variant);
     }
     catch(err) { return false; }
   }
@@ -354,7 +222,7 @@ class Chess {
       throw 'Action is not complete, more moves are needed';
     }
     this.rawBoardHistory.push(this.rawBoard);
-    this.rawActionHistory.push(deepcopy(this.rawMoveBuffer));
+    this.rawActionHistory.push(copyFuncs.action(this.rawMoveBuffer));
     this.rawMoveBuffer = [];
     this.rawAction++;
   }
@@ -366,54 +234,46 @@ class Chess {
     if(this.inCheck) { return false; }
     return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
   }
-  undo() {
+  undo(skipDetection = false) {
     if(this.rawMoveBuffer.length > 0) {
-      var tmpBuffer = deepcopy(this.rawMoveBuffer);
+      var tmpBuffer = copyFuncs.action(this.rawMoveBuffer);
       tmpBuffer.pop();
       var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
-        if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.variant)) {
-          throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]).str;
+        if(!skipDetection) {
+          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.variant)) {
+            throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]).str;
+          }
         }
         boardFuncs.move(tmpBoard, tmpBuffer[i]);
       }
       this.rawBoard = boardFuncs.copy(tmpBoard);
-      this.rawMoveBuffer = deepcopy(tmpBuffer);
+      this.rawMoveBuffer = copyFuncs.action(tmpBuffer);
     }
     else {
       throw 'No moves to undo.';
     }
   }
-  undoable() {
+  undoable(skipDetection = false) {
     try {
-      if(this.rawMoveBuffer.length > 0) {
-        var tmpBuffer = deepcopy(this.rawMoveBuffer);
-        tmpBuffer.pop();
-        var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
-        for(var i = 0;i < tmpBuffer.length;i++) {
-          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.variant)) {
-            return false;
-          }
-        }
-        return true;
-      }
-      return false;
+      this.copy().undo(skipDetection);
+      return true;
     }
     catch(err) { return false; }
   }
   checks(format = 'object') {
-    var moves = mateFuncs.checks(this.rawBoard, this.rawAction);
-    if(format === 'raw') { return moves; }
+    var checks = mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.variant);
+    if(format === 'raw') { return checks; }
     if(format.includes('notation')) {
       var res = '';
-      for(var i = 0;i < moves.length;i++) {
-        res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, moves[i], format.includes('short')).str + '\n';
+      for(var i = 0;i < checks.length;i++) {
+        res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, checks[i], format.includes('short')).str + '\n';
       }
       return res;
     }
     res = [];
-    for(var i = 0;i < moves.length;i++) {
-      res.push(parseFuncs.fromMove(moves[i]));
+    for(var i = 0;i < checks.length;i++) {
+      res.push(parseFuncs.fromMove(checks[i]));
     }
     if(format === 'json') {
       return JSON.stringify(res);
@@ -422,10 +282,6 @@ class Chess {
   }
   get inCheckmate() {
     return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction, this.checkmateTimeout, this.metadata.variant);
-  }
-  get inGpuCheckmate() {
-    return this.inCheckmate();
-    //return (this.rawMoveBuffer.length <= 0) && mateGpuFuncs.checkmate(this.rawBoard, this.rawAction);
   }
   get inCheck() {
     return mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.variant).length > 0;
