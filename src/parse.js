@@ -99,10 +99,10 @@ exports.toAction = (actionObj) => {
   return res;
 }
 
-exports.fromAction = (action, moves) => {
+exports.fromAction = (actionNum, moves) => {
   var res = {};
-  res.action = Math.floor(action/2) + 1;
-  res.player = (action % 2 === 0 ? 'white' : 'black');
+  res.action = Math.floor(actionNum/2) + 1;
+  res.player = (actionNum % 2 === 0 ? 'white' : 'black');
   res.moves = [];
   for(var i = 0;i < moves.length;i++) {
     res.moves.push(this.fromMove(moves[i]));
@@ -194,7 +194,7 @@ exports.toTimeline = (timelineObj) => {
   return res;
 }
 
-exports.fromTimeline = (board, action, timeline) => {
+exports.fromTimeline = (board, actionNum, timeline) => {
   var res = {};
   if(timeline === 0) {
     res.timeline = 0;
@@ -208,7 +208,7 @@ exports.fromTimeline = (board, action, timeline) => {
   res.player = (timeline % 2 === 0 ? 'white' : 'black');
   res.turns = [];
   res.active = boardFuncs.active(board).includes(timeline);
-  res.present = boardFuncs.present(board, action).includes(timeline);
+  res.present = boardFuncs.present(board, actionNum).includes(timeline);
   var currTimeline = board[timeline];
   for(var i = 0;i < currTimeline.length;i++) {
     if(currTimeline[i] !== undefined) {
@@ -230,14 +230,14 @@ exports.toBoard = (boardObj) => {
   return res;
 }
 
-exports.fromBoard = (board, action) => {
+exports.fromBoard = (board, actionNum) => {
   var res = {};
-  res.action = Math.floor(action/2) + 1;
-  res.player = (action % 2 === 0 ? 'white' : 'black');
+  res.action = Math.floor(actionNum/2) + 1;
+  res.player = (actionNum % 2 === 0 ? 'white' : 'black');
   res.timelines = [];
   for(var i = 0;i < board.length;i++) {
     if(board[i] !== undefined) {
-      res.timelines.push(this.fromTimeline(board, action, i));
+      res.timelines.push(this.fromTimeline(board, actionNum, i));
     }
   }
   res.width = 0;

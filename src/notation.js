@@ -19,12 +19,12 @@ exports.sanCoord = (input) => {
   return res;
 }
 
-exports.moveNotation = (board, action, input, minimize = false) => {
+exports.moveNotation = (board, actionNum, input, minimize = false) => {
   //(Action #)(Color). [Turn #][+/- Line #]:(Piece)[Coord]<[+/- New Line #]>[Dest Turn #][Dest +/- Line #]:[Capture][Promotion Piece][Dest Coord][Check][En Passant]
   var res = {
     str: '',
     arr: [[0,0,0,0],[0,0,0,0]],
-    action: action
+    action: actionNum
   };
   if(typeof input === 'string') {
     res.str = input;
@@ -85,22 +85,22 @@ exports.moveNotation = (board, action, input, minimize = false) => {
       if(tmpDestPieceArr && tmpDestPieceArr.length > 0) {
         var tmpDestPiece = tmpDestPieceArr[0];
         if(tmpDestPiece === 'B') {
-          res.arr[1][4] = (action % 2 === 0 ? 4 : 3);
+          res.arr[1][4] = (res.action % 2 === 0 ? 4 : 3);
         }
         if(tmpDestPiece === 'N') {
-          res.arr[1][4] = (action % 2 === 0 ? 6 : 5);
+          res.arr[1][4] = (res.action % 2 === 0 ? 6 : 5);
         }
         if(tmpDestPiece === 'R') {
-          res.arr[1][4] = (action % 2 === 0 ? 8 : 7);
+          res.arr[1][4] = (res.action % 2 === 0 ? 8 : 7);
         }
         if(tmpDestPiece === 'Q') {
-          res.arr[1][4] = (action % 2 === 0 ? 10 : 9);
+          res.arr[1][4] = (res.action % 2 === 0 ? 10 : 9);
         }
         if(tmpDestPiece === 'K') {
-          res.arr[1][4] = (action % 2 === 0 ? 12 : 11);
+          res.arr[1][4] = (res.action % 2 === 0 ? 12 : 11);
         }
         if(tmpDestPiece === 'P') {
-          res.arr[1][4] = (action % 2 === 0 ? 14 : 13);
+          res.arr[1][4] = (res.action % 2 === 0 ? 14 : 13);
         }
         tmp = tmp.replace(/^[A-Z]*/, '');
       }
@@ -182,13 +182,13 @@ exports.moveNotation = (board, action, input, minimize = false) => {
           res.str += '<';
           var maxTimeline = 0;
           for(var i = 0;i < board.length;i++) {
-            if(board[i] !== undefined && i % 2 === action % 2) { maxTimeline = i; }
+            if(board[i] !== undefined && i % 2 === res.action % 2) { maxTimeline = i; }
           }
           var moddedBoard = boardFuncs.copy(board);
           boardFuncs.move(moddedBoard, input);
           var newMaxTimeline = 0;
           for(var i = 0;i < moddedBoard.length;i++) {
-            if(moddedBoard[i] !== undefined && i % 2 === action % 2) { newMaxTimeline = i; }
+            if(moddedBoard[i] !== undefined && i % 2 === res.action % 2) { newMaxTimeline = i; }
           }
           if(maxTimeline !== newMaxTimeline) {
             if(newMaxTimeline % 2 === 0) {
@@ -231,13 +231,13 @@ exports.moveNotation = (board, action, input, minimize = false) => {
         if(input.length === 3) {
           res.str += 'e.p.';
         }
-        if(mateFuncs.stalemate(moddedBoard, action + 1)) {
+        if(mateFuncs.stalemate(moddedBoard, res.action + 1)) {
           res.str += '=';
         }
-        else if(mateFuncs.checkmate(moddedBoard, action + 1)) {
+        else if(mateFuncs.checkmate(moddedBoard, res.action + 1)) {
           res.str += '#';
         }
-        else if(mateFuncs.checks(moddedBoard, action + 1).length > 0) {
+        else if(mateFuncs.checks(moddedBoard, res.action + 1).length > 0) {
           res.str += '+';
         }
       }

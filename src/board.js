@@ -195,14 +195,14 @@ exports.active = (board) => {
   return res;
 }
 
-exports.present = (board, action) => {
+exports.present = (board, actionNum) => {
   var res = [];
   var activeTimelines = this.active(board);
   var lowestTurn = -1;
   for(var i = 0;i < activeTimelines.length;i++) {
     var currMax = -1;
     for(var t = 0;t < board[activeTimelines[i]].length;t++) {
-      if(board[activeTimelines[i]][t] !== undefined && currMax < t && action % 2 === t % 2) {
+      if(board[activeTimelines[i]][t] !== undefined && currMax < t && actionNum % 2 === t % 2) {
         currMax = t;
       }
     }
@@ -231,18 +231,18 @@ exports.present = (board, action) => {
   return res;
 }
 
-exports.moves = (board, action, activeOnly = true, presentOnly = true, variant = 'standard') => {
+exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, variant = 'standard') => {
   var res = [];
   if(presentOnly) {
-    var presentTimelines = this.present(board, action);
+    var presentTimelines = this.present(board, actionNum);
     for(var i = 0;i < presentTimelines.length;i++) {
       if(board[presentTimelines[i]]) {
         var currTimeline = board[presentTimelines[i]];
         var latestTurn = currTimeline[currTimeline.length - 1];
-        if((currTimeline.length - 1) % 2 === action % 2) {
+        if((currTimeline.length - 1) % 2 === actionNum % 2) {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
-              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
+              if(Math.abs(latestTurn[r][f]) % 2 === actionNum % 2) {
                 var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f], variant);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
@@ -260,10 +260,10 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true, variant =
       if(board[activeTimelines[i]]) {
         var currTimeline = board[activeTimelines[i]];
         var latestTurn = currTimeline[currTimeline.length - 1];
-        if((currTimeline.length - 1) % 2 === action % 2) {
+        if((currTimeline.length - 1) % 2 === actionNum % 2) {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
-              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
+              if(Math.abs(latestTurn[r][f]) % 2 === actionNum % 2) {
                 var moves = pieceFuncs.moves(board, [activeTimelines[i], currTimeline.length - 1, r, f]);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
@@ -280,10 +280,10 @@ exports.moves = (board, action, activeOnly = true, presentOnly = true, variant =
       var currTimeline = board[l];
       if(currTimeline) {
         var latestTurn = currTimeline[currTimeline.length - 1];
-        if((currTimeline.length - 1) % 2 === action % 2) {
+        if((currTimeline.length - 1) % 2 === actionNum % 2) {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
-              if(Math.abs(latestTurn[r][f]) % 2 === action % 2) {
+              if(Math.abs(latestTurn[r][f]) % 2 === actionNum % 2) {
                 var moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f]);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);

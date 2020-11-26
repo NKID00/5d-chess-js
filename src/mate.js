@@ -2,13 +2,13 @@ const present = require('present');
 const boardFuncs = require('@local/board');
 const turnFuncs = require('@local/turn');
 
-exports.blankAction = (board, action) => {
-  var presentTimelines = boardFuncs.present(board, action);
+exports.blankAction = (board, actionNum) => {
+  var presentTimelines = boardFuncs.present(board, actionNum);
   for(var i = 0;i < presentTimelines.length;i++) {
     if(board[presentTimelines[i]]) {
       var currTimeline = board[presentTimelines[i]];
       var latestTurn = currTimeline[currTimeline.length - 1];
-      if((currTimeline.length - 1) % 2 === action % 2) {
+      if((currTimeline.length - 1) % 2 === actionNum % 2) {
         var newTurn = turnFuncs.copy(board, presentTimelines[i], currTimeline.length - 1);
         board[presentTimelines[i]][currTimeline.length] = newTurn;
       }
@@ -16,15 +16,15 @@ exports.blankAction = (board, action) => {
   }
 }
 
-exports.checks = (board, action, variant = 'standard') => {
+exports.checks = (board, actionNum, variant = 'standard') => {
   var res = [];
   var tmpBoard = boardFuncs.copy(board);
-  this.blankAction(tmpBoard, action);
-  var moves = boardFuncs.moves(tmpBoard, action + 1, false, false, variant);
+  this.blankAction(tmpBoard, actionNum);
+  var moves = boardFuncs.moves(tmpBoard, actionNum + 1, false, false, variant);
   for(var i = 0;i < moves.length;i++) {
     if(moves[i].length === 2 && boardFuncs.positionExists(tmpBoard, moves[i][1])) {
       var destPiece = tmpBoard[moves[i][1][0]][moves[i][1][1]][moves[i][1][2]][moves[i][1][3]];
-      if((Math.abs(destPiece) === 11 || Math.abs(destPiece) === 12) && Math.abs(destPiece) % 2 === action % 2) {
+      if((Math.abs(destPiece) === 11 || Math.abs(destPiece) === 12) && Math.abs(destPiece) % 2 === actionNum % 2) {
         res.push(moves[i]);
       }
     }
@@ -32,41 +32,41 @@ exports.checks = (board, action, variant = 'standard') => {
   return res;
 }
 
-exports.checkmate = (board, action, maxTime = 60000, variant = 'standard') => {
-  if(this.stalemate(board, action, variant)) {
+exports.checkmate = (board, actionNum, maxTime = 60000, variant = 'standard') => {
+  if(this.stalemate(board, actionNum, variant)) {
     return false;
   }
   var start = present();
 
   // Super fast single pass looking for moves solving checks
-  var moves = boardFuncs.moves(board, action, false, false, variant);
+  var moves = boardFuncs.moves(board, actionNum, false, false, variant);
   for(var i = 0;i < moves.length;i++) {
     var tmpBoard = boardFuncs.copy(board);
     boardFuncs.move(tmpBoard, moves[i]);
-    var tmpChecks = this.checks(tmpBoard, action, variant);
+    var tmpChecks = this.checks(tmpBoard, actionNum, variant);
     if(tmpChecks.length <= 0) { return false; }
     if((present() - start) > maxTime) { return true; }
   }
   // Fast pass looking for moves solving checks using DFS
-  var recurse = (board, action, checks = []) => {
-    var moves = boardFuncs.moves(board, action, false, false, variant);
-    if(checks.length <= 0) { checks = this.checks(board, action, variant); }
+  var recurse = (board, actionNum, checks = []) => {
+    var moves = boardFuncs.moves(board, actionNum, false, false, variant);
+    if(checks.length <= 0) { checks = this.checks(board, actionNum, variant); }
     if(checks.length <= 0) { return false; }
     if((present() - start) > maxTime) { return true; }
     for(var i = 0;i < moves.length;i++) {
       var tmpBoard = boardFuncs.copy(board);
       boardFuncs.move(tmpBoard, moves[i]);
-      var tmpChecks = this.checks(tmpBoard, action, variant);
+      var tmpChecks = this.checks(tmpBoard, actionNum, variant);
       var solvedACheck = tmpChecks.length < checks.length;
       if(solvedACheck) {
-        if(!recurse(tmpBoard, action, tmpChecks)) {
+        if(!recurse(tmpBoard, actionNum, tmpChecks)) {
           return false;
         }
       }
     }
     return true;
   }
-  if(!recurse(board, action)) { return false; }
+  if(!recurse(board, actionNum)) { return false; }
 
   var checkSig = (checks) => {
     var res = {
@@ -95,7 +95,7 @@ exports.checkmate = (board, action, maxTime = 60000, variant = 'standard') => {
   var exhausted = false;
   var moveTree = [{
     board: board,
-    checkSig: checkSig(this.checks(board, action, variant))
+    checkSig: checkSig(this.checks(board, actionNum, variant))
   }];
   var moveTreeIndex = 0;
   //Slow BFS exhaustive search prioritizing check solving, check changing, then timeline changing moves
@@ -103,12 +103,12 @@ exports.checkmate = (board, action, maxTime = 60000, variant = 'standard') => {
     if((present() - start) > maxTime) { return true; }
     var currNode = moveTree[moveTreeIndex];
     if(currNode) {
-      var moves = boardFuncs.moves(currNode.board, action, false, false, variant);
+      var moves = boardFuncs.moves(currNode.board, actionNum, false, false, variant);
       var tmpMoveTree = [];
       for(var i = 0;i < moves.length;i++) {
         var tmpBoard = boardFuncs.copy(currNode.board);
         boardFuncs.move(tmpBoard, moves[i]);
-        var tmpChecks = this.checks(tmpBoard, action, variant);
+        var tmpChecks = this.checks(tmpBoard, actionNum, variant);
         if(tmpChecks.length <= 0) { return false; }
         var tmpCheckSig = checkSig(tmpChecks);
         tmpMoveTree.push({
@@ -128,10 +128,10 @@ exports.checkmate = (board, action, maxTime = 60000, variant = 'standard') => {
   return true;
 }
 
-exports.stalemate = (board, action, variant = 'standard') => {
-  var moves = boardFuncs.moves(board, action, true, true, variant);
-  var checks = this.checks(board, action, variant);
-  var presentTimelines = boardFuncs.present(board, action);
+exports.stalemate = (board, actionNum, variant = 'standard') => {
+  var moves = boardFuncs.moves(board, actionNum, true, true, variant);
+  var checks = this.checks(board, actionNum, variant);
+  var presentTimelines = boardFuncs.present(board, actionNum);
   return moves.length <= 0 && checks.length <= 0 && presentTimelines.length > 0;
 }
 

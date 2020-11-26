@@ -281,6 +281,12 @@ Plays an action as the current player and submits the move. Will modify internal
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
+**.copy()**
+
+Creates a new instance of the Chess class with the exact same internal state.
+
+  - **Return** - New Chess class instance.
+
 **.actionable(action, [skipDetection])**
 
 Check if an action is playable as the current player and can submit. Does not modify internal state and will not throw errors.
@@ -291,7 +297,9 @@ Check if an action is playable as the current player and can submit. Does not mo
 
 **.actions([format, activeOnly, presentOnly, newActiveTimelinesOnly])**
 
-Generate all possible submittable actions. Does not modify internal state, but will throw errors. **Warning! Due to the complexity of 5D chess, performance may severely suffer if the full board is large enough. Calling this function with more than 3 present timelines is not advised.**
+Generate all possible submittable actions. Does not modify internal state, but will throw errors.
+
+**Warning! Due to the complexity of 5D chess, performance may severely suffer if the full board is large enough. Calling this function with more than 3 present timelines is not advised.**
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
   - activeOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves in the action come from only active timelines.
@@ -355,6 +363,24 @@ Undo the latest move in the move buffer. Will modify internal state and will thr
 Check if the current internal state allows undoing. Does not modify internal state and will not throw errors.
 
   - **Return** - Boolean representing if the current player can undo current internal state.
+
+**.pass([skipDetection])**
+
+Passes the turn as the current player and submits. Will modify internal state and will throw errors.
+
+**Warning! This is primarily used for bot and engine purposes. In the regular game, you cannot pass turns!**
+
+  - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
+  - **Return** - Nothing.
+
+**.passable(action, [skipDetection])**
+
+Check if current player can pass and can submit. Does not modify internal state and will not throw errors.
+
+  - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
+  - **Return** - Boolean representing if the action is playable and submittable.
 
 **.export([format])**
 

@@ -19,7 +19,7 @@ test('Position Parsing', () => {
 
 test('Action Parsing', () => {
   var chess = new Chess();
-  var actions = chess.convert('1w. 1:e2:e3\n1b. 1:f7:f6\r\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\r\n3w. 3:Qe2:h5');
+  var actions = chess.raw.convertFuncs.actions('1w. 1:e2:e3\n1b. 1:f7:f6\r\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\r\n3w. 3:Qe2:h5');
   var action1 = actions[0];
   var action2 = chess.raw.parseFuncs.toAction(chess.raw.parseFuncs.fromAction(0, action1));
   expect(deepequal(action1,action2)).toBe(true);
