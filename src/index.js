@@ -45,7 +45,7 @@ class Chess {
   copy() {
     var newInstance = new Chess();
     newInstance.checkmateTimeout = this.checkmateTimeout;
-    newInstance.metadata = Objec.assign({}, this.metadata);
+    newInstance.metadata = Object.assign({}, this.metadata);
     newInstance.rawAction = this.rawAction;
     newInstance.rawBoardHistory = [];
     for(var i = 0;i < this.rawBoardHistory.length;i++) {
