@@ -65,7 +65,7 @@ class Chess {
     if(typeof this.metadata.variant === 'object') {
       this.rawAction = (this.metadata.variant.action - 1) * 2 + (this.metadata.variant.player === 'white' ? 0 : 1);
     }
-    this.rawBoardHistory = [this.rawBoard];
+    this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
   }
@@ -221,7 +221,7 @@ class Chess {
     if(!this.submittable(skipDetection)) {
       throw 'Action is not complete, more moves are needed';
     }
-    this.rawBoardHistory.push(this.rawBoard);
+    this.rawBoardHistory.push(boardFuncs.copy(this.rawBoard));
     this.rawActionHistory.push(copyFuncs.action(this.rawMoveBuffer));
     this.rawMoveBuffer = [];
     this.rawAction++;
