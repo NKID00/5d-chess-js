@@ -12,7 +12,7 @@ exports.actions = (input) => {
      - JSON of either above
      - Multiple actions as expressed in notation
   */
-  res = [];
+  var res = [];
   if(typeof input === 'string') {
     var tmp = null;
     try {
@@ -75,7 +75,7 @@ exports.action = (input) => {
      - JSON of either above
      - Single action as expressed in notation
   */
-  res = [];
+  var res = [];
   if(typeof input === 'string') {
     var tmp = null;
     try {
@@ -134,7 +134,7 @@ exports.move = (input) => {
      - JSON of either above
      - Single move as expressed in notation
   */
-  res = [];
+  var res = [];
   if(typeof input === 'string') {
     var tmp = null;
     try {
