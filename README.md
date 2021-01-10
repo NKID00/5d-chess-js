@@ -87,9 +87,9 @@ Metadata section: `[(Key) "(Value)"]`
 
 This is used to store metadata information about the game in the same style as chess PGN tags.
 
-Valid characters for the Value is alphanumeric characters, `_`, `-`, and `.`.
+Valid characters for the Key are alphanumeric characters, `_`, `-`, and `.`.
 
-Valid characters for the Value is alphanumeric characters, `_`, `-`, `/`, `*`, `.`, and space.
+Valid characters for the Value are alphanumeric characters, `_`, `-`, `/`, `*`, `.`, and space.
 
 The only required metadata is the `Variant` key. This is automatically added on export.
 
@@ -186,6 +186,13 @@ const Chess = require('5d-chess-js');
 var chess = new Chess('1w. 1:e2:e3\n1b. 1:f7:f6\n2w. 2:Nb1<>1:b3\n2b. 1+1:a7:a6\n3w. 2+1:c2:c3\n3b. 2:Nb8:c6\n3b. 2+1:Nb8:c6\n4w. 3:Qd1:h5\n4w. 3+1:Qd1:c2#');
 chess.print();
 ```
+
+### FEN
+
+If you wish to have your own, custom variants, then you may format them using the included 5DFEN format.
+Its grammar can be found at [fen.ebnf](./fen.ebnf).
+
+<!-- TODO: description here -->
 
 ## API
 
