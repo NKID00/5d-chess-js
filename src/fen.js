@@ -35,12 +35,12 @@ exports.OMMIT_UNMOVED = [
 ];
 
 /**
-    Converts a board (`boardObj`) into a 5DFEN board string.
+    Converts a turn (`turnObj`) into a 5DFEN board string.
 **/
-exports.toFen = (boardObj, l, t) => {
+exports.toFen = (turnObj, l, t) => {
     let blanks = 0;
     let res = "";
-    for (row of boardObj) {
+    for (row of turnObj) {
         for (piece of row) {
             if (piece == 0) {
                 blanks++;
@@ -70,7 +70,7 @@ exports.toFen = (boardObj, l, t) => {
     }
     res = res.slice(0, -1); // remove the last `/`
 
-    res += ';';
+    res += ':';
 
     if (l % 2 === 1) {
         l = -(l + 1) / 2;
@@ -86,9 +86,9 @@ exports.toFen = (boardObj, l, t) => {
         res += '0';
     }
 
-    res += ';';
+    res += ':';
     res += Math.floor(t / 2) + 1;
-    res += ';';
+    res += ':';
     res += t % 2 ? 'b' : 'w';
 
     return `[${res}]`;
@@ -104,7 +104,7 @@ exports.fromFen = (raw, width = 8, height = 8) => {
     if (raw.startsWith('[') && raw.endsWith(']')) {
         raw = raw.slice(1, -1);
     }
-    let split = raw.split(';');
+    let split = raw.split(':');
     if (split.length !== 4) {
         throw new Error("SyntaxError: raw 5DFEN board string doesn't have 4 fields.");
     }
@@ -169,4 +169,11 @@ exports.fromFen = (raw, width = 8, height = 8) => {
     }
 
     return [board, l, t];
+}
+
+exports.setTurn = (board, turn, l, t) => {
+    if (!board[l]) {
+        board[l] = [];
+    }
+    board[l][t] = turn;
 }

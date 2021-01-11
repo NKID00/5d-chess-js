@@ -196,7 +196,7 @@ Its grammar can be found at [fen.ebnf](./fen.ebnf).
 The boards that emerge from previous board after a possible move are then described using this library's movement notation.
 
 A *board string* is the 5DFEN way of describing the state of an initial board.
-A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by semicolons (`;`).
+A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by colons (`:`).
 There should be no spaces, as to not confuse a board string with a regular header.
 
 The first field contains the board's pieces:
@@ -242,6 +242,7 @@ The other three fields are:
 
 The following metadata fields are required to have within the headers of a game using 5DFEN:
 
+- `variant = "custom"`, as to indicate that 5DFEN needs to be used
 - `size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
 - `puzzle = "mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
   as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
@@ -252,15 +253,17 @@ This is how the standard position would be encoded:
 
 ```fen
 [size "8x8"]
-[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*;0;1;w]
+[variant "custom"]
+[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]
 ```
 
 This is how `Rook Tactics I` would be encoded:
 
 ```fen
 [size "5x5"]
+[variant "custom"]
 [puzzle "mate-in-1"]
-[4k/5/5/5/K1R;0;1;w]
+[4k/5/5/5/K1R:0:1:w]
 
 1w. 1:Ka1:b2
 1b. 1:Ke5:e4

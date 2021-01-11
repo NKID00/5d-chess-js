@@ -19,6 +19,7 @@ Initial boards encoded using this format contain the following pieces of informa
 
 The following metadata fields are required to have within the headers of a game using this extension:
 
+- `variant = "custom"`, as to indicate that 5DFEN needs to be used
 - `size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
 - `puzzle = "mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
   as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
@@ -29,7 +30,8 @@ This is how the standard position would be encoded:
 
 ```fen
 [size "8x8"]
-[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*;0;1;w]
+[variant "custom"]
+[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]
 ```
 
 This is how `Rook Tactics I` would be encoded, using Alexbay's notation:
@@ -37,7 +39,8 @@ This is how `Rook Tactics I` would be encoded, using Alexbay's notation:
 ```fen
 [size "5x5"]
 [puzzle "mate-in-1"]
-[4k/5/5/5/K1R;0;1;w]
+[variant "custom"]
+[4k/5/5/5/K1R:0:1:w]
 
 1w. 1:Ka1:b2
 1b. 1:Ke5:e4
@@ -48,7 +51,7 @@ This is how `Rook Tactics I` would be encoded, using Alexbay's notation:
 ## Semantical meaning
 
 A *board string* is the 5DFEN way of describing the state of an initial board.
-A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by semicolons (`;`).
+A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by colons (`:`).
 There should be no spaces, as to not confuse a board string with a regular header.
 
 The first field contains the board's pieces.
@@ -109,7 +112,7 @@ ROOT = [{HEADER}], [{BOARD}], [{MOVE}];
 MOVE = ? a move formatted in a formalized notation ?, [{space}];
 key_character = lowercase | uppercase | period | underscore | dash;
 HEADER = '[', {key_character}, {space}, '"', {escaped_string}, '"]', [{space}];
-BOARD = '[', fen_pieces, ';', board_layer, ';', board_time, ';', board_color, ']', [{space}];
+BOARD = '[', fen_pieces, ':', board_layer, ':', board_time, ':', board_color, ']', [{space}];
 
 (* ## FEN-formatted pieces *)
 fen_pieces = {fen_piece | number}, {'/', {fen_piece}};
