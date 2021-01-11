@@ -232,6 +232,12 @@ If a piece is sensitive to having been moved already or not and hasn't moved yet
 
 If `+` and `*` need to be combined, then `+` comes first: `q+*`.
 
+The other three fields are:
+- Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
+- Turn, as displayed in-game, may be `0`, `1`, `2`, etc.
+- Player color, may be `w` for white and `b` for black
+
+
 #### Required metadata
 
 The following metadata fields are required to have within the headers of a game using 5DFEN:
