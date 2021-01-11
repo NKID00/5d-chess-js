@@ -73,7 +73,7 @@ exports.toFen = (boardObj, l, t) => {
     res += ';';
 
     if (l % 2 === 1) {
-        l = -(l - 1) / 2;
+        l = -(l + 1) / 2;
     } else {
         l /= 2;
     }
@@ -148,9 +148,14 @@ exports.fromFen = (raw, width = 8, height = 8) => {
 
     if (isNaN(l)) {
         throw new Error("Invalid FEN timeline: " + split[1]);
+    } else if (l < 0) {
+        l = -l * 2 - 1;
+    } else {
+        l *= 2;
     }
 
     let t = +split[2] * 2;
+
     if (isNaN(t)) {
         throw new Error("Invalid FEN turn: " + split[2]);
     }
