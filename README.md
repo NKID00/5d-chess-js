@@ -192,7 +192,75 @@ chess.print();
 If you wish to have your own, custom variants, then you may format them using the included 5DFEN format.
 Its grammar can be found at [fen.ebnf](./fen.ebnf).
 
-<!-- TODO: description here -->
+5DFEN lets you define custom variants and starting positions by specifying the initial boards' layout instead of giving it a "variant" metadata tag.
+The boards that emerge from previous board after a possible move are then described using this library's movement notation.
+
+A *board string* is the 5DFEN way of describing the state of an initial board.
+A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by semicolons (`;`).
+There should be no spaces, as to not confuse a board string with a regular header.
+
+The first field contains the board's pieces:
+- The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
+- Each row is a string of pieces - encoded using letters (optionally followed by a `+`) - and blanks - encoded using numbers.
+- A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
+- To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be followed
+by a `+`.
+
+This is the list of the available pieces that you may put in a 5DFEN board string:
+- `P/p` for [p]awn
+- `B/b` for [b]ishop
+- `R/r` for [r]ook
+- `N/n` for k[n]ight
+- `K/k` for [k]ing
+- `Q/q` for [q]ueen
+- ~~`U/u` for [u]nicorn~~ (not yet available)
+- ~~`D/d` for [d]ragon~~ (not yet available)
+- `S/s` for prince[s]s
+- ~~`W/w` for bra[w]n~~ (not yet available)
+- ~~`C/c` for [c]ommon king~~ (not yet available)
+- ~~`Q+/q+` for royal [q]ueen~~ (not yet available)
+
+Blanks are encoded using numbers:
+- If there is a one-piece blank, then it is encoded using `1`.
+- If there is a two-piece blank, then it is encoded using `2`.
+- If there is a ten-piece blank, then it is encoded using `10.
+- If there is a N-piece blank, then it is encoded by writing `N` out in base 10.
+
+If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
+- An unmoved white pawn is encoded as `P*`
+- An unmoved black king is encoded as `k*`
+
+If `+` and `*` need to be combined, then `+` comes first: `q+*`.
+
+#### Required metadata
+
+The following metadata fields are required to have within the headers of a game using 5DFEN:
+
+- `size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
+- `puzzle = "mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
+  as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
+
+#### 5DFEN Examples:
+
+This is how the standard position would be encoded:
+
+```fen
+[size "8x8"]
+[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*;0;1;w]
+```
+
+This is how `Rook Tactics I` would be encoded:
+
+```fen
+[size "5x5"]
+[puzzle "mate-in-1"]
+[4k/5/5/5/K1R;0;1;w]
+
+1w. 1:Ka1:b2
+1b. 1:Ke5:e4
+2w. 2:Rc1:e1
+2b. 2:Ke4:d3
+```
 
 ## API
 
@@ -512,6 +580,7 @@ Here is the format: `board[timeline][turn][rank][file] = piece`
     - Rook: (white player: -8 [unmoved], 8 and black player: -7 [unmoved], 7)
     - Queen: (white player: 10 and black player: 9)
     - King: (white player: -12 [unmoved], 12 and black player: -11 [unmoved], 11)
+    - Princess: (white player: -14 [unmoved], 14 and black player: -13 [unmoved], 13)
 
 ## FAQ
 
