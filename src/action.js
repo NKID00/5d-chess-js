@@ -1,5 +1,7 @@
 const boardFuncs = require('@local/board');
+const copyFuncs = require('@local/copy');
 
+/*
 exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, variant = 'standard') => {
   var recurse =  (board, actionNum, layer = 0, totalMoves = 0, totalLayers = 0, totalIndex = []) => {
     var returnArr = [];
@@ -38,6 +40,54 @@ exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newA
     return [returnArr, totalMoves, totalLayers, totalIndex];
   }
   return recurse(board, actionNum)[0];
+}
+*/
+
+exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, variant = 'standard') => {
+  var moves = boardFuncs.moves(board, actionNum, activeOnly, presentOnly, variant);
+  var possibleMoves = copyFuncs.action(moves);
+  var returnArr = [];
+  for(var i = 0;i < moves.length;i++) {
+    returnArr.push([copyFuncs.move(moves[i])]);
+  }
+  var allDone = 0;
+  while(allDone < returnArr.length) {
+    allDone = 0;
+    for(var i = 0;i < returnArr.length;i++) {
+      var moddedBoard = boardFuncs.copy(board);
+      var skip = false;
+      for(var j = 0;!skip && j < returnArr[i].length;j++) {
+        try {
+          boardFuncs.move(moddedBoard, returnArr[i][j]);
+        }
+        catch(err) {
+          returnArr.splice(i, 1);
+          skip = true;
+          i--;
+        }
+      }
+      if(!skip && boardFuncs.present(moddedBoard, actionNum).length > 0) {
+        var baseAction = copyFuncs.action(returnArr[i]);
+        returnArr.splice(i, 1);
+        for(var j = 0;j < possibleMoves.length;j++) {
+          var currAction = copyFuncs.action(baseAction);
+          currAction.push(copyFuncs.move(possibleMoves[j]));
+          returnArr.splice(i, 0, currAction);
+        }
+        i--;
+      }
+      else if(!skip && boardFuncs.present(moddedBoard, actionNum).length <= 0) {
+        var baseAction = copyFuncs.action(returnArr[i]);
+        for(var j = 0;j < possibleMoves.length;j++) {
+          var currAction = copyFuncs.action(baseAction);
+          currAction.push(copyFuncs.move(possibleMoves[j]));
+          returnArr.splice(i+1, 0, currAction);
+        }
+        allDone++;
+      }
+    }
+  }
+  return returnArr;
 }
 
 exports.move = (board, moves) => {

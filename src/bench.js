@@ -25,7 +25,8 @@ var benchCurrMoves = () => {
   benchResults[Date.now() + ' ' + maxTimelines + ' Timelines, ' + maxTurns + ' Turns'] = {
     'Moves Generated': movesGenerated,
     'Time Taken (secs)': ((endM - startM) / 1000),
-    'Moves Generated per second': movesGenerated / ((endM - startM) / 1000)
+    'Moves Generated per second': movesGenerated / ((endM - startM) / 1000),
+    'Time per Move (us)': ((endM - startM) * 1000) / movesGenerated
   }
 }
 
@@ -48,7 +49,8 @@ var benchCurrActions = () => {
   benchResults[Date.now() + ' ' + maxTimelines + ' Timelines, ' + maxTurns + ' Turns'] = {
     'Actions Generated': actionsGenerated,
     'Time Taken (secs)': ((endA - startA) / 1000),
-    'Actions Generated per second': actionsGenerated / ((endA - startA) / 1000)
+    'Actions Generated per second': actionsGenerated / ((endA - startA) / 1000),
+    'Time per Action (us)': ((endA - startA) * 1000) / actionsGenerated
   }
 }
 
@@ -101,7 +103,7 @@ benchCurrActions();
 chess.move('3w. 2-1:Nb1<+2>+0:b3');
 chess.move('3w. 2+1:Nb3:d4');
 chess.submit();
-//benchCurrActions();
+benchCurrActions();
 chess.move('3b. 2:Nb8<-2>1:b6');
 chess.move('3b. 2-1:Nb8<-3>+0:b6');
 chess.move('3b. 2+1:a7:a6');

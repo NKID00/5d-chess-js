@@ -100,7 +100,7 @@ exports.copy = (board) => {
 }
 
 exports.move = (board, move) => {
-  if(this.positionExists(board, move[0]) && this.positionIsLatest(board, move[0])) {
+  if(this.positionExists(board, move[0]) && this.positionExists(board, move[1]) && this.positionIsLatest(board, move[0])) {
     var src = move[0];
     var dest = move[1];
     var newTurn = turnFuncs.copy(board, src[0], src[1]);
@@ -137,6 +137,9 @@ exports.move = (board, move) => {
       }
       board[src[0]][src[1] + 1] = newTurn;
     }
+    else {
+      throw 'Move not possible, piece does not exist.';
+    }
     if(move[2] !== undefined) {
       var src2 = move[2];
       if(move[3] !== undefined) {
@@ -148,6 +151,9 @@ exports.move = (board, move) => {
       }
       board[src2[0]][src2[1] + 1][src2[2]][src2[3]] = 0;
     }
+  }
+  else {
+    throw 'Move not possible, either source or destination position does not exist or source position is not the latest turn.';
   }
 }
 
