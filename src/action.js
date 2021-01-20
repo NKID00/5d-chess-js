@@ -66,24 +66,20 @@ exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newA
           i--;
         }
       }
-      if(!skip && boardFuncs.present(moddedBoard, actionNum).length > 0) {
-        var baseAction = copyFuncs.action(returnArr[i]);
-        returnArr.splice(i, 1);
-        for(var j = 0;j < possibleMoves.length;j++) {
-          var currAction = copyFuncs.action(baseAction);
-          currAction.push(copyFuncs.move(possibleMoves[j]));
-          returnArr.splice(i, 0, currAction);
+      if(!skip) {
+        if(boardFuncs.present(moddedBoard, actionNum).length > 0) {
+          var baseAction = copyFuncs.action(returnArr[i]);
+          returnArr.splice(i, 1);
+          for(var j = 0;j < possibleMoves.length;j++) {
+            var currAction = copyFuncs.action(baseAction);
+            currAction.push(copyFuncs.move(possibleMoves[j]));
+            returnArr.push(currAction);
+          }
+          i--;
         }
-        i--;
-      }
-      else if(!skip && boardFuncs.present(moddedBoard, actionNum).length <= 0) {
-        var baseAction = copyFuncs.action(returnArr[i]);
-        for(var j = 0;j < possibleMoves.length;j++) {
-          var currAction = copyFuncs.action(baseAction);
-          currAction.push(copyFuncs.move(possibleMoves[j]));
-          returnArr.splice(i+1, 0, currAction);
+        else {
+          allDone++;
         }
-        allDone++;
       }
     }
   }

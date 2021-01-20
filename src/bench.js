@@ -16,9 +16,9 @@ var benchCurrMoves = () => {
       maxTurns = chess.board.timelines[i].turns.length;
     }
   }
-  console.log('' + maxTimelines + ' Timeline(s), ' + maxTurns + ' Turn(s) Benchmark (x10000 Samples)');
+  console.log('' + maxTimelines + ' Timeline(s), ' + maxTurns + ' Turn(s) Benchmark');
   var startM = performance.now();
-  for(var i = 0;i < 10000;i++) {
+  while(performance.now() - startM < 10000) {
     movesGenerated += chess.moves('object', false, false, true).length;
   }
   var endM = performance.now();
@@ -39,9 +39,9 @@ var benchCurrActions = () => {
       maxTurns = chess.board.timelines[i].turns.length;
     }
   }
-  console.log('' + maxTimelines + ' Timeline(s), ' + maxTurns + ' Turn(s) Benchmark (x1 Samples)');
+  console.log('' + maxTimelines + ' Timeline(s), ' + maxTurns + ' Turn(s) Benchmark');
   var startA = performance.now();
-  for(var i = 0;i < 1;i++) {
+  while(performance.now() - startA < 10000) {
     actions = chess.actions('raw', false, false, true);
     actionsGenerated += actions.length;
   }
@@ -103,7 +103,7 @@ benchCurrActions();
 chess.move('3w. 2-1:Nb1<+2>+0:b3');
 chess.move('3w. 2+1:Nb3:d4');
 chess.submit();
-benchCurrActions();
+//benchCurrActions();
 chess.move('3b. 2:Nb8<-2>1:b6');
 chess.move('3b. 2-1:Nb8<-3>+0:b6');
 chess.move('3b. 2+1:a7:a6');
