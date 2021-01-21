@@ -376,7 +376,32 @@ exports.moveVecs = (piece) => {
   return [];
 }
 
-exports.moves = (board, src, variant = 'standard') => {
+exports.availablePromotionPieces = (board) => {
+  var res = [];
+  for(var l = 0;board && l < board.length;l++) {
+    for(var t = 0;board[l] && t < board[l].length;t++) {
+      for(var r = 0;board[l][t] && r < board[l][t].length;r++) {
+        for(var f = 0;board[l][t][r] && f < board[l][t][r].length;f++) {
+          var piece = Math.abs(board[l][t][r][f]);
+          if(!res.includes(piece)) {
+            if(
+              piece !== 0,
+              piece !== 1,
+              piece !== 2,
+              piece !== 11,
+              piece !== 12
+            ) {
+              res.push(piece);
+            }
+          }
+        }
+      }
+    }
+  }
+  return res;
+}
+
+exports.moves = (board, src) => {
   var res = [];
   if(boardFuncs.positionExists(board, src)) {
     var piece = board[src[0]][src[1]][src[2]][src[3]];
@@ -430,6 +455,10 @@ exports.moves = (board, src, variant = 'standard') => {
         else { blocking = true; }
       }
     }
+    var promotionPieces = [];
+    if(Math.abs(piece) === 1 || Math.abs(piece) === 2) {
+      promotionPieces = this.availablePromotionPieces(board);
+    }
     if(piece === 1 || piece === -1) {
       //Black forward single square RF movement
       var currMove = [src.slice(), src.slice()];
@@ -438,19 +467,11 @@ exports.moves = (board, src, variant = 'standard') => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0) {
           if(currMove[1][2] === 0) {
-            currMove[1][4] = 3;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 5;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 7;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            if(variant !== 'princess') {
-              currMove[1][4] = 9;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
-            }
-            else {
-              currMove[1][4] = 13;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
+            for(var i = 0;i < promotionPieces.length;i++) {
+              if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                currMove[1][4] = promotionPieces[i];
+                res.push([currMove[0].slice(), currMove[1].slice()]);
+              }
             }
           }
           else {
@@ -466,19 +487,11 @@ exports.moves = (board, src, variant = 'standard') => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           if(currMove[1][2] === 0) {
-            currMove[1][4] = 3;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 5;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 7;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            if(variant !== 'princess') {
-              currMove[1][4] = 9;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
-            }
-            else {
-              currMove[1][4] = 13;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
+            for(var i = 0;i < promotionPieces.length;i++) {
+              if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                currMove[1][4] = promotionPieces[i];
+                res.push([currMove[0].slice(), currMove[1].slice()]);
+              }
             }
           }
           else {
@@ -493,19 +506,11 @@ exports.moves = (board, src, variant = 'standard') => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           if(currMove[1][2] === 0) {
-            currMove[1][4] = 3;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 5;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 7;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            if(variant !== 'princess') {
-              currMove[1][4] = 9;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
-            }
-            else {
-              currMove[1][4] = 13;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
+            for(var i = 0;i < promotionPieces.length;i++) {
+              if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                currMove[1][4] = promotionPieces[i];
+                res.push([currMove[0].slice(), currMove[1].slice()]);
+              }
             }
           }
           else {
@@ -582,19 +587,11 @@ exports.moves = (board, src, variant = 'standard') => {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]+1][currMove[1][3]];
             if(destPiece === 0) {
               if(currMove[1][2] === 0) {
-                currMove[1][4] = 3;
-                res.push([currMove[0].slice(), currMove[1].slice()]);
-                currMove[1][4] = 5;
-                res.push([currMove[0].slice(), currMove[1].slice()]);
-                currMove[1][4] = 7;
-                res.push([currMove[0].slice(), currMove[1].slice()]);
-                if(variant !== 'princess') {
-                  currMove[1][4] = 9;
-                  res.push([currMove[0].slice(), currMove[1].slice()]);
-                }
-                else {
-                  currMove[1][4] = 13;
-                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                for(var i = 0;i < promotionPieces.length;i++) {
+                  if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                    currMove[1][4] = promotionPieces[i];
+                    res.push([currMove[0].slice(), currMove[1].slice()]);
+                  }
                 }
               }
               else {
@@ -682,19 +679,11 @@ exports.moves = (board, src, variant = 'standard') => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0) {
           if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-            currMove[1][4] = 4;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 6;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 8;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            if(variant !== 'princess') {
-              currMove[1][4] = 10;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
-            }
-            else {
-              currMove[1][4] = 14;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
+            for(var i = 0;i < promotionPieces.length;i++) {
+              if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                currMove[1][4] = promotionPieces[i];
+                res.push([currMove[0].slice(), currMove[1].slice()]);
+              }
             }
           }
           else {
@@ -710,19 +699,11 @@ exports.moves = (board, src, variant = 'standard') => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-            currMove[1][4] = 4;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 6;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 8;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            if(variant !== 'princess') {
-              currMove[1][4] = 10;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
-            }
-            else {
-              currMove[1][4] = 14;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
+            for(var i = 0;i < promotionPieces.length;i++) {
+              if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                currMove[1][4] = promotionPieces[i];
+                res.push([currMove[0].slice(), currMove[1].slice()]);
+              }
             }
           }
           else {
@@ -737,19 +718,11 @@ exports.moves = (board, src, variant = 'standard') => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-            currMove[1][4] = 4;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 6;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            currMove[1][4] = 8;
-            res.push([currMove[0].slice(), currMove[1].slice()]);
-            if(variant !== 'princess') {
-              currMove[1][4] = 10;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
-            }
-            else {
-              currMove[1][4] = 14;
-              res.push([currMove[0].slice(), currMove[1].slice()]);
+            for(var i = 0;i < promotionPieces.length;i++) {
+              if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                currMove[1][4] = promotionPieces[i];
+                res.push([currMove[0].slice(), currMove[1].slice()]);
+              }
             }
           }
           else {
@@ -826,19 +799,11 @@ exports.moves = (board, src, variant = 'standard') => {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
             if(destPiece === 0) {
               if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-                currMove[1][4] = 4;
-                res.push([currMove[0].slice(), currMove[1].slice()]);
-                currMove[1][4] = 6;
-                res.push([currMove[0].slice(), currMove[1].slice()]);
-                currMove[1][4] = 8;
-                res.push([currMove[0].slice(), currMove[1].slice()]);
-                if(variant !== 'princess') {
-                  currMove[1][4] = 10;
-                  res.push([currMove[0].slice(), currMove[1].slice()]);
-                }
-                else {
-                  currMove[1][4] = 14;
-                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                for(var i = 0;i < promotionPieces.length;i++) {
+                  if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                    currMove[1][4] = promotionPieces[i];
+                    res.push([currMove[0].slice(), currMove[1].slice()]);
+                  }
                 }
               }
               else {

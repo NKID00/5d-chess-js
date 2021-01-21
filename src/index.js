@@ -32,13 +32,21 @@ class Chess {
     };
     this.checkmateTimeout = 60000;
     this.metadata = {
-      variant: 'standard'
+      board: 'standard',
+      mode: '5D'
     };
-    if(variant !== undefined) {
-      this.metadata.variant = variant;
+    if(typeof variant === 'string') {
+      this.metadata.board = metadataFuncs.variantLookup(variant);
+      this.reset(this.metadata.board);
     }
-    this.reset();
-    if(input !== undefined) {
+    else if(typeof variant === 'object') {
+      this.metadata.board = 'custom';
+      this.reset(variant);
+    }
+    else {
+      this.reset();
+    }
+    if(typeof input !== 'undefined') {
       this.import(input);
     }
   }
@@ -57,37 +65,37 @@ class Chess {
     return newInstance;
   }
   reset(variant) {
-    if(typeof variant !== 'undefined') {
-      this.metadata.variant = variant;
+    if(typeof variant === 'string') {
+      this.metadata.board = metadataFuncs.variantLookup(variant);
+      this.rawBoard = boardFuncs.init(this.metadata.board);
     }
-    this.rawBoard = boardFuncs.init(this.metadata.variant);
-    this.rawAction = this.metadata.variant === 'turn_zero' ? 2 : 0;
-    if(typeof this.metadata.variant === 'object') {
-      this.rawAction = (this.metadata.variant.action - 1) * 2 + (this.metadata.variant.player === 'white' ? 0 : 1);
+    else if(typeof variant === 'object') {
+      this.metadata.board = 'custom';
+      this.rawBoard = boardFuncs.init(variant);
+    }
+    else {
+      this.rawBoard = boardFuncs.init();
+    }
+    //NOTE Special turn zero case for custom 'rawAction'
+    this.rawAction = this.metadata.board === 'turn_zero' ? 2 : 0;
+    if(typeof variant === 'object') {
+      this.rawAction = (variant.action - 1) * 2 + (variant.player === 'white' ? 0 : 1);
     }
     this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
   }
   import(input, variant, skipDetection = false) {
-    if(variant !== undefined) {
-      this.metadata.variant = variant;
-    }
     if(typeof input === 'string') {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
     }
-    this.reset();
+    this.reset(variant);
     var actions = convertFuncs.actions(input);
     for(var i = 0;i < actions.length;i++) {
       for(var j = 0;j < actions[i].length;j++) {
         this.move(actions[i][j], skipDetection);
       }
-      try {
-        this.submit(skipDetection);
-      }
-      catch(err) {
-        console.error('Error submitting');
-      }
+      this.submit(skipDetection);
     }
   }
   importable(input, skipDetection = false) {
@@ -134,7 +142,7 @@ class Chess {
     this.submit(skipDetection);
   }
   actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, skipDetection = false) {
-    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.variant);
+    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.board);
     if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
       var res = '';
@@ -183,7 +191,7 @@ class Chess {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
     }
-    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, this.metadata.variant);
+    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, this.metadata.board);
     if(format === 'raw') { return moves; }
     if(format.includes('notation')) {
       var res = '';
@@ -204,7 +212,7 @@ class Chess {
   moveable(input, skipDetection = false, moveGen = []) {
     try {
       var move = convertFuncs.move(input);
-      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.metadata.variant);
+      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.metadata.board);
     }
     catch(err) { return false; }
   }
@@ -243,7 +251,7 @@ class Chess {
       var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
         if(!skipDetection) {
-          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.variant)) {
+          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.board)) {
             var notationObj = notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]);
             console.error(notationObj);
             throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationObj.str;
@@ -266,7 +274,7 @@ class Chess {
     catch(err) { return false; }
   }
   checks(format = 'object') {
-    var checks = mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.variant);
+    var checks = mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.board);
     if(format === 'raw') { return checks; }
     if(format.includes('notation')) {
       var res = '';
@@ -275,7 +283,7 @@ class Chess {
       }
       return res;
     }
-    res = [];
+    var res = [];
     for(var i = 0;i < checks.length;i++) {
       res.push(parseFuncs.fromMove(checks[i]));
     }
@@ -285,13 +293,13 @@ class Chess {
     return res;
   }
   get inCheckmate() {
-    return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction, this.checkmateTimeout, this.metadata.variant);
+    return (this.rawMoveBuffer.length <= 0) && mateFuncs.checkmate(this.rawBoard, this.rawAction, this.checkmateTimeout, this.metadata.board);
   }
   get inCheck() {
-    return mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.variant).length > 0;
+    return mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.board).length > 0;
   }
   get inStalemate() {
-    return mateFuncs.stalemate(this.rawBoard, this.rawAction, this.metadata.variant);
+    return mateFuncs.stalemate(this.rawBoard, this.rawAction, this.metadata.board);
   }
   get hash() {
     return hashFuncs.hash(this.rawBoard);
@@ -306,7 +314,7 @@ class Chess {
     }); }
     var res = '';
     res += metadataFuncs.objToStr(this.metadata);
-    var tmpBoard = boardFuncs.copy(boardFuncs.init(this.metadata.variant));
+    var tmpBoard = boardFuncs.copy(boardFuncs.init(this.metadata.board));
     for(var i = 0;i < this.rawActionHistory.length;i++) {
       for(var j = 0;j < this.rawActionHistory[i].length;j++) {
         var currMove = this.rawActionHistory[i][j];
