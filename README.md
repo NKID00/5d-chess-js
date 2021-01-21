@@ -2,7 +2,7 @@
 
 Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.
 
-## Notice
+# !!Notice!!
 
 5d-chess-js is currently under a restructuring operation (under branch operation-astron). This operation is to make the library compliant with Shad Amethyst's notation system as described here: https://github.com/adri326/5dchess-notation
 
