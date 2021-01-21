@@ -170,7 +170,9 @@ class Chess {
     var move = convertFuncs.move(input);
     if(!skipDetection) {
       if(!this.moveable(move, skipDetection)) {
-        throw 'Move is invalid and an error has occurred with this move: ' + notationFuncs.moveNotation(this.rawBoard, this.rawAction, move).str;
+        var notationObj = notationFuncs.moveNotation(this.rawBoard, this.rawAction, move);
+        console.error(notationObj);
+        throw 'Move is invalid and an error has occurred with this move: ' + notationObj.str;
       }
     }
     this.rawMoveBuffer.push(move);
@@ -242,7 +244,9 @@ class Chess {
       for(var i = 0;i < tmpBuffer.length;i++) {
         if(!skipDetection) {
           if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.variant)) {
-            throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]).str;
+            var notationObj = notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]);
+            console.error(notationObj);
+            throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationObj.str;
           }
         }
         boardFuncs.move(tmpBoard, tmpBuffer[i]);

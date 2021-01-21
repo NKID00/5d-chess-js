@@ -10,10 +10,10 @@ exports.sanCoord = (input) => {
   if(typeof input === 'string') {
     res.str = input;
     res.arr[1] = input.charCodeAt(0) - 97;
-    res.arr[0] = 8 - Number(input.charAt(1));
+    res.arr[0] = Number(input.charAt(1)) - 1;
   }
   else if(Array.isArray(input)) {
-    res.str = String.fromCharCode(input[1] + 97) + (8 - input[0]);
+    res.str = String.fromCharCode(input[1] + 97) + (input[0] + 1);
     res.arr = input;
   }
   return res;
@@ -127,13 +127,13 @@ exports.moveNotation = (board, actionNum, input, minimize = false) => {
       res.arr[3][1] = res.arr[0][1];
       res.arr[0][3] = 4;
       if(res.action % 2 !== 0) {
-        res.arr[0][2] = 0;
+        res.arr[0][2] = 7;
         res.arr[1][2] = res.arr[0][2];
         res.arr[2][2] = res.arr[0][2];
         res.arr[3][2] = res.arr[0][2];
       }
       else {
-        res.arr[0][2] = 7;
+        res.arr[0][2] = 0;
         res.arr[1][2] = res.arr[0][2];
         res.arr[2][2] = res.arr[0][2];
         res.arr[3][2] = res.arr[0][2];

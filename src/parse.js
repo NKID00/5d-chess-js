@@ -31,7 +31,7 @@ exports.fromPosition = (position) => {
   res.turn = Math.floor(position[1]/2) + 1;
   res.player = (position[1] % 2 === 0 ? 'white' : 'black');
   res.coordinate = notationFuncs.sanCoord([position[2], position[3]]).str;
-  res.rank = 8 - position[2];
+  res.rank = position[2];
   res.file = position[3] + 1;
   return res;
 }
@@ -187,6 +187,16 @@ exports.fromTurn = (board, timeline, turn) => {
 
 exports.toTimeline = (timelineObj) => {
   var res = [];
+  var maxTurnNumber = 0;
+  for(var i = 0;i < timelineObj.turns.length;i++) {
+    var newTurnNumber = ((timelineObj.turns[i].turn - 1) * 2) + (timelineObj.turns[i].player === 'white' ? 0 : 1);
+    if(maxTurnNumber < newTurnNumber) {
+      maxTurnNumber = newTurnNumber;
+    }
+  }
+  for(var i = 0;i < maxTurnNumber;i++) {
+    res[i] = null;
+  }
   for(var i = 0;i < timelineObj.turns.length;i++) {
     var newTurnNumber = ((timelineObj.turns[i].turn - 1) * 2) + (timelineObj.turns[i].player === 'white' ? 0 : 1);
     res[newTurnNumber] = this.toTurn(timelineObj.turns[i]);
@@ -211,7 +221,7 @@ exports.fromTimeline = (board, actionNum, timeline) => {
   res.present = boardFuncs.present(board, actionNum).includes(timeline);
   var currTimeline = board[timeline];
   for(var i = 0;i < currTimeline.length;i++) {
-    if(currTimeline[i] !== undefined) {
+    if(!(typeof currTimeline[i] === 'undefined' || currTimeline[i] === null)) {
       res.turns.push(this.fromTurn(board, timeline, i));
     }
   }
@@ -220,6 +230,19 @@ exports.fromTimeline = (board, actionNum, timeline) => {
 
 exports.toBoard = (boardObj) => {
   var res = [];
+  var maxTimelineNumber = 0;
+  for(var i = 0;i < boardObj.timelines.length;i++) {
+    var newTimelineNumber = (boardObj.timelines[i].timeline*2);
+    if(boardObj.timelines[i].timeline < 0) {
+      newTimelineNumber = ((-boardObj.timelines[i].timeline.timeline)*2) - 1;
+    }
+    if(maxTimelineNumber < newTimelineNumber) {
+      maxTimelineNumber = newTimelineNumber;
+    }
+  }
+  for(var i = 0;i < maxTimelineNumber;i++) {
+    res[i] = null;
+  }
   for(var i = 0;i < boardObj.timelines.length;i++) {
     var newTimelineNumber = (boardObj.timelines[i].timeline*2);
     if(boardObj.timelines[i].timeline < 0) {
@@ -236,7 +259,7 @@ exports.fromBoard = (board, actionNum) => {
   res.player = (actionNum % 2 === 0 ? 'white' : 'black');
   res.timelines = [];
   for(var i = 0;i < board.length;i++) {
-    if(board[i] !== undefined) {
+    if(!(typeof board[i] === 'undefined' || board[i] === null)) {
       res.timelines.push(this.fromTimeline(board, actionNum, i));
     }
   }
