@@ -20,7 +20,7 @@ exports.actions = (input) => {
     }
     catch(err) {}
     if(tmp === null) {
-      var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').filter(e => !e.includes('[') && e !== '');
+      var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').map(e => e.trim()).filter(e => !e.includes('[') && e !== '');
       var tmpAction = [];
       var tmpCurrAction = null;
       for(var i = 0;i < splitStr.length;i++) {

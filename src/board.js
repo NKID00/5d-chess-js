@@ -64,6 +64,9 @@ exports.init = (variant) => {
       ]
     ]];
   }
+  else if (variant === 'custom') {
+    return [];
+  }
   else if(typeof variant === 'object') {
     return parseFuncs.toBoard(variant);
   }

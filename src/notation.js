@@ -2,6 +2,7 @@ const boardFuncs = require('@local/board');
 const mateFuncs = require('@local/mate');
 const pieceFuncs = require('@local/piece');
 
+// TODO: un-hardcode 8
 exports.sanCoord = (input) => {
   var res = {
     str: '',

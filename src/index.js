@@ -4,6 +4,7 @@ const actionFuncs = require('@local/action');
 const boardFuncs = require('@local/board');
 const convertFuncs = require('@local/convert');
 const copyFuncs = require('@local/copy');
+const fenFuncs = require('@local/fen');
 const hashFuncs = require('@local/hash');
 const parseFuncs = require('@local/parse');
 const pieceFuncs = require('@local/piece');
@@ -77,6 +78,9 @@ class Chess {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
     }
     this.reset();
+    if(this.metadata.variant === 'custom') {
+      this.importFen(input);
+    }
     var actions = convertFuncs.actions(input);
     for(var i = 0;i < actions.length;i++) {
       for(var j = 0;j < actions[i].length;j++) {
@@ -87,6 +91,28 @@ class Chess {
       }
       catch(err) {
         console.error('Error submitting');
+        console.error(err);
+      }
+    }
+  }
+  importFen(input) {
+    // Read width and height
+    let width = 8;
+    let height = 8;
+
+    let match;
+    if(match = /^(\d+)x(\d+)$/.exec(this.metadata.size || "")) {
+      width = +match[1];
+      height = +match[2];
+    }
+
+    // Look for 5DFEN strings and parse them
+    for(var line of input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n')) {
+      line = line.trim();
+      if(line.startsWith('[') && line.endsWith(']') && !/\s/.exec(line)) {
+        let [turn, l, t] = fenFuncs.fromFen(line, width, height);
+        fenFuncs.setTurn(this.rawBoard, turn, l, t);
+        fenFuncs.setTurn(this.rawBoardHistory, turn, l, t);
       }
     }
   }
