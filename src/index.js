@@ -4,6 +4,7 @@ const actionFuncs = require('@local/action');
 const boardFuncs = require('@local/board');
 const convertFuncs = require('@local/convert');
 const copyFuncs = require('@local/copy');
+const fenFuncs = require('@local/fen');
 const hashFuncs = require('@local/hash');
 const parseFuncs = require('@local/parse');
 const pieceFuncs = require('@local/piece');
