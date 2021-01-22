@@ -40,7 +40,7 @@ This is how `Rook Tactics I` would be encoded, using Alexbay's notation:
 [size "5x5"]
 [puzzle "mate-in-1"]
 [variant "custom"]
-[4k/5/5/5/K1R:0:1:w]
+[4k/5/5/5/K1R2:0:1:w]
 
 1w. 1:Ka1:b2
 1b. 1:Ke5:e4

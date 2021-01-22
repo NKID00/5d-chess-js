@@ -40,8 +40,8 @@ exports.OMMIT_UNMOVED = [
 exports.toFen = (turnObj, l, t) => {
     let blanks = 0;
     let res = "";
-    for (row of turnObj) {
-        for (piece of row) {
+    for (let row of turnObj) {
+        for (let piece of row) {
             if (piece == 0) {
                 blanks++;
             } else if (blanks > 0) {
@@ -113,7 +113,7 @@ exports.fromFen = (raw, width = 8, height = 8) => {
         throw new Error("SyntaxError: the amount of rows isn't equal to the height of the board, did you forget a slash (/) or to set the `size` header?");
     }
     let board = [];
-    for (raw_row of rows) {
+    for (let raw_row of rows) {
         let row = [];
         while (raw_row.length) {
             let match;
