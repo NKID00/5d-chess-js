@@ -2,7 +2,7 @@ exports.strToObj = (str) => {
   var obj = {};
   var strArr = str.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n');
   for(var i = 0;i < strArr.length;i++) {
-    var regex = strArr[i].match(/\[([\w\.\-]+)\s\"([\w\.\-\/\*\s]+)\"\]/);
+    var regex = strArr[i].match(/\[([\w\.\-_]+)\s+\"([\w\.\-\/\*\s\']+)\"\]/);
     if(regex !== null) {
       obj[regex[1].toLowerCase()] = regex[2];
       try {
@@ -20,11 +20,41 @@ exports.objToStr = (obj) => {
   var objArr = Object.keys(obj);
   for(var i = 0;i < objArr.length;i++) {
     if(typeof obj[objArr[i]] === 'object') {
-      str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + JSON.stringify(obj[objArr[i]]) + '\"]\n';
+      str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + JSON.stringify(obj[objArr[i]]).replace(/\"/g, '\'') + '\"]\n';
+    }
+    else if(objArr[i] === 'board') {
+      str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + this.lookupVariantFull(obj[objArr[i]]) + '\"]\n';
     }
     else {
       str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + obj[objArr[i]] + '\"]\n';
     }
   }
   return str;
+}
+
+const variantDict = [
+  ['Standard', 'standard'],
+  ['Standard - Defended Pawn', 'defended_pawn'],
+  ['Standard - Half Reflected', 'half_reflected'],
+  ['Standard - Princess', 'princess'],
+  ['Standard - Turn Zero', 'turn_zero'],
+  ['Custom', 'custom']
+]
+
+exports.lookupVariant = (variantPrettyStr) => {
+  for(var i = 0;i < variantDict.length;i++) {
+    if(variantDict[i][0].toLocaleLowerCase().includes(variantPrettyStr.toLocaleLowerCase())) {
+      return variantDict[i][1];
+    }
+  }
+  return 'standard';
+}
+
+exports.lookupVariantFull = (variantStr) => {
+  for(var i = 0;i < variantDict.length;i++) {
+    if(variantDict[i][1] === variantStr) {
+      return variantDict[i][0];
+    }
+  }
+  return 'Standard';
 }

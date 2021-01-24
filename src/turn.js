@@ -7,5 +7,8 @@ exports.copy = (board, timeline, turn) => {
       }
     }
   }
+  if(res.length <= 0) {
+    return null;
+  }
   return res;
 }
