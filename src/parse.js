@@ -1,5 +1,5 @@
 const boardFuncs = require('@local/board');
-const notationFuncs = require('@local/notation');
+const pgnFuncs = require('@local/pgn');
 const pieceFuncs = require('@local/piece');
 
 exports.toPosition = (positionObj) => {
@@ -11,9 +11,9 @@ exports.toPosition = (positionObj) => {
     res[0] = ((-positionObj.timeline)*2) - 1;
   }
   res[1] = ((positionObj.turn - 1) * 2) + (positionObj.player === 'white' ? 0 : 1);
-  var coord = notationFuncs.sanCoord(positionObj.coordinate);
-  res[2] = coord.arr[0];
-  res[3] = coord.arr[1];
+  var coord = pgnFuncs.fromSanCoord(positionObj.coordinate);
+  res[2] = coord[0];
+  res[3] = coord[1];
   return res;
 }
 
@@ -30,8 +30,8 @@ exports.fromPosition = (position) => {
   }
   res.turn = Math.floor(position[1]/2) + 1;
   res.player = (position[1] % 2 === 0 ? 'white' : 'black');
-  res.coordinate = notationFuncs.sanCoord([position[2], position[3]]).str;
-  res.rank = position[2];
+  res.coordinate = pgnFuncs.toSanCoord([position[2], position[3]]);
+  res.rank = position[2] + 1;
   res.file = position[3] + 1;
   return res;
 }
