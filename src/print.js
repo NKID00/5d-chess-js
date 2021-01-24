@@ -44,46 +44,46 @@ exports.turnArray = (board, timeline, turn) => {
         for(var f = 0;f < board[timeline][turn][r].length;f++) {
           var piece = Math.abs(board[timeline][turn][r][f]);
           if(piece === 1) {
-            res[r + 1][f + 1] = 'p';
+            res[8 - r][f + 1] = 'p';
           }
           else if(piece === 3) {
-            res[r + 1][f + 1] = 'b';
+            res[8 - r][f + 1] = 'b';
           }
           else if(piece === 5) {
-            res[r + 1][f + 1] = 'n';
+            res[8 - r][f + 1] = 'n';
           }
           else if(piece === 7) {
-            res[r + 1][f + 1] = 'r';
+            res[8 - r][f + 1] = 'r';
           }
           else if(piece === 9) {
-            res[r + 1][f + 1] = 'q';
+            res[8 - r][f + 1] = 'q';
           }
           else if(piece === 11) {
-            res[r + 1][f + 1] = 'k';
+            res[8 - r][f + 1] = 'k';
           }
           else if(piece === 13) {
-            res[r + 1][f + 1] = 's';
+            res[8 - r][f + 1] = 's';
           }
           else if(piece === 2) {
-            res[r + 1][f + 1] = 'P';
+            res[8 - r][f + 1] = 'P';
           }
           else if(piece === 4) {
-            res[r + 1][f + 1] = 'B';
+            res[8 - r][f + 1] = 'B';
           }
           else if(piece === 6) {
-            res[r + 1][f + 1] = 'N';
+            res[8 - r][f + 1] = 'N';
           }
           else if(piece === 8) {
-            res[r + 1][f + 1] = 'R';
+            res[8 - r][f + 1] = 'R';
           }
           else if(piece === 10) {
-            res[r + 1][f + 1] = 'Q';
+            res[8 - r][f + 1] = 'Q';
           }
           else if(piece === 12) {
-            res[r + 1][f + 1] = 'K';
+            res[8 - r][f + 1] = 'K';
           }
           else if(piece === 14) {
-            res[r + 1][f + 1] = 'S';
+            res[8 - r][f + 1] = 'S';
           }
         }
       }
