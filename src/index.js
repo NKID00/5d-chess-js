@@ -7,6 +7,7 @@ const copyFuncs = require('@local/copy');
 const fenFuncs = require('@local/fen');
 const hashFuncs = require('@local/hash');
 const parseFuncs = require('@local/parse');
+const pgnFuncs = require('@local/pgn');
 const pieceFuncs = require('@local/piece');
 const printFuncs = require('@local/print');
 const mateFuncs = require('@local/mate');
@@ -21,11 +22,13 @@ class Chess {
       actionFuncs: actionFuncs,
       boardFuncs: boardFuncs,
       convertFuncs: convertFuncs,
+      fenFuncs: fenFuncs,
       hashFuncs: hashFuncs,
       mateFuncs: mateFuncs,
       metadataFuncs: metadataFuncs,
       notationFuncs: notationFuncs,
       parseFuncs: parseFuncs,
+      pgnFuncs: pgnFuncs,
       pieceFuncs: pieceFuncs,
       printFuncs: printFuncs,
       turnFuncs: turnFuncs,
@@ -36,19 +39,21 @@ class Chess {
       board: 'standard',
       mode: '5D'
     };
-    if(typeof variant === 'string') {
-      this.metadata.board = metadataFuncs.variantLookup(variant);
-      this.reset(this.metadata.board);
-    }
-    else if(typeof variant === 'object') {
-      this.metadata.board = 'custom';
-      this.reset(variant);
+    if(typeof input !== 'undefined') {
+      this.import(input, variant);
     }
     else {
-      this.reset();
-    }
-    if(typeof input !== 'undefined') {
-      this.import(input);
+      if(typeof variant === 'string') {
+        this.metadata.board = metadataFuncs.lookupVariant(variant);
+        this.reset(this.metadata.board);
+      }
+      else if(typeof variant === 'object') {
+        this.metadata.board = 'custom';
+        this.reset(variant);
+      }
+      else {
+        this.reset();
+      }
     }
   }
   copy() {
@@ -56,6 +61,7 @@ class Chess {
     newInstance.checkmateTimeout = this.checkmateTimeout;
     newInstance.metadata = Object.assign({}, this.metadata);
     newInstance.rawAction = this.rawAction;
+    newInstance.rawStartingAction = this.rawStartingAction;
     newInstance.rawBoardHistory = [];
     for(var i = 0;i < this.rawBoardHistory.length;i++) {
       newInstance.rawBoardHistory.push(boardFuncs.copy(this.rawBoardHistory[i]));
@@ -67,7 +73,7 @@ class Chess {
   }
   reset(variant) {
     if(typeof variant === 'string') {
-      this.metadata.board = metadataFuncs.variantLookup(variant);
+      this.metadata.board = metadataFuncs.lookupVariant(variant);
       this.rawBoard = boardFuncs.init(this.metadata.board);
     }
     else if(typeof variant === 'object') {
@@ -77,11 +83,11 @@ class Chess {
     else {
       this.rawBoard = boardFuncs.init();
     }
-    //NOTE Special turn zero case for custom 'rawAction'
-    this.rawAction = this.metadata.board === 'turn_zero' ? 2 : 0;
-    if(typeof variant === 'object') {
-      this.rawAction = (variant.action - 1) * 2 + (variant.player === 'white' ? 0 : 1);
+    this.rawAction = 0;
+    if(typeof this.rawBoard[0] !== 'undefined' && this.rawBoard[0] !== null) {
+      this.rawAction = this.rawBoard[0].length % 2 === 0 ? 1 : 0;
     }
+    this.rawStartingAction = this.rawAction;
     this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
@@ -91,7 +97,15 @@ class Chess {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
     }
     this.reset(variant);
-    var actions = convertFuncs.actions(input);
+    if(this.metadata.board === 'custom') {
+      this.fen(input);
+      if(typeof this.rawBoard[0] !== 'undefined' && this.rawBoard[0] !== null) {
+        this.rawAction = this.rawBoard[0].length % 2 === 0 ? 1 : 0;
+      }
+      this.rawStartingAction = this.rawAction;
+      this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
+    }
+    var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction);
     for(var i = 0;i < actions.length;i++) {
       for(var j = 0;j < actions[i].length;j++) {
         this.move(actions[i][j], skipDetection);
@@ -103,6 +117,35 @@ class Chess {
     try {
       var newInstance = this.copy();
       newInstance.import(input, skipDetection);
+      return true;
+    }
+    catch(err) { return false; }
+  }
+  fen(input) {
+    // Read width and height
+    let width = 8;
+    let height = 8;
+
+    let match;
+    Object.assign(this.metadata, metadataFuncs.strToObj(input));
+    if(match = /^(\d+)x(\d+)$/.exec(this.metadata.size || "")) {
+      width = +match[1];
+      height = +match[2];
+    }
+
+    // Look for 5DFEN strings and parse them
+    for(var line of input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n')) {
+      line = line.trim();
+      if(line.startsWith('[') && line.endsWith(']') && !/\s/.exec(line)) {
+        let [turn, l, t] = fenFuncs.fromFen(line, width, height);
+        boardFuncs.setTurn(this.rawBoard, l, t, turn);
+      }
+    }
+  }
+  fenable(input) {
+    try {
+      var newInstance = this.copy();
+      newInstance.fen(input);
       return true;
     }
     catch(err) { return false; }
@@ -136,7 +179,7 @@ class Chess {
         throw 'Cannot submit, currently in stalemate.';
       }
     }
-    var moves = convertFuncs.action(input);
+    var moves = convertFuncs.action(input, this.rawBoard, this.rawAction);
     for(var i = 0;i < moves.length;i++) {
       this.move(moves[i], skipDetection);
     }
@@ -153,6 +196,21 @@ class Chess {
             res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, actions[i][j], format.includes('short')).str + '\n';
           }
         }
+      }
+      return res;
+    }
+    if(format.includes('5dpgn')) {
+      var res = '';
+      for(var i = 0;i < actions.length;i++) {
+        res += pgnFuncs.fromMove(
+          actions[i],
+          this.rawBoard,
+          this.rawAction,
+          '',
+          format.includes('active_token'),
+          format.includes('timeline_token'),
+          format.includes('superphysical_token')
+        ) + '\n';
       }
       return res;
     }
@@ -176,7 +234,7 @@ class Chess {
     catch(err) { return false; }
   }
   move(input, skipDetection = false) {
-    var move = convertFuncs.move(input);
+    var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
     if(!skipDetection) {
       if(!this.moveable(move, skipDetection)) {
         var notationObj = notationFuncs.moveNotation(this.rawBoard, this.rawAction, move);
@@ -201,6 +259,21 @@ class Chess {
       }
       return res;
     }
+    if(format.includes('5dpgn')) {
+      var res = '';
+      for(var i = 0;i < moves.length;i++) {
+        res += pgnFuncs.fromMove(
+          moves[i],
+          this.rawBoard,
+          this.rawAction,
+          '',
+          format.includes('active_token'),
+          format.includes('timeline_token'),
+          format.includes('superphysical_token')
+        ) + '\n';
+      }
+      return res;
+    }
     res = [];
     for(var i = 0;i < moves.length;i++) {
       res.push(parseFuncs.fromMove(moves[i]));
@@ -212,7 +285,7 @@ class Chess {
   }
   moveable(input, skipDetection = false, moveGen = []) {
     try {
-      var move = convertFuncs.move(input);
+      var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
       return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.metadata.board);
     }
     catch(err) { return false; }
@@ -284,6 +357,20 @@ class Chess {
       }
       return res;
     }
+    if(format.includes('5dpgn')) {
+      var res = '';
+      for(var i = 0;i < checks.length;i++) {
+        res += pgnFuncs.fromMove(
+          checks[i],
+          this.rawBoard,
+          this.rawAction,
+          format.includes('active_token'),
+          format.includes('timeline_token'),
+          format.includes('superphysical_token')
+        ) + '\n';
+      }
+      return res;
+    }
     var res = [];
     for(var i = 0;i < checks.length;i++) {
       res.push(parseFuncs.fromMove(checks[i]));
@@ -305,7 +392,7 @@ class Chess {
   get hash() {
     return hashFuncs.hash(this.rawBoard);
   }
-  export(format = 'notation') {
+  export(format = '5dpgn') {
     if(format === 'raw') { return this.rawActionHistory; }
     if(format === 'json') { return JSON.stringify(this.rawActionHistory.map((e,i) => {
       return parseFuncs.fromAction(i,e);
@@ -315,15 +402,28 @@ class Chess {
     }); }
     var res = '';
     res += metadataFuncs.objToStr(this.metadata);
-    var tmpBoard = boardFuncs.copy(boardFuncs.init(this.metadata.board));
-    for(var i = 0;i < this.rawActionHistory.length;i++) {
-      for(var j = 0;j < this.rawActionHistory[i].length;j++) {
-        var currMove = this.rawActionHistory[i][j];
-        if(format.includes('notation')) {
+    if(format.includes('notation')) {
+      var tmpBoard = boardFuncs.copy(boardFuncs.init(this.metadata.board));
+      for(var i = 0;i < this.rawActionHistory.length;i++) {
+        for(var j = 0;j < this.rawActionHistory[i].length;j++) {
+          var currMove = this.rawActionHistory[i][j];
           res += notationFuncs.moveNotation(tmpBoard, i, currMove, format.includes('short')).str + '\n';
+          boardFuncs.move(tmpBoard, currMove);
         }
-        boardFuncs.move(tmpBoard, currMove);
       }
+    }
+    if(format.includes('5dpgn')) {
+      var suffixArr = []; //TODO implement check, checkmate, softmate
+      res += pgnFuncs.fromActionHistory(
+        this.rawActionHistory,
+        this.rawBoardHistory[0],
+        this.rawStartingAction,
+        format.includes('inline') ? ' ' : '\n',
+        suffixArr,
+        format.includes('active_token'),
+        format.includes('timeline_token'),
+        format.includes('superphysical_token')
+      );
     }
     return res;
   }

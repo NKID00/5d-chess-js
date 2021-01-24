@@ -1,4 +1,3 @@
-
 /*! # FEN Conversion utilities
 
     This module contains a few functions allowing the conversion from/to 5DFEN.
@@ -24,22 +23,22 @@ exports.FROM_FEN = {
     'S': 14
 };
 exports.OMMIT_UNMOVED = [
-    true,
-    false, false,
-    true, true,
-    true, true,
-    false, false,
-    true, true,
-    false, false,
-    true, true,
+    true,           //none
+    false, false,   //pawn
+    true, true,     //bishop
+    true, true,     //knight
+    false, false,   //rook
+    true, true,     //queen
+    false, false,   //king
+    true, true,     //princess
 ];
 
 /**
-    Converts a turn (`turnObj`) into a 5DFEN board string.
+    Converts a raw turn (`turn`) into a 5DFEN board string.
 **/
 exports.toFen = (turnObj, l, t) => {
     let blanks = 0;
-    let res = "";
+    let res = '';
     for (let row of turnObj) {
         for (let piece of row) {
             if (piece == 0) {
@@ -138,6 +137,10 @@ exports.fromFen = (raw, width = 8, height = 8) => {
         }
         board.push(row);
     }
+    var reversedTurn = [];
+    for(var i = board.length - 1;i >= 0;i--) {
+        reversedTurn.push(board[i]);
+    }
 
     let l;
     if (split[1] === '-0' || split[1] === '+0') {
@@ -168,12 +171,6 @@ exports.fromFen = (raw, width = 8, height = 8) => {
         throw new Error("Invalid FEN color: " + split[3]);
     }
 
-    return [board, l, t];
+    return [reversedTurn, l, t];
 }
 
-exports.setTurn = (board, turn, l, t) => {
-    if (!board[l]) {
-        board[l] = [];
-    }
-    board[l][t] = turn;
-}

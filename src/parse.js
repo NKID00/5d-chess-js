@@ -77,7 +77,7 @@ exports.fromMove = (move) => {
   res.end = this.fromPosition(move[1]);
   res.player = (move[0][1] % 2 === 0 ? 'white' : 'black');
   if(move[1][4] !== undefined && move.length === 2) {
-    res.promotion = pieceFuncs.char(move[1][4]);
+    res.promotion = pieceFuncs.toChar(move[1][4]);
   }
   if(move.length === 3) {
     res.enPassant = this.fromPosition(move[2]);
@@ -137,7 +137,7 @@ exports.fromPiece = (board, pos) => {
   var res = {};
   var piece = board[pos[0]][pos[1]][pos[2]][pos[3]];
   res.position = this.fromPosition(pos);
-  res.piece = pieceFuncs.char(piece);
+  res.piece = pieceFuncs.toChar(piece);
   res.player = (Math.abs(piece) % 2 === 0 ? 'white' : 'black');
   res.hasMoved = piece > 0;
   return res;

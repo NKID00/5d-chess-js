@@ -22,6 +22,9 @@ exports.objToStr = (obj) => {
     if(typeof obj[objArr[i]] === 'object') {
       str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + JSON.stringify(obj[objArr[i]]).replace(/\"/g, '\'') + '\"]\n';
     }
+    else if(objArr[i] === 'board') {
+      str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + this.lookupVariantFull(obj[objArr[i]]) + '\"]\n';
+    }
     else {
       str += '[' + objArr[i].charAt(0).toUpperCase() + objArr[i].substr(1) + ' \"' + obj[objArr[i]] + '\"]\n';
     }
@@ -30,17 +33,17 @@ exports.objToStr = (obj) => {
 }
 
 const variantDict = [
-  ['defended_pawn', 'defended_pawn'],
-  ['half_reflected', 'half_reflected'],
-  ['princess', 'princess'],
-  ['turn_zero', 'turn_zero'],
-  ['standard', 'standard'],
+  ['Standard', 'standard'],
+  ['Standard - Defended Pawn', 'defended_pawn'],
+  ['Standard - Half Reflected', 'half_reflected'],
+  ['Standard - Princess', 'princess'],
+  ['Standard - Turn Zero', 'turn_zero'],
   ['Custom', 'custom']
 ]
 
 exports.lookupVariant = (variantPrettyStr) => {
   for(var i = 0;i < variantDict.length;i++) {
-    if(variantDict[i][0] === variantPrettyStr) {
+    if(variantDict[i][0].toLocaleLowerCase().includes(variantPrettyStr.toLocaleLowerCase())) {
       return variantDict[i][1];
     }
   }

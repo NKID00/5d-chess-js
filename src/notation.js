@@ -174,7 +174,7 @@ exports.moveNotation = (board, actionNum, input, minimize = false) => {
     if(input.length === 2 || input.length === 3) {
       if(boardFuncs.positionExists(board, input[0])) {
         var piece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
-        res.str += pieceFuncs.char(piece);
+        res.str += pieceFuncs.toChar(piece);
         res.str += this.sanCoord([input[0][2],input[0][3]]).str;
         if(
           ((input[0][1] === input[1][1] && !minimize) || input[0][1] !== input[1][1]) ||
@@ -225,7 +225,7 @@ exports.moveNotation = (board, actionNum, input, minimize = false) => {
         if(input[1][4] !== undefined) {
           var srcPiece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
           if(Math.abs(srcPiece) === 1 || Math.abs(srcPiece) === 2) {
-            res.str += pieceFuncs.char(input[1][4]);
+            res.str += pieceFuncs.toChar(input[1][4]);
           }
         }
         res.str += this.sanCoord([input[1][2],input[1][3]]).str;

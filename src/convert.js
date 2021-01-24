@@ -1,16 +1,17 @@
 require('module-alias/register');
 
 const notationFuncs = require('@local/notation');
+const pgnFuncs = require('@local/pgn');
 const parseFuncs = require('@local/parse');
 const validateFuncs = require('@local/validate');
 
-exports.actions = (input) => {
+exports.actions = (input, startingBoard = [], startingActionNum = []) => {
   /*
     Supported input:
      - 2D Array of moves (raw or object)
      - Array of action object
      - JSON of either above
-     - Multiple actions as expressed in notation
+     - Multiple actions as expressed in notation / pgn
   */
   var res = [];
   if(typeof input === 'string') {
@@ -19,6 +20,15 @@ exports.actions = (input) => {
       tmp = JSON.parse(input);
     }
     catch(err) {}
+    if(tmp === null) {
+      try {
+        tmp = pgnFuncs.toActionHistory(input, startingBoard, startingActionNum);
+      }
+      catch(err) {
+        console.error(err);
+        console.error('Error parsing as pgn, trying old notation');
+      }
+    }
     if(tmp === null) {
       var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').map(e => e.trim()).filter(e => !e.includes('[') && e !== '');
       var tmpAction = [];
@@ -67,7 +77,7 @@ exports.actions = (input) => {
   return res;
 }
 
-exports.action = (input) => {
+exports.action = (input, board = [], actionNum = 0) => {
   /*
     Supported input:
      - Array of moves (raw or object)
@@ -82,6 +92,15 @@ exports.action = (input) => {
       tmp = JSON.parse(input);
     }
     catch(err) {}
+    if(tmp === null) {
+      try {
+        tmp = pgnFuncs.toAction(input, board, actionNum);
+      }
+      catch(err) {
+        console.error(err);
+        console.error('Error parsing as pgn, trying old notation');
+      }
+    }
     if(tmp === null) {
       var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').filter(e => !e.includes('[') && e !== '');
       var tmpAction = [];
@@ -127,7 +146,7 @@ exports.action = (input) => {
   return res;
 }
 
-exports.move = (input) => {
+exports.move = (input, board = [], actionNum = 0) => {
   /*
     Supported input:
      - Move (raw or object)
@@ -141,6 +160,15 @@ exports.move = (input) => {
       tmp = JSON.parse(input);
     }
     catch(err) {}
+    if(tmp === null) {
+      try {
+        tmp = pgnFuncs.toMove(input, board, actionNum);
+      }
+      catch(err) {
+        console.error(err);
+        console.error('Error parsing as pgn, trying old notation');
+      }
+    }
     if(tmp === null) {
       var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').filter(e => !e.includes('[') && e !== '');
       if(splitStr.length > 0) {

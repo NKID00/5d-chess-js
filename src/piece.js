@@ -1,6 +1,6 @@
 const boardFuncs = require('@local/board');
 
-exports.char = (piece, displayPawn = false) => {
+exports.toChar = (piece, displayPawn = false) => {
   if(displayPawn && (Math.abs(piece) === 1 || Math.abs(piece) === 2)) {
     return 'P';
   }
@@ -23,6 +23,30 @@ exports.char = (piece, displayPawn = false) => {
     return 'S';
   }
   return '';
+}
+
+exports.fromChar = (char, actionNum = 0) => {
+  if(char === 'P') {
+    return (actionNum % 2 === 0 ? 2 : 1);
+  }
+  if(char === 'B') {
+    return (actionNum % 2 === 0 ? 4 : 3);
+  }
+  if(char === 'N') {
+    return (actionNum % 2 === 0 ? 6 : 5);
+  }
+  if(char === 'R') {
+    return (actionNum % 2 === 0 ? 8 : 7);
+  }
+  if(char === 'Q') {
+    return (actionNum % 2 === 0 ? 10 : 9);
+  }
+  if(char === 'K') {
+    return (actionNum % 2 === 0 ? 12 : 11);
+  }
+  if(char === 'S') {
+    return (actionNum % 2 === 0 ? 14 : 13);
+  }
 }
 
 exports.movePos = (piece) => {
