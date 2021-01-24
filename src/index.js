@@ -207,9 +207,9 @@ class Chess {
           this.rawBoard,
           this.rawAction,
           '',
-          format.includes('active_token'),
-          format.includes('timeline_token'),
-          format.includes('superphysical_token')
+          format.includes('active'),
+          format.includes('timeline'),
+          format.includes('superphysical')
         ) + '\n';
       }
       return res;
@@ -267,9 +267,9 @@ class Chess {
           this.rawBoard,
           this.rawAction,
           '',
-          format.includes('active_token'),
-          format.includes('timeline_token'),
-          format.includes('superphysical_token')
+          format.includes('active'),
+          format.includes('timeline'),
+          format.includes('superphysical')
         ) + '\n';
       }
       return res;
@@ -364,9 +364,9 @@ class Chess {
           checks[i],
           this.rawBoard,
           this.rawAction,
-          format.includes('active_token'),
-          format.includes('timeline_token'),
-          format.includes('superphysical_token')
+          format.includes('active'),
+          format.includes('timeline'),
+          format.includes('superphysical')
         ) + '\n';
       }
       return res;
@@ -420,9 +420,9 @@ class Chess {
         this.rawStartingAction,
         format.includes('inline') ? ' ' : '\n',
         suffixArr,
-        format.includes('active_token'),
-        format.includes('timeline_token'),
-        format.includes('superphysical_token')
+        format.includes('active'),
+        format.includes('timeline'),
+        format.includes('superphysical')
       );
     }
     return res;
