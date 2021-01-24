@@ -484,7 +484,7 @@ Here is the format: `board[timeline][turn][rank][file] = piece`
 
 ### Notation (Depreciated)
 
-*Warning! This notation system is depreciated. It is recommended to use 5dpgn instead (see https://github.com/adri326/5dchess-notation)
+**Warning! This notation system is depreciated. It is recommended to use 5dpgn instead (see https://github.com/adri326/5dchess-notation)**
 
 Metadata section: `[(Key) "(Value)"]`
 
