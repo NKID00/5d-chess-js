@@ -2,6 +2,7 @@ const boardFuncs = require('@local/board');
 const mateFuncs = require('@local/mate');
 const pieceFuncs = require('@local/piece');
 
+// TODO: un-hardcode 8
 exports.sanCoord = (input) => {
   var res = {
     str: '',
@@ -10,10 +11,10 @@ exports.sanCoord = (input) => {
   if(typeof input === 'string') {
     res.str = input;
     res.arr[1] = input.charCodeAt(0) - 97;
-    res.arr[0] = 8 - Number(input.charAt(1));
+    res.arr[0] = Number(input.charAt(1)) - 1;
   }
   else if(Array.isArray(input)) {
-    res.str = String.fromCharCode(input[1] + 97) + (8 - input[0]);
+    res.str = String.fromCharCode(input[1] + 97) + (input[0] + 1);
     res.arr = input;
   }
   return res;
@@ -127,13 +128,13 @@ exports.moveNotation = (board, actionNum, input, minimize = false) => {
       res.arr[3][1] = res.arr[0][1];
       res.arr[0][3] = 4;
       if(res.action % 2 !== 0) {
-        res.arr[0][2] = 0;
+        res.arr[0][2] = 7;
         res.arr[1][2] = res.arr[0][2];
         res.arr[2][2] = res.arr[0][2];
         res.arr[3][2] = res.arr[0][2];
       }
       else {
-        res.arr[0][2] = 7;
+        res.arr[0][2] = 0;
         res.arr[1][2] = res.arr[0][2];
         res.arr[2][2] = res.arr[0][2];
         res.arr[3][2] = res.arr[0][2];
@@ -173,7 +174,7 @@ exports.moveNotation = (board, actionNum, input, minimize = false) => {
     if(input.length === 2 || input.length === 3) {
       if(boardFuncs.positionExists(board, input[0])) {
         var piece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
-        res.str += pieceFuncs.char(piece);
+        res.str += pieceFuncs.toChar(piece);
         res.str += this.sanCoord([input[0][2],input[0][3]]).str;
         if(
           ((input[0][1] === input[1][1] && !minimize) || input[0][1] !== input[1][1]) ||
@@ -224,7 +225,7 @@ exports.moveNotation = (board, actionNum, input, minimize = false) => {
         if(input[1][4] !== undefined) {
           var srcPiece = board[input[0][0]][input[0][1]][input[0][2]][input[0][3]];
           if(Math.abs(srcPiece) === 1 || Math.abs(srcPiece) === 2) {
-            res.str += pieceFuncs.char(input[1][4]);
+            res.str += pieceFuncs.toChar(input[1][4]);
           }
         }
         res.str += this.sanCoord([input[1][2],input[1][3]]).str;
