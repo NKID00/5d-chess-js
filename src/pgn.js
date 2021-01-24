@@ -97,6 +97,7 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   var isTimeTravel = src[1] !== dest[1];
   var isCastling = move.length === 4;
   var isEnPassant = move.length === 3;
+  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
   var isPromotion = dest.length >= 5;
   var isJump = (isTimelineTravel || isTimeTravel);
   var isBranching = false;
@@ -120,8 +121,8 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
       }
     }
   }
-  var srcSP = `(${moveObj.start.timeline}T${moveObj.start.turn})`;
-  var destSP = `(${moveObj.end.timeline}T${moveObj.end.turn})`;
+  var srcSP = `(${moveObj.start.timeline}T${isTurnZero ? moveObj.start.turn - 1 : moveObj.start.turn})`;
+  var destSP = `(${moveObj.end.timeline}T${isTurnZero ? moveObj.end.turn - 1 : moveObj.end.turn})`;
   var srcPiece = board[src[0]][src[1]][src[2]][src[3]];
   var destPiece = board[dest[0]][dest[1]][dest[2]][dest[3]];
   var isCapturing = Math.abs(destPiece) !== 0;
@@ -180,6 +181,7 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
   moveStr = moveStr.replace(/\(>L\-?\d*\)/g, '');
   //Start move reconstruction
   var isJump = moveStr.includes('>');
+  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
   var piece = actionNum % 2 === 0 ? 2 : 1;
   if(isJump) {
     try {
@@ -229,6 +231,9 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
       var srcT = Number(srcSPArr[2]);
       res[0][0] = Math.abs(srcL) * 2 + (srcL < 0 ? -1 : 0);
       res[0][1] = (srcT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
+      if(isTurnZero) {
+        res[0][1] += 2;
+      }
     }
     catch(err) {
       if(board.length >= 1) {
@@ -298,8 +303,8 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
       }
     }
   }
-  var sameRank = res[0][2] === -1;
-  var sameFile = res[0][3] === -1;
+  var sameRank = res[0][2] < 0;
+  var sameFile = res[0][3] < 0;
   for(var i = 0;i < conflictMoves.length;i++) {
     if(sameRank && sameFile) {
       //No ambiguity
