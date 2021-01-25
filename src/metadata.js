@@ -5,6 +5,9 @@ exports.strToObj = (str) => {
     var regex = strArr[i].match(/\[([\w\.\-_]+)\s+\"([\w\.\-\/\*\s\']+)\"\]/);
     if(regex !== null) {
       obj[regex[1].toLowerCase()] = regex[2];
+      if(regex[1].toLowerCase() === 'board') {
+        obj[regex[1].toLowerCase()] = this.lookupVariant(regex[2]);
+      }
       try {
         var tmp = JSON.parse(regex[2]);
         obj[regex[1].toLowerCase()] = tmp;
