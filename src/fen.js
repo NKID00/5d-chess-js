@@ -36,11 +36,11 @@ exports.OMMIT_UNMOVED = [
 /**
     Converts a raw turn (`turn`) into a 5DFEN board string.
 **/
-exports.toFen = (turnObj, l, t) => {
+exports.toFen = (turnObj, l, t, isTurnZero = false) => {
     let blanks = 0;
     let res = '';
-    for (let row of turnObj) {
-        for (let piece of row) {
+    for (var row = turnObj.length - 1;row >= 0;row--) {
+        for (let piece of turnObj[row]) {
             if (piece == 0) {
                 blanks++;
             } else if (blanks > 0) {
@@ -86,7 +86,12 @@ exports.toFen = (turnObj, l, t) => {
     }
 
     res += ':';
-    res += Math.floor(t / 2) + 1;
+    if(isTurnZero) {
+        res += Math.floor(t / 2);
+    }
+    else {
+        res += Math.floor(t / 2) + 1;
+    }
     res += ':';
     res += t % 2 ? 'b' : 'w';
 
@@ -96,7 +101,7 @@ exports.toFen = (turnObj, l, t) => {
 /**
     Converts a 5DFEN board string into its corresponding internal board and position.
 **/
-exports.fromFen = (raw, width = 8, height = 8) => {
+exports.fromFen = (raw, width = 8, height = 8, isTurnZero = false) => {
     if (typeof raw !== 'string') {
         throw new Error("TypeError: expected argument `raw` to be of type `string`, got: " + typeof raw);
     }
@@ -161,6 +166,9 @@ exports.fromFen = (raw, width = 8, height = 8) => {
 
     if (isNaN(t)) {
         throw new Error("Invalid FEN turn: " + split[2]);
+    }
+    if(isTurnZero) {
+        t += 2;
     }
 
     if (split[3] === 'w') {

@@ -2,7 +2,7 @@ const boardFuncs = require('@local/board');
 const pgnFuncs = require('@local/pgn');
 const pieceFuncs = require('@local/piece');
 
-exports.toPosition = (positionObj) => {
+exports.toPosition = (positionObj, isTurnZero = false) => {
   var res = [];
   if(positionObj.timeline >= 0) {
     res[0] = (positionObj.timeline*2);
@@ -10,14 +10,18 @@ exports.toPosition = (positionObj) => {
   else if(positionObj.timeline < 0) {
     res[0] = ((-positionObj.timeline)*2) - 1;
   }
-  res[1] = ((positionObj.turn - 1) * 2) + (positionObj.player === 'white' ? 0 : 1);
+  var currTurn = positionObj.turn;
+  if(isTurnZero) {
+    currTurn++;
+  }
+  res[1] = ((currTurn - 1) * 2) + (positionObj.player === 'white' ? 0 : 1);
   var coord = pgnFuncs.fromSanCoord(positionObj.coordinate);
   res[2] = coord[0];
   res[3] = coord[1];
   return res;
 }
 
-exports.fromPosition = (position) => {
+exports.fromPosition = (position, isTurnZero = false) => {
   var res = {};
   if(position[0] === 0) {
     res.timeline = 0;
@@ -29,6 +33,9 @@ exports.fromPosition = (position) => {
     res.timeline = -Math.ceil(position[0]/2);
   }
   res.turn = Math.floor(position[1]/2) + 1;
+  if(isTurnZero) {
+    res.turn--;
+  }
   res.player = (position[1] % 2 === 0 ? 'white' : 'black');
   res.coordinate = pgnFuncs.toSanCoord([position[2], position[3]]);
   res.rank = position[2] + 1;
@@ -36,10 +43,10 @@ exports.fromPosition = (position) => {
   return res;
 }
 
-exports.toMove = (moveObj) => {
+exports.toMove = (moveObj, isTurnZero = false) => {
   var res = [];
-  res[0] = this.toPosition(moveObj.start);
-  res[1] = this.toPosition(moveObj.end);
+  res[0] = this.toPosition(moveObj.start, isTurnZero);
+  res[1] = this.toPosition(moveObj.end, isTurnZero);
   if(moveObj.promotion !== null) {
     if(moveObj.promotion === 'B') {
       res[1][4] = 3 + (moveObj.player === 'white' ? 1 : 0);
@@ -58,92 +65,77 @@ exports.toMove = (moveObj) => {
     }
   }
   if(moveObj.enPassant !== null) {
-    res[2] = this.toPosition(moveObj.enPassant);
+    res[2] = this.toPosition(moveObj.enPassant, isTurnZero);
   }
   if(moveObj.castling !== null) {
-    res[2] = this.toPosition(moveObj.castling.start);
-    res[3] = this.toPosition(moveObj.castling.end);
+    res[2] = this.toPosition(moveObj.castling.start, isTurnZero);
+    res[3] = this.toPosition(moveObj.castling.end, isTurnZero);
   }
   return res;
 }
 
-exports.fromMove = (move) => {
+exports.fromMove = (move, isTurnZero = false) => {
   var res = {
     promotion: null,
     enPassant: null,
     castling: null
   };
-  res.start = this.fromPosition(move[0]);
-  res.end = this.fromPosition(move[1]);
+  res.start = this.fromPosition(move[0], isTurnZero);
+  res.end = this.fromPosition(move[1], isTurnZero);
   res.player = (move[0][1] % 2 === 0 ? 'white' : 'black');
   if(move[1][4] !== undefined && move.length === 2) {
     res.promotion = pieceFuncs.toChar(move[1][4]);
   }
   if(move.length === 3) {
-    res.enPassant = this.fromPosition(move[2]);
+    res.enPassant = this.fromPosition(move[2], isTurnZero);
   }
   if(move.length === 4) {
     res.castling = {
-      start: this.fromPosition(move[2]),
-      end: this.fromPosition(move[3])
+      start: this.fromPosition(move[2], isTurnZero),
+      end: this.fromPosition(move[3], isTurnZero)
     }
   }
   return res;
 }
 
-exports.toAction = (actionObj) => {
+exports.toAction = (actionObj, isTurnZero = false) => {
   var res = [];
   for(var i = 0;i < actionObj.moves.length;i++) {
-    res.push(this.toMove(actionObj.moves[i]));
+    res.push(this.toMove(actionObj.moves[i], isTurnZero));
   }
   return res;
 }
 
-exports.fromAction = (actionNum, moves) => {
+exports.fromAction = (actionNum, moves, isTurnZero = false) => {
   var res = {};
   res.action = Math.floor(actionNum/2) + 1;
   res.player = (actionNum % 2 === 0 ? 'white' : 'black');
   res.moves = [];
   for(var i = 0;i < moves.length;i++) {
-    res.moves.push(this.fromMove(moves[i]));
+    res.moves.push(this.fromMove(moves[i], isTurnZero));
   }
   return res;
 }
 
 exports.toPiece = (pieceObj) => {
-  var res = 1 + (pieceObj.player === 'white' ? 1 : 0);
-  if(pieceObj.piece === 'B') {
-    res = 3 + (pieceObj.player === 'white' ? 1 : 0);
-  }
-  else if(pieceObj.piece === 'N') {
-    res = 5 + (pieceObj.player === 'white' ? 1 : 0);
-  }
-  else if(pieceObj.piece === 'R') {
-    res = 7 + (pieceObj.player === 'white' ? 1 : 0);
-  }
-  else if(pieceObj.piece === 'Q') {
-    res = 9 + (pieceObj.player === 'white' ? 1 : 0);
-  }
-  else if(pieceObj.piece === 'K') {
-    res = 11 + (pieceObj.player === 'white' ? 1 : 0);
-  }
+  var res = pieceFuncs.fromChar(pieceObj.piece, (pieceObj.player === 'white' ? 0 : 1));
   if(pieceObj.hasMoved === false) {
     res = -res;
   }
   return res;
 }
 
-exports.fromPiece = (board, pos) => {
+exports.fromPiece = (board, pos, isTurnZero = false) => {
   var res = {};
   var piece = board[pos[0]][pos[1]][pos[2]][pos[3]];
-  res.position = this.fromPosition(pos);
+  res.position = this.fromPosition(pos, isTurnZero);
   res.piece = pieceFuncs.toChar(piece);
   res.player = (Math.abs(piece) % 2 === 0 ? 'white' : 'black');
   res.hasMoved = piece > 0;
   return res;
 }
 
-exports.toTurn = (turnObj) => {
+exports.toTurn = (turnObj, isTurnZero = false) => {
   var res = [];
   for(var r = 0;r < turnObj.height;r++) {
     res.push([]);
@@ -153,15 +145,18 @@ exports.toTurn = (turnObj) => {
   }
   for(var i = 0;i < turnObj.pieces.length;i++) {
     var piece = this.toPiece(turnObj.pieces[i]);
-    var position = this.toPosition(turnObj.pieces[i].position);
+    var position = this.toPosition(turnObj.pieces[i].position, isTurnZero);
     res[position[2]][position[3]] = piece;
   }
   return res;
 }
 
-exports.fromTurn = (board, timeline, turn) => {
+exports.fromTurn = (board, timeline, turn, isTurnZero = false) => {
   var res = {};
   res.turn = Math.floor(turn/2) + 1;
+  if(isTurnZero) {
+    res.turn--;
+  }
   res.player = (turn % 2 === 0 ? 'white' : 'black');
   res.pieces = [];
   res.width = 0;
@@ -170,12 +165,12 @@ exports.fromTurn = (board, timeline, turn) => {
   for(var r = 0;r < currTurn.length;r++) {
     for(var f = 0;f < currTurn[r].length;f++) {
       if(currTurn[r][f] !== 0) {
-        res.pieces.push(this.fromPiece(board,[
+        res.pieces.push(this.fromPiece(board, [
           timeline,
           turn,
           r,
           f
-        ]));
+        ], isTurnZero));
       }
       if(res.width < currTurn[r].length) {
         res.width = currTurn[r].length;
@@ -185,11 +180,15 @@ exports.fromTurn = (board, timeline, turn) => {
   return res;
 }
 
-exports.toTimeline = (timelineObj) => {
+exports.toTimeline = (timelineObj, isTurnZero = false) => {
   var res = [];
   var maxTurnNumber = 0;
   for(var i = 0;i < timelineObj.turns.length;i++) {
-    var newTurnNumber = ((timelineObj.turns[i].turn - 1) * 2) + (timelineObj.turns[i].player === 'white' ? 0 : 1);
+    var currTurnNumber = timelineObj.turns[i].turn;
+    if(isTurnZero) {
+      currTurnNumber++;
+    }
+    var newTurnNumber = ((currTurnNumber - 1) * 2) + (timelineObj.turns[i].player === 'white' ? 0 : 1);
     if(maxTurnNumber < newTurnNumber) {
       maxTurnNumber = newTurnNumber;
     }
@@ -198,13 +197,17 @@ exports.toTimeline = (timelineObj) => {
     res[i] = null;
   }
   for(var i = 0;i < timelineObj.turns.length;i++) {
-    var newTurnNumber = ((timelineObj.turns[i].turn - 1) * 2) + (timelineObj.turns[i].player === 'white' ? 0 : 1);
-    res[newTurnNumber] = this.toTurn(timelineObj.turns[i]);
+    var currTurnNumber = timelineObj.turns[i].turn;
+    if(isTurnZero) {
+      currTurnNumber++;
+    }
+    var newTurnNumber = ((currTurnNumber - 1) * 2) + (timelineObj.turns[i].player === 'white' ? 0 : 1);
+    res[newTurnNumber] = this.toTurn(timelineObj.turns[i], isTurnZero);
   }
   return res;
 }
 
-exports.fromTimeline = (board, actionNum, timeline) => {
+exports.fromTimeline = (board, actionNum, timeline, isTurnZero = false) => {
   var res = {};
   if(timeline === 0) {
     res.timeline = 0;
@@ -222,7 +225,7 @@ exports.fromTimeline = (board, actionNum, timeline) => {
   var currTimeline = board[timeline];
   for(var i = 0;i < currTimeline.length;i++) {
     if(!(typeof currTimeline[i] === 'undefined' || currTimeline[i] === null)) {
-      res.turns.push(this.fromTurn(board, timeline, i));
+      res.turns.push(this.fromTurn(board, timeline, i, isTurnZero));
     }
   }
   return res;
@@ -230,8 +233,14 @@ exports.fromTimeline = (board, actionNum, timeline) => {
 
 exports.toBoard = (boardObj) => {
   var res = [];
+  var isTurnZero = false;
   var maxTimelineNumber = 0;
   for(var i = 0;i < boardObj.timelines.length;i++) {
+    for(var j = 0;j < boardObj.timelines[i].turns.length;j++) {
+      if(boardObj.timelines[i].turns[j].turn === 0) {
+        isTurnZero = true;
+      }
+    }
     var newTimelineNumber = (boardObj.timelines[i].timeline*2);
     if(boardObj.timelines[i].timeline < 0) {
       newTimelineNumber = ((-boardObj.timelines[i].timeline.timeline)*2) - 1;
@@ -246,21 +255,22 @@ exports.toBoard = (boardObj) => {
   for(var i = 0;i < boardObj.timelines.length;i++) {
     var newTimelineNumber = (boardObj.timelines[i].timeline*2);
     if(boardObj.timelines[i].timeline < 0) {
-      newTimelineNumber = ((-boardObj.timelines[i].timeline.timeline)*2) - 1;
+      newTimelineNumber = ((-boardObj.timelines[i].timeline)*2) - 1;
     }
-    res[newTimelineNumber] = this.toTimeline(boardObj.timelines[i]);
+    res[newTimelineNumber] = this.toTimeline(boardObj.timelines[i], isTurnZero);
   }
   return res;
 }
 
 exports.fromBoard = (board, actionNum) => {
   var res = {};
+  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
   res.action = Math.floor(actionNum/2) + 1;
   res.player = (actionNum % 2 === 0 ? 'white' : 'black');
   res.timelines = [];
   for(var i = 0;i < board.length;i++) {
     if(!(typeof board[i] === 'undefined' || board[i] === null)) {
-      res.timelines.push(this.fromTimeline(board, actionNum, i));
+      res.timelines.push(this.fromTimeline(board, actionNum, i, isTurnZero));
     }
   }
   res.width = 0;

@@ -47,6 +47,7 @@ exports.fromChar = (char, actionNum = 0) => {
   if(char === 'S') {
     return (actionNum % 2 === 0 ? 14 : 13);
   }
+  return (actionNum % 2 === 0 ? 2 : 1);
 }
 
 exports.movePos = (piece) => {
