@@ -81,7 +81,7 @@ class Chess {
       this.rawBoard = boardFuncs.init(variant);
     }
     else {
-      this.rawBoard = boardFuncs.init();
+      this.rawBoard = boardFuncs.init(this.metadata.board);
     }
     this.rawAction = 0;
     if(typeof this.rawBoard[0] !== 'undefined' && this.rawBoard[0] !== null) {
@@ -105,13 +105,24 @@ class Chess {
       this.rawStartingAction = this.rawAction;
       this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     }
-    var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction);
-    for(var i = 0;i < actions.length;i++) {
-      for(var j = 0;j < actions[i].length;j++) {
-        this.move(actions[i][j], skipDetection);
+    try {
+      var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction);
+      for(var i = 0;i < actions.length;i++) {
+        for(var j = 0;j < actions[i].length;j++) {
+          this.move(actions[i][j], skipDetection);
+        }
+        if(i + 1 < actions.length) {
+          this.submit(skipDetection);
+        }
+        else {
+          try {
+            this.submit(skipDetection);
+          }
+          catch(err) {}
+        }
       }
-      this.submit(skipDetection);
     }
+    catch(err) {}
   }
   importable(input, skipDetection = false) {
     try {
@@ -122,24 +133,39 @@ class Chess {
     catch(err) { return false; }
   }
   fen(input) {
-    // Read width and height
-    let width = 8;
-    let height = 8;
+    if(typeof input !== 'undefined') {
+      // Read width and height
+      let width = 8;
+      let height = 8;
 
-    let match;
-    Object.assign(this.metadata, metadataFuncs.strToObj(input));
-    if(match = /^(\d+)x(\d+)$/.exec(this.metadata.size || "")) {
-      width = +match[1];
-      height = +match[2];
-    }
-
-    // Look for 5DFEN strings and parse them
-    for(var line of input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n')) {
-      line = line.trim();
-      if(line.startsWith('[') && line.endsWith(']') && !/\s/.exec(line)) {
-        let [turn, l, t] = fenFuncs.fromFen(line, width, height);
-        boardFuncs.setTurn(this.rawBoard, l, t, turn);
+      let match;
+      Object.assign(this.metadata, metadataFuncs.strToObj(input));
+      if(match = /^(\d+)x(\d+)$/.exec(this.metadata.size || "")) {
+        width = +match[1];
+        height = +match[2];
       }
+      var isTurnZero = input.includes('0:b]') || input.includes('0:w]');
+      // Look for 5DFEN strings and parse them
+      for(var line of input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n')) {
+        line = line.trim();
+        if(line.startsWith('[') && line.endsWith(']') && !/\s/.exec(line)) {
+          let [turn, l, t] = fenFuncs.fromFen(line, width, height, isTurnZero);
+          boardFuncs.setTurn(this.rawBoard, l, t, turn);
+        }
+      }
+    }
+    else {
+      var res = '';
+      var firstBoard = this.rawBoardHistory[0];
+      var isTurnZero = firstBoard.length > 0 ? (firstBoard[0].length > 0 ? firstBoard[0][0] === null : false) : false;
+      for(var l = 0;l < firstBoard.length;l++) {
+        for(var t = 0;firstBoard[l] && t < firstBoard[l].length;t++) {
+          if(firstBoard[l][t]) {
+            res += fenFuncs.toFen(firstBoard[l][t], l, t, isTurnZero) + '\n';
+          }
+        }
+      }
+      return res;
     }
   }
   fenable(input) {
@@ -413,6 +439,9 @@ class Chess {
       }
     }
     if(format.includes('5dpgn')) {
+      if(this.metadata.board === 'custom') {
+        res += this.fen();
+      }
       var suffixArr = []; //TODO implement check, checkmate, softmate
       res += pgnFuncs.fromActionHistory(
         this.rawActionHistory,

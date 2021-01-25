@@ -91,13 +91,13 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   var res = '';
   var src = move[0];
   var dest = move[1];
-  var moveObj = parseFuncs.fromMove(move);
+  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+  var moveObj = parseFuncs.fromMove(move, isTurnZero);
   var isSingleTimeline = board.length <= 1;
   var isTimelineTravel = src[0] !== dest[0];
   var isTimeTravel = src[1] !== dest[1];
   var isCastling = move.length === 4;
   var isEnPassant = move.length === 3;
-  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
   var isPromotion = dest.length >= 5;
   var isJump = (isTimelineTravel || isTimeTravel);
   var isBranching = false;
@@ -121,8 +121,8 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
       }
     }
   }
-  var srcSP = `(${moveObj.start.timeline}T${isTurnZero ? moveObj.start.turn - 1 : moveObj.start.turn})`;
-  var destSP = `(${moveObj.end.timeline}T${isTurnZero ? moveObj.end.turn - 1 : moveObj.end.turn})`;
+  var srcSP = `(${moveObj.start.timeline}T${moveObj.start.turn})`;
+  var destSP = `(${moveObj.end.timeline}T${moveObj.end.turn})`;
   var srcPiece = board[src[0]][src[1]][src[2]][src[3]];
   var destPiece = board[dest[0]][dest[1]][dest[2]][dest[3]];
   var isCapturing = Math.abs(destPiece) !== 0;
@@ -193,6 +193,9 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
       var srcT = Number(srcSPArr[2]);
       res[0][0] = Math.abs(srcL) * 2 + (srcL < 0 ? -1 : 0);
       res[0][1] = (srcT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
+      if(isTurnZero) {
+        res[0][1] += 2;
+      }
     }
     catch(err) { throw 'Source super-physical coordinates missing or incorrect!'; }
     var pieceChar = moveStr.match(/^[A-Z]+/);
@@ -215,6 +218,9 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
       var destT = Number(destSPArr[2]);
       res[1][0] = Math.abs(destL) * 2 + (destL < 0 ? -1 : 0);
       res[1][1] = (destT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
+      if(isTurnZero) {
+        res[1][1] += 2;
+      }
     }
     catch(err) { throw 'Destination super-physical coordinates missing or incorrect!'; }
     var destP = this.fromSanCoord(moveStr.match(/^[a-h]\d/)[0]);
@@ -399,6 +405,9 @@ exports.toActionHistory = (actionHistoryStr, startingBoard = [], startingActionN
   var done = false;
   while(!done) {
     var match1 = tmpStr.match(/\d+\.\s*/i);
+    if(match1 === null) {
+      return '';
+    }
     tmpStr = tmpStr.substring(match1.index + match1[0].length);
     var match2 = tmpStr.match(/\d+\.\s*/i);
     if(match2 !== null) {

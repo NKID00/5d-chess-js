@@ -23,6 +23,10 @@ exports.actions = (input, startingBoard = [], startingActionNum = []) => {
     if(tmp === null) {
       try {
         tmp = pgnFuncs.toActionHistory(input, startingBoard, startingActionNum);
+        if(tmp.length <= 0 && input.length > 0) {
+          tmp = null;
+          throw 'No pgn actions found';
+        }
       }
       catch(err) {
         console.error(err);
