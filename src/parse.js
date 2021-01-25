@@ -118,7 +118,7 @@ exports.fromAction = (actionNum, moves, isTurnZero = false) => {
 }
 
 exports.toPiece = (pieceObj) => {
-  var res = pieceFuncs.fromChar(pieceObj.piece, (pieceObj.player === 'white' ? 1 : 0));
+  var res = pieceFuncs.fromChar(pieceObj.piece, (pieceObj.player === 'white' ? 0 : 1));
   if(pieceObj.hasMoved === false) {
     res = -res;
   }
@@ -255,7 +255,7 @@ exports.toBoard = (boardObj) => {
   for(var i = 0;i < boardObj.timelines.length;i++) {
     var newTimelineNumber = (boardObj.timelines[i].timeline*2);
     if(boardObj.timelines[i].timeline < 0) {
-      newTimelineNumber = ((-boardObj.timelines[i].timeline.timeline)*2) - 1;
+      newTimelineNumber = ((-boardObj.timelines[i].timeline)*2) - 1;
     }
     res[newTimelineNumber] = this.toTimeline(boardObj.timelines[i], isTurnZero);
   }

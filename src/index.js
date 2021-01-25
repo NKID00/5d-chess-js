@@ -105,21 +105,24 @@ class Chess {
       this.rawStartingAction = this.rawAction;
       this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     }
-    var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction);
-    for(var i = 0;i < actions.length;i++) {
-      for(var j = 0;j < actions[i].length;j++) {
-        this.move(actions[i][j], skipDetection);
-      }
-      if(i + 1 < actions.length) {
-        this.submit(skipDetection);
-      }
-      else {
-        try {
+    try {
+      var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction);
+      for(var i = 0;i < actions.length;i++) {
+        for(var j = 0;j < actions[i].length;j++) {
+          this.move(actions[i][j], skipDetection);
+        }
+        if(i + 1 < actions.length) {
           this.submit(skipDetection);
         }
-        catch(err) {}
+        else {
+          try {
+            this.submit(skipDetection);
+          }
+          catch(err) {}
+        }
       }
     }
+    catch(err) {}
   }
   importable(input, skipDetection = false) {
     try {
