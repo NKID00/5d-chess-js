@@ -176,6 +176,9 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
   var res = [[0,0,-1,-1],[0,0,-1,-1]];
   //Remove tokens
   var orgMoveStr = moveStr;
+  moveStr = moveStr.replace(/\r\n/g, '\n');
+  moveStr = moveStr.replace(/\{[^\{\}]*\}/g, '');
+  moveStr = moveStr.replace(/;[^;\n]*\n/g, '\n');
   moveStr = moveStr.replace(/\s/g, '');
   moveStr = moveStr.replace(/\(~T\-?\d*\)/g, '');
   moveStr = moveStr.replace(/\(>L\-?\d*\)/g, '');
@@ -356,6 +359,9 @@ exports.fromAction = (action, board = [], actionNum = 0, suffix = '', timelineAc
 
 exports.toAction = (actionStr, board = [], actionNum = 0) => {
   var tmpStr = '' + actionStr;
+  tmpStr = tmpStr.replace(/\r\n/g, '\n');
+  tmpStr = tmpStr.replace(/\{[^\{\}]*\}/g, '');
+  tmpStr = tmpStr.replace(/;[^;\n]*\n/g, '\n');
   tmpStr = tmpStr.replace(/\(~T\-?\d*\)/g, '');
   tmpStr = tmpStr.replace(/\(>L\-?\d*\)/g, '');
   tmpStr = tmpStr.replace(/\s+/g, ' ');
@@ -400,6 +406,9 @@ exports.toActionHistory = (actionHistoryStr, startingBoard = [], startingActionN
   var tmpBoard = boardFuncs.copy(startingBoard);
   var tmpActionNum = startingActionNum;
   var tmpStr = '' + actionHistoryStr;
+  tmpStr = tmpStr.replace(/\r\n/g, '\n');
+  tmpStr = tmpStr.replace(/\{[^\{\}]*\}/g, '');
+  tmpStr = tmpStr.replace(/;[^;\n]*\n/g, '\n');
   var splitArr = [];
   var res = [];
   var done = false;
