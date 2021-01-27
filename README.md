@@ -197,7 +197,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.boardHistory**
 
-  - **Return** - Array of `Board` objects representing all past and current boards.
+  - **Return** - Array of `Board` objects representing all past and current full boards.
 
 **.actionHistory**
 
@@ -223,13 +223,13 @@ These fields are implemented as a getter function. If getter functions are unsup
 
   - **Return** - Boolean indicating if the current board state has the current player in stalemate.
 
-**.checkmateTimeout**
-
-  - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function)
-
 **.hash**
 
   - **Return** - String of md5 hash of the board data.
+
+**.checkmateTimeout**
+
+  - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function)
 
 ### Functions
 
@@ -250,12 +250,64 @@ Check if the imported data is valid and can be imported. Does not modify interna
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the imported data is valid and can be imported.
 
-**.reset()**
+**.fen()**
+
+Get the 5DFEN string of the starting board.
+
+  - **Return** - String containing 5DFEN of the starting board.
+
+**.fen(fen)**
+
+Modify the current board with the 5DFEN string.
+
+  - fen - String containing 5DFEN to apply to the current board.
+  - **Return** - Nothing.
+
+**.fenable(fen)**
+
+Check if the 5DFEN string is valid and can be applied. Does not modify internal state and will not throw errors.
+
+  - fen - String containing 5DFEN to apply to the current board.
+  - **Return** - Boolean representing if the 5DFEN string is valid and can be applied.
+
+**.reset([variant])**
 
 Resets the internal state to the initial full board state.
 
-  - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
+  - variant - *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
   - **Return** - Nothing.
+
+**.copy()**
+
+Creates a new instance of the Chess class with the exact same internal state.
+
+  - **Return** - New Chess class instance.
+
+**.state()**
+
+Get the internal state of this instance of the Chess class. Used internally by `.copy()`, this is used for serializable copy (for example, copying state from web worker to main thread).
+
+  - **Return** - Object (JSON compatible) containing all information to make exact copy.
+
+**.state(state)**
+
+Set the internal state of this instance of the Chess class. Used internally by `.copy()`, this is used for serializable copy (for example, copying state from web worker to main thread).
+
+  - state - Object (JSON compatible) containing all information to make exact copy.
+  - **Return** - Nothing.
+
+**.compare(input1, input2, [type])**
+
+Returns number indicating if object is equal, useful for consistent sorting. Non-zero return value may be arbitrary, but it is consistent. If the return value is zero, both inputs are equivalent in value.
+
+  - input1 - First value to compare. See below for valid inputs per type.
+  - input2 - Second value to compare. See below for valid inputs per type.
+  - type = *[Optional]* Defaults to `"board"`. Indicates input type.
+
+    Valid types are:
+
+    - `"board"` - When using this type, input can be a 4D array (raw board format), `Board` object, or JSON string of either.
+    - `"move"` - When using this type, input can be a raw move, `Move` object, JSON string of either, `5dpgn` string, or notation string *(depreciated)*.
 
 **.action(action, [skipDetection])**
 
@@ -264,12 +316,6 @@ Plays an action as the current player and submits the move. Will modify internal
   - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
-
-**.copy()**
-
-Creates a new instance of the Chess class with the exact same internal state.
-
-  - **Return** - New Chess class instance.
 
 **.actionable(action, [skipDetection])**
 
@@ -524,16 +570,16 @@ This version uses a 4D array to store the full board state, with numbers as the 
 Here is the format: `board[timeline][turn][rank][file] = piece`
   - Timeline: starts from 0 (0, +1, +2, +3 => 0, 2, 4, 6 and -1, -2, -3 => 1, 3, 5)
   - Turn: starts from 0 (white player: 1, 2, 3 => 0, 2, 4 and black player: 1, 2, 3 => 1, 3, 5)
-  - Rank: starts from 0 (1, 2, 3 => 7, 6 ,5)
+  - Rank: starts from 0 (1, 2, 3 => 0, 1, 2)
   - File: start from 0 (a, b, c => 0, 1, 2)
-  - Piece:
-    - Pawn: (white player: -2 [unmoved], 2 and black player: -1 [unmoved], 1)
+  - Piece (negative value indicates piece is unmoved):
+    - Pawn: (white player: 2 and black player: 1)
     - Bishop: (white player: 4 and black player: 3)
     - Knight: (white player: 6 and black player: 5)
-    - Rook: (white player: -8 [unmoved], 8 and black player: -7 [unmoved], 7)
+    - Rook: (white player: 8 and black player: 7)
     - Queen: (white player: 10 and black player: 9)
-    - King: (white player: -12 [unmoved], 12 and black player: -11 [unmoved], 11)
-    - Princess: (white player: -14 [unmoved], 14 and black player: -13 [unmoved], 13)
+    - King: (white player: 12 and black player: 11)
+    - Princess: (white player: 14 and black player: 13)
 
 
 ## FAQ
