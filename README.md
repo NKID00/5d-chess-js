@@ -144,9 +144,9 @@ The other three fields are:
 
 The following metadata fields are required to have within the headers of a game using 5DFEN:
 
-- `board = "custom"`, as to indicate that 5DFEN needs to be used
-- `size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
-- `puzzle = "mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
+- `Board = "Custom"`, as to indicate that 5DFEN needs to be used
+- `Size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
+- `Puzzle = "Mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
   as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
 
 #### 5DFEN Examples:

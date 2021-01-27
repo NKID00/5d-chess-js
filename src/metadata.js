@@ -1,8 +1,8 @@
 exports.strToObj = (str) => {
   var obj = {};
-  var strArr = str.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n');
+  var strArr = str.replace(/\r\n/g, '\n').split('\n');
   for(var i = 0;i < strArr.length;i++) {
-    var regex = strArr[i].match(/\[([\w\.\-_]+)\s+\"([\w\.\-\/\*\s\']+)\"\]/);
+    var regex = strArr[i].match(/\[([^\s]+)\s+\"([^\"]*)\"\]/);
     if(regex !== null) {
       obj[regex[1].toLowerCase()] = regex[2];
       if(regex[1].toLowerCase() === 'board') {
