@@ -1,9 +1,35 @@
 require('module-alias/register');
 
+const boardFuncs = require('@local/board');
 const notationFuncs = require('@local/notation');
 const pgnFuncs = require('@local/pgn');
 const parseFuncs = require('@local/parse');
 const validateFuncs = require('@local/validate');
+
+exports.board = (input) => {
+  /*
+    Supported input:
+     - 4D Array (raw board)
+     - Board object
+     - JSON of either above
+  */
+  var res = [];
+  var tmp = input;
+  if(typeof input === 'string') {
+    tmp = null;
+    try {
+      tmp = JSON.parse(input);
+    }
+    catch(err) {}
+  }
+  if(Array.isArray(tmp)) {
+    res = boardFuncs.copy(tmp);
+  }
+  else {
+    res = parseFuncs.toBoard(tmp);
+  }
+  return res;
+}
 
 exports.actions = (input, startingBoard = [], startingActionNum = []) => {
   /*
@@ -90,6 +116,7 @@ exports.action = (input, board = [], actionNum = 0) => {
      - Single action as expressed in notation
   */
   var res = [];
+  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
   if(typeof input === 'string') {
     var tmp = null;
     try {
@@ -140,7 +167,7 @@ exports.action = (input, board = [], actionNum = 0) => {
   if(Array.isArray(input)) {
     if(input.length > 0 && !Array.isArray(input[0])) {
       for(var i = 0;i < input.length;i++) {
-        res.push(parseFuncs.toMove(input[i]));
+        res.push(parseFuncs.toMove(input[i], isTurnZero));
       }
     }
     else {
@@ -158,6 +185,7 @@ exports.move = (input, board = [], actionNum = 0) => {
      - Single move as expressed in notation
   */
   var res = [];
+  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
   if(typeof input === 'string') {
     var tmp = null;
     try {
@@ -189,7 +217,7 @@ exports.move = (input, board = [], actionNum = 0) => {
     res = input;
   }
   else if(typeof input === 'object') {
-    res = parseFuncs.toMove(input);
+    res = parseFuncs.toMove(input, isTurnZero);
   }
   return res;
 }

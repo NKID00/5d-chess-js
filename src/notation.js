@@ -235,7 +235,7 @@ exports.moveNotation = (board, actionNum, input, minimize = false) => {
         if(mateFuncs.stalemate(moddedBoard, res.action + 1)) {
           res.str += '=';
         }
-        else if(mateFuncs.checkmate(moddedBoard, res.action + 1)) {
+        else if(mateFuncs.checkmate(moddedBoard, res.action + 1)[0]) {
           res.str += '#';
         }
         else if(mateFuncs.checks(moddedBoard, res.action + 1).length > 0) {
