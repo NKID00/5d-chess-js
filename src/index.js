@@ -66,7 +66,7 @@ class Chess {
     if(state === null) {
       var res = {};
       res.checkmateTimeout = this.checkmateTimeout;
-      res.checkmateCache = this.checkmateCache;
+      res.checkmateCache = this.checkmateCache.slice();
       res.metadata = Object.assign({}, this.metadata);
       res.rawAction = this.rawAction;
       res.rawStartingAction = this.rawStartingAction;
@@ -81,7 +81,7 @@ class Chess {
     }
     else {
       this.checkmateTimeout = state.checkmateTimeout;
-      this.checkmateCache = res.checkmateCache.slice();
+      this.checkmateCache = state.checkmateCache.slice();
       this.metadata = Object.assign({}, state.metadata);
       this.rawAction = state.rawAction;
       this.rawStartingAction = state.rawStartingAction;
