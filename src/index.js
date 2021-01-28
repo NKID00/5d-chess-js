@@ -475,12 +475,14 @@ class Chess {
     return hashFuncs.hash(this.rawBoard);
   }
   export(format = '5dpgn') {
+    var board = this.rawBoard;
+    var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
     if(format === 'raw') { return this.rawActionHistory; }
     if(format === 'json') { return JSON.stringify(this.rawActionHistory.map((e,i) => {
-      return parseFuncs.fromAction(i,e);
+      return parseFuncs.fromAction(i,e, isTurnZero);
     })); }
     if(format === 'object') { return this.rawActionHistory.map((e,i) => {
-      return parseFuncs.fromAction(i,e);
+      return parseFuncs.fromAction(i,e, isTurnZero);
     }); }
     var res = '';
     res += metadataFuncs.objToStr(this.metadata);
@@ -541,8 +543,10 @@ class Chess {
   }
   get moveBuffer() {
     var res = [];
+    var board = this.rawBoard;
+    var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
     for(var i = 0;i < this.rawMoveBuffer.length;i++) {
-      res.push(parseFuncs.fromMove(this.rawMoveBuffer[i], i));
+      res.push(parseFuncs.fromMove(this.rawMoveBuffer[i], isTurnZero));
     }
     return res;
   }
