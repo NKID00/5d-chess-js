@@ -278,7 +278,6 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
       }
       moveStr = moveStr.replace(/^[A-Z]+/,'');
       var coordArr = moveStr.match(/^([a-h]?\d?)x?([a-h]\d)/);
-      console.log(moveStr)
       var srcP = this.fromSanCoord(coordArr[1]);
       var destP = this.fromSanCoord(coordArr[2]);
       moveStr = moveStr.replace(/^[a-h]?\d?x?[a-h]\d/,'');
