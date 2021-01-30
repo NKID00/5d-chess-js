@@ -86,7 +86,7 @@ class Chess {
       this.rawAction = state.rawAction;
       this.rawStartingAction = state.rawStartingAction;
       this.rawBoardHistory = [];
-      for(var i = 0;i < this.rawBoardHistory.length;i++) {
+      for(var i = 0;i < state.rawBoardHistory.length;i++) {
         this.rawBoardHistory.push(boardFuncs.copy(state.rawBoardHistory[i]));
       }
       this.rawBoard = boardFuncs.copy(state.rawBoard);
