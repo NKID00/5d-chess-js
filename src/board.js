@@ -5,77 +5,80 @@ const parseFuncs = require('@local/parse');
 exports.init = (variant) => {
   if(variant === 'defended_pawn') {
     return [[[
-      [-7,-9,-3,-5,-11,-3,-5,-7],
-      [-1,-1,-1,-1,-1,-1,-1,-1],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-8,-10,-4,-6,-12,-4,-6,-8],
       [-2,-2,-2,-2,-2,-2,-2,-2],
-      [-8,-10,-4,-6,-12,-4,-6,-8]
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-1,-1,-1,-1,-1,-1,-1,-1],
+      [-7,-9,-3,-5,-11,-3,-5,-7]
     ]]];
   }
   else if(variant === 'half_reflected') {
     return [[[
-      [-7,-5,-3,-11,-9,-3,-5,-7],
-      [-1,-1,-1,-1,-1,-1,-1,-1],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-8,-6,-4,-10,-12,-4,-6,-8],
       [-2,-2,-2,-2,-2,-2,-2,-2],
-      [-8,-6,-4,10,-12,-4,-6,-8]
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-1,-1,-1,-1,-1,-1,-1,-1],
+      [-7,-5,-3,-11,-9,-3,-5,-7]
     ]]];
   }
   else if(variant === 'princess') {
     return [[[
-      [-7,-5,-3,-13,-11,-3,-5,-7],
-      [-1,-1,-1,-1,-1,-1,-1,-1],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
-      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-8,-6,-4,-14,-12,-4,-6,-8],
       [-2,-2,-2,-2,-2,-2,-2,-2],
-      [-8,-6,-4,14,-12,-4,-6,-8]
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-1,-1,-1,-1,-1,-1,-1,-1],
+      [-7,-5,-3,-13,-11,-3,-5,-7]
     ]]];
   }
   else if(variant === 'turn_zero') {
     return [[
-      undefined,
+      null,
       [
-        [-7,-5,-3,-9,-11,-3,-5,-7],
-        [-1,-1,-1,-1,-1,-1,-1,-1],
-        [ 0, 0, 0, 0, 0, 0, 0, 0],
-        [ 0, 0, 0, 0, 0, 0, 0, 0],
-        [ 0, 0, 0, 0, 0, 0, 0, 0],
-        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [-8,-6,-4,-10,-12,-4,-6,-8],
         [-2,-2,-2,-2,-2,-2,-2,-2],
-        [-8,-6,-4,10,-12,-4,-6,-8]
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [-1,-1,-1,-1,-1,-1,-1,-1],
+        [-7,-5,-3,-9,-11,-3,-5,-7]
       ],
       [
-        [-7,-5,-3,-9,-11,-3,-5,-7],
-        [-1,-1,-1,-1,-1,-1,-1,-1],
-        [ 0, 0, 0, 0, 0, 0, 0, 0],
-        [ 0, 0, 0, 0, 0, 0, 0, 0],
-        [ 0, 0, 0, 0, 0, 0, 0, 0],
-        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [-8,-6,-4,-10,-12,-4,-6,-8],
         [-2,-2,-2,-2,-2,-2,-2,-2],
-        [-8,-6,-4,10,-12,-4,-6,-8]
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [-1,-1,-1,-1,-1,-1,-1,-1],
+        [-7,-5,-3,-9,-11,-3,-5,-7]
       ]
     ]];
+  }
+  else if (variant === 'custom') {
+    return [];
   }
   else if(typeof variant === 'object') {
     return parseFuncs.toBoard(variant);
   }
   return [[[
-    [-7,-5,-3,-9,-11,-3,-5,-7],
-    [-1,-1,-1,-1,-1,-1,-1,-1],
-    [ 0, 0, 0, 0, 0, 0, 0, 0],
-    [ 0, 0, 0, 0, 0, 0, 0, 0],
-    [ 0, 0, 0, 0, 0, 0, 0, 0],
-    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [-8,-6,-4,-10,-12,-4,-6,-8],
     [-2,-2,-2,-2,-2,-2,-2,-2],
-    [-8,-6,-4,10,-12,-4,-6,-8]
+    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [ 0, 0, 0, 0, 0, 0, 0, 0],
+    [-1,-1,-1,-1,-1,-1,-1,-1],
+    [-7,-5,-3,-9,-11,-3,-5,-7]
   ]]];
 }
 
@@ -89,14 +92,36 @@ exports.copy = (board) => {
       if(board[l][t]) {
         res[l][t] = [];
       }
-      for(var r = 0;board[l][t] && r < board[l][t].length;r++) {
-        if(board[l][t][r]) {
-          res[l][t][r] = board[l][t][r].slice();
-        }
-      }
+      var newTurn = turnFuncs.copy(board, l, t);
+      this.setTurn(res, l, t, newTurn);
     }
   }
   return res;
+}
+
+exports.setTurn = (board, timeline, time, turn) => {
+  //Function to set small board/turn for full board. Used to avoid PACKED -> HOLEY element transistion on v8 engine.
+  if(!Array.isArray(board)) {
+    board = [];
+  }
+  for(var l = 0;l <= timeline;l++) {
+    if(l === timeline) {
+      if(!Array.isArray(board[l])) {
+        board[l] = [];
+      }
+      for(var t = 0;t <= time;t++) {
+        if(t === time) {
+          board[l][t] = turn;
+        }
+        else if(t >= board[l].length || typeof board[l][t] === 'undefined') {
+          board[l][t] = null;
+        }
+      }
+    }
+    else if(l >= board.length || typeof board[l] === 'undefined') {
+      board[l] = null;
+    }
+  }
 }
 
 exports.move = (board, move) => {
@@ -115,27 +140,27 @@ exports.move = (board, move) => {
           var secondNewTurn = turnFuncs.copy(board, dest[0], dest[1]);
           secondNewTurn[dest[2]][dest[3]] = destPiece;
           if((board[dest[0]].length - 1) === dest[1]) {
-            board[dest[0]][dest[1] + 1] = secondNewTurn;
+            this.setTurn(board, dest[0], dest[1] + 1, secondNewTurn);
           }
           else {
             var newTimeline = 0;
             for(var i = 1;i < board.length;i++) {
-              if(board[i] !== undefined && (i % 2) === (dest[1] % 2)) {
+              if(!(typeof board[i] === 'undefined' || board[i] === null) && (i % 2) === (dest[1] % 2)) {
                 if(newTimeline < i) { newTimeline = i; }
               }
             }
             if(newTimeline === 0) {
               board[(dest[1] % 2) === 0 ? 2 : 1] = [];
-              board[(dest[1] % 2) === 0 ? 2 : 1][dest[1] + 1] = secondNewTurn;
+              this.setTurn(board, (dest[1] % 2) === 0 ? 2 : 1, dest[1] + 1, secondNewTurn);
             }
             else {
               board[newTimeline + 2] = [];
-              board[newTimeline + 2][dest[1] + 1] = secondNewTurn;
+              this.setTurn(board, newTimeline + 2, dest[1] + 1, secondNewTurn);
             }
           }
         }
       }
-      board[src[0]][src[1] + 1] = newTurn;
+      this.setTurn(board, src[0], src[1] + 1, newTurn);
     }
     else {
       throw 'Move not possible, piece does not exist.';
@@ -237,7 +262,7 @@ exports.present = (board, actionNum) => {
   return res;
 }
 
-exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, variant = 'standard') => {
+exports.moves = (board, actionNum, activeOnly = true, presentOnly = true) => {
   var res = [];
   if(presentOnly) {
     var presentTimelines = this.present(board, actionNum);
@@ -249,7 +274,7 @@ exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, varian
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
               if(Math.abs(latestTurn[r][f]) % 2 === actionNum % 2) {
-                var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f], variant);
+                var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f]);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
                 }

@@ -1,16 +1,43 @@
 require('module-alias/register');
 
+const boardFuncs = require('@local/board');
 const notationFuncs = require('@local/notation');
+const pgnFuncs = require('@local/pgn');
 const parseFuncs = require('@local/parse');
 const validateFuncs = require('@local/validate');
 
-exports.actions = (input) => {
+exports.board = (input) => {
+  /*
+    Supported input:
+     - 4D Array (raw board)
+     - Board object
+     - JSON of either above
+  */
+  var res = [];
+  var tmp = input;
+  if(typeof input === 'string') {
+    tmp = null;
+    try {
+      tmp = JSON.parse(input);
+    }
+    catch(err) {}
+  }
+  if(Array.isArray(tmp)) {
+    res = boardFuncs.copy(tmp);
+  }
+  else {
+    res = parseFuncs.toBoard(tmp);
+  }
+  return res;
+}
+
+exports.actions = (input, startingBoard = [], startingActionNum = []) => {
   /*
     Supported input:
      - 2D Array of moves (raw or object)
      - Array of action object
      - JSON of either above
-     - Multiple actions as expressed in notation
+     - Multiple actions as expressed in notation / pgn
   */
   var res = [];
   if(typeof input === 'string') {
@@ -20,7 +47,20 @@ exports.actions = (input) => {
     }
     catch(err) {}
     if(tmp === null) {
-      var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').filter(e => !e.includes('[') && e !== '');
+      try {
+        tmp = pgnFuncs.toActionHistory(input, startingBoard, startingActionNum);
+        if(tmp.length <= 0 && input.length > 0) {
+          tmp = null;
+          throw 'No pgn actions found';
+        }
+      }
+      catch(err) {
+        console.error(err);
+        console.error('Error parsing as pgn, trying old notation');
+      }
+    }
+    if(tmp === null) {
+      var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').map(e => e.trim()).filter(e => !e.includes('[') && e !== '');
       var tmpAction = [];
       var tmpCurrAction = null;
       for(var i = 0;i < splitStr.length;i++) {
@@ -67,7 +107,7 @@ exports.actions = (input) => {
   return res;
 }
 
-exports.action = (input) => {
+exports.action = (input, board = [], actionNum = 0) => {
   /*
     Supported input:
      - Array of moves (raw or object)
@@ -76,12 +116,22 @@ exports.action = (input) => {
      - Single action as expressed in notation
   */
   var res = [];
+  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
   if(typeof input === 'string') {
     var tmp = null;
     try {
       tmp = JSON.parse(input);
     }
     catch(err) {}
+    if(tmp === null) {
+      try {
+        tmp = pgnFuncs.toAction(input, board, actionNum);
+      }
+      catch(err) {
+        console.error(err);
+        console.error('Error parsing as pgn, trying old notation');
+      }
+    }
     if(tmp === null) {
       var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').filter(e => !e.includes('[') && e !== '');
       var tmpAction = [];
@@ -117,7 +167,7 @@ exports.action = (input) => {
   if(Array.isArray(input)) {
     if(input.length > 0 && !Array.isArray(input[0])) {
       for(var i = 0;i < input.length;i++) {
-        res.push(parseFuncs.toMove(input[i]));
+        res.push(parseFuncs.toMove(input[i], isTurnZero));
       }
     }
     else {
@@ -127,7 +177,7 @@ exports.action = (input) => {
   return res;
 }
 
-exports.move = (input) => {
+exports.move = (input, board = [], actionNum = 0) => {
   /*
     Supported input:
      - Move (raw or object)
@@ -135,12 +185,22 @@ exports.move = (input) => {
      - Single move as expressed in notation
   */
   var res = [];
+  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
   if(typeof input === 'string') {
     var tmp = null;
     try {
       tmp = JSON.parse(input);
     }
     catch(err) {}
+    if(tmp === null) {
+      try {
+        tmp = pgnFuncs.toMove(input, board, actionNum);
+      }
+      catch(err) {
+        console.error(err);
+        console.error('Error parsing as pgn, trying old notation');
+      }
+    }
     if(tmp === null) {
       var splitStr = input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n').filter(e => !e.includes('[') && e !== '');
       if(splitStr.length > 0) {
@@ -157,7 +217,7 @@ exports.move = (input) => {
     res = input;
   }
   else if(typeof input === 'object') {
-    res = parseFuncs.toMove(input);
+    res = parseFuncs.toMove(input, isTurnZero);
   }
   return res;
 }

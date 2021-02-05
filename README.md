@@ -2,6 +2,10 @@
 
 Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.
 
+[![Pipeline Status](https://gitlab.com/alexbay218/5d-chess-js/badges/master/pipeline.svg)](https://gitlab.com/%{project_path}/-/commits/master)
+[![NPM version](https://img.shields.io/npm/v/5d-chess-js.svg)](https://www.npmjs.com/package/5d-chess-js)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://gitlab.com/alexbay218/5d-chess-js)
+
 ## Demo
 
 Live demo on JSFiddle available [here](https://jsfiddle.net/alexbay218/57drakwg/)
@@ -17,15 +21,15 @@ To use the library, here is a simple 3 action checkmate example here:
 ``` js
 const Chess = require('5d-chess-js');
 var chess = new Chess();
-chess.move('1w. 1:e2:e3');
+chess.move('e3');
 chess.submit();
-chess.move('1b. 1:f7:f6');
+chess.move('f6');
 chess.submit();
-chess.move('2w. 2:Qd1:e2');
+chess.move('Qe2');
 chess.submit();
-chess.move('2b. 2:Nb8:c6');
+chess.move('Nc6');
 chess.submit();
-chess.move('3w. 3:Qe2:h5');
+chess.move('Qh5');
 chess.submit();
 chess.print();
 console.log(chess.inCheckmate);
@@ -42,15 +46,15 @@ To use the library, the `Chess` class is exposed in the global scope. Here is th
 
 ``` js
 var chess = new Chess();
-chess.move('1w. 1:e2:e3');
+chess.move('e3');
 chess.submit();
-chess.move('1b. 1:f7:f6');
+chess.move('f6');
 chess.submit();
-chess.move('2w. 2:Qd1:e2');
+chess.move('Qe2');
 chess.submit();
-chess.move('2b. 2:Nb8:c6');
+chess.move('Nc6');
 chess.submit();
-chess.move('3w. 3:Qe2:h5');
+chess.move('Qh5');
 chess.submit();
 chess.print();
 console.log(chess.inCheckmate);
@@ -60,17 +64,15 @@ console.log(chess.inCheckmate);
 
 Currently supported variants:
 
- - Standard - This uses the standard chess layout (use the string literal `standard` for functions and metadata tag).
- - Defended Pawn - This variant switches the queen and queenside knight (use the string literal `defended_pawn` for functions and metadata tag).
- - Half Reflected - This variant switches the black queen and black king (use the string literal `half_reflected` for functions and metadata tag).
- - Princess - This variant replaces the queen with a princess, a piece that only has rook + bishop movement (use the string literal `princess` for functions and metadata tag). Note the SAN piece equivalent is `P`, whereas it shows up as `S` in `.print()` (notation uses the SAN piece equivalent).
- - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (use the string literal `turn_zero` for functions and metadata tag).
+ - Standard - This uses the standard chess layout (the string literal `standard` is used internally).
+ - Defended Pawn - This variant switches the queen and queenside knight (the string literal `Standard - Defended Pawn` is used internally).
+ - Half Reflected - This variant switches the black queen and black king (the string literal `half_reflected` is used internally).
+ - Princess - This variant replaces the queen with a princess, a piece that only has rook + bishop movement (the string literal `princess` is used internally). Note the SAN piece equivalent is `S`.
+ - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (the string literal `turn_zero` is used internally).
 
-## Notation and Terminology
+## Terminology
 
-### Terms
-
-Terms used in the notation of 5d Chess JS:
+Terms used in the notation of 5D Chess JS:
 
   - Move - A move is considered as a single movement of a piece (Capturing, En Passant, and Castling are considered a single move).
   - Action - A collection of moves that when submitted results in other player's time to play.
@@ -81,110 +83,92 @@ Terms used in the notation of 5d Chess JS:
   - File - A movable dimension within the game. Same as standard chess.
   - Full Board - A full board is considered as the full board state between actions. Contains all timelines, turns, and singular chessboards with all pieces.
 
-### Notation
+## PGN
 
-Metadata section: `[(Key) "(Value)"]`
+5D Chess JS uses the `5dpgn` standard as defined [here](https://github.com/adri326/5dchess-notation). Previous versions (v0.3.6 and below) used an older custom notation system.
+This library still maintains backwards compatibility, but `5dpgn` is the preferred standard moving forward.
 
-This is used to store metadata information about the game in the same style as chess PGN tags.
+For information on the old notation system see [here](./notation.old.md).
 
-Valid characters for the Value is alphanumeric characters, `_`, `-`, and `.`.
+## FEN
 
-Valid characters for the Value is alphanumeric characters, `_`, `-`, `/`, `*`, `.`, and space.
+If you wish to have your own, custom variants, then you may format them using the included 5DFEN format.
+Its grammar can be found at [fen.ebnf](https://github.com/adri326/5dchess-notation/blob/master/fen.ebnf).
 
-The only required metadata is the `Variant` key. This is automatically added on export.
+5DFEN lets you define custom variants and starting positions by specifying the initial boards' layout instead of giving it a "variant" metadata tag.
+The boards that emerge from previous board after a possible move are then described using this library's movement notation.
 
-Recommended tags are the STR set (Seven Tag Roster):
+A *board string* is the 5DFEN way of describing the state of an initial board.
+A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by colons (`:`).
+There should be no spaces, as to not confuse a board string with a regular header.
 
- - `Event` - The name of the tournament or match event.
- - `Site` - The location of the event. This is in City, Region COUNTRY format, where COUNTRY is the three-letter International Olympic Committee code for the country. An example is New York City, NY USA. For Internet play, use 'Internet' as the value. Use '??' for unknown values.
- - `Date` - The starting date of the game, in YYYY.MM.DD form. Use '??' for unknown values.
- - `Round` - The playing round ordinal of the game within the event.
- - `White` - The player of the white pieces, in Lastname, Firstname format (may be anything for bots or usernames).
- - `Black` - The player of the black pieces, same format as White.
- - `Result` - The result of the game. Recorded as White score, dash, then Black score, or * (other, e.g., the game is ongoing).
+The first field contains the board's pieces:
+- The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
+- Each row is a string of pieces - encoded using letters (optionally followed by a `+`) - and blanks - encoded using numbers.
+- A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
+- To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be followed
+by a `+`.
 
-```
-Example:
+This is the list of the available pieces that you may put in a 5DFEN board string:
+- `P/p` for [p]awn
+- `B/b` for [b]ishop
+- `R/r` for [r]ook
+- `N/n` for k[n]ight
+- `K/k` for [k]ing
+- `Q/q` for [q]ueen
+- ~~`U/u` for [u]nicorn~~ (not yet available)
+- ~~`D/d` for [d]ragon~~ (not yet available)
+- `S/s` for prince[s]s
+- ~~`W/w` for bra[w]n~~ (not yet available)
+- ~~`C/c` for [c]ommon king~~ (not yet available)
+- ~~`Q+/q+` for royal [q]ueen~~ (not yet available)
 
-[Event "Random Bot Test"]
-[Site "Internet"]
-[Date "2020.10.22"]
-[Round "1"]
-[White "Random Bot"]
-[Black "Random Bot"]
-[Result "1-0"]
-[Variant "defended_pawn"]
-```
+Blanks are encoded using numbers:
+- If there is a one-piece blank, then it is encoded using `1`.
+- If there is a two-piece blank, then it is encoded using `2`.
+- If there is a ten-piece blank, then it is encoded using `10.
+- If there is a N-piece blank, then it is encoded by writing `N` out in base 10.
 
-Notation used: `(Action #)(Color). (Turn #)[+/- Line #]:[Piece](Coord)[<+/- New Line #>][Dest Turn #][Dest +/- Line #]:[Capture][Promotion Piece](Dest Coord)[En Passant][Check/Checkmate/Stalemate]`
+If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
+- An unmoved white pawn is encoded as `P*`
+- An unmoved black king is encoded as `k*`
 
-This is the notation for a single move. To delimit between moves, either a newline or semicolon is acceptable.
+If `+` and `*` need to be combined, then `+` comes first: `q+*`.
 
- - `(Action #)` - **[Required]** Action Number, the all moves within the referred action are required to indicate which action the move is a part of. Formatted as an integer starting from 1.
-  - `(Color). ` - **[Required]** Lowercase character indicating player color (`b` or `w`) of the player that made the move. A `.` and space is required after the character.
-  - `(Turn #)` - **[Required]** Turn number of the starting location of the piece to be moved. Formatted as an integer starting from 1.
-  - `[+/- Line #]` - Timeline number of the starting location of the piece to be moved. If timeline is 0, nothing should be in the term. A `+` or `-` character is required to precede the number (expressed as integer).
-  - `[Piece]` - Piece character as found in SAN notation. Must be capitalized. King is `K` and Knight is `N` (pawn is an empty character). This term is not strictly required within library usage and is used for human readability purposes.
-  - `(Coord)` - **[Required]** Coordinate of starting rank and file of the piece to be moved. Formatted in the SAN notation coordinate system `[a-h][1-8]`. First character must be lowercase.
-  - `[<+/- New Line #>]` - Timeline number of newly created timelines. This term is required if new timelines are created or the destination location has a different turn and/or timeline of the starting location (in this case, if no timeline is created, `<>` is used). The internal number (within the `<>` separator), is not strictly required within library usage and is used for human readability purposes.
-  - `[Dest Turn #]` - Turn number of destination location. Required if this term is different from starting location. Same format as `(Turn #)` (see above).
-  - `[Dest +/- Line #]` - Timeline number of destination location. Required if this term is different from starting location. Same format as `[+/- Line #]` (see above).
-  - `[Capture]` - Indicate if this movement captures a piece. If this move captures a piece, the character `x` is used. This term is not strictly required within library usage and is used for human readability purposes.
-  - `[Promotion Piece]` - Used during pawn promotion to indicate what piece type the pawn is being promoted to. Same as above, the piece character is the same as SAN notation. Must be capitalized. Knight is still a `N`. Strictly required during promotion.
-  - `(Dest Coord)` - **[Required]** Coordinate of destination rank and file of the piece to be moved. Same format as `(Coord)` (see above).
-  - `[En Passant]` - Indicate if move is an En Passant capture. Characters in use is `e.p.`. Strictly required during En Passant capture.
-  - `[Check/Checkmate/Stalemate]` - Indicate if the action this move belongs to results in check, checkmate, or stalemate for the opponent. Check is `+`, checkmate is `#`, and stalemate is `=`. The library will attach this term to the last move within the action. This term is not strictly required within library usage and is used for human readability purposes.
+The other three fields are:
+- Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
+- Turn, as displayed in-game, may be `0`, `1`, `2`, etc.
+- Player color, may be `w` for white and `b` for black
 
-Notation exceptions for castling:
+#### Required metadata
 
-  - Queenside Castling: `(Action #)(Color). (Turn #)[+/- Line #]:0-0-0`
-  - Kingside Castling: `(Action #)(Color). (Turn #)[+/- Line #]:0-0`
+The following metadata fields are required to have within the headers of a game using 5DFEN:
 
-### Examples
+- `Board = "Custom"`, as to indicate that 5DFEN needs to be used
+- `Size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
+- `Puzzle = "Mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
+  as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
 
-Three examples indicating the same game showcasing notation flexibility.
+#### 5DFEN Examples:
 
-```
-Raw example:             Minified example:
+This is how the standard position would be encoded:
 
-1w. 1:e2<>1:e3           1w. 1:e2:e3
-1b. 1:f7<>1:f6           1b. 1:f7:f6
-2w. 2:Nb1<+1>1:b3        2w. 2:Nb1<>1:b3
-2b. 1+1:a7<>1+1:a6       2b. 1+1:a7:a6
-3w. 2+1:c2<>2+1:c3       3w. 2+1:c2:c3
-3b. 2:Nb8<>2:c6          3b. 2:Nb8:c6
-3b. 2+1:Nb8<>2+1:c6      3b. 2+1:Nb8:c6
-4w. 3:Qd1<>3:h5          4w. 3:Qd1:h5
-4w. 3+1:Qd1<>3+1:c2#     4w. 3+1:Qd1:c2#
-
-╔════════╗╔════════╗╔════════╗╔════════╗╔════════╗╔════════╗
-║rnbqkbnr║║rnbqkbnr║║rnbqkbnr║║rnbqkbnr║║r bqkbnr║║r bqkbnr║
-║pppppppp║║pppppppp║║ppppp pp║║ppppp pp║║ppppp pp║║ppppp pp║
-║        ║║        ║║     p  ║║     p  ║║  n  p  ║║  n  p  ║
-║        ║║        ║║        ║║        ║║        ║║       Q║
-║        ║║        ║║        ║║        ║║        ║║        ║
-║        ║║    P   ║║    P   ║║    P   ║║    P   ║║    P   ║
-║PPPPPPPP║║PPPP PPP║║PPPP PPP║║PPPP PPP║║PPPP PPP║║PPPP PPP║
-║RNBQKBNR║║RNBQKBNR║║RNBQKBNR║║R BQKBNR║║R BQKBNR║║R B KBNR║
-╚════════╝╚════════╝╚════════╝╚════════╝╚════════╝╚════════╝
-          ╔════════╗╔════════╗╔════════╗╔════════╗╔════════╗
-          ║rnbqkbnr║║rnbqkbnr║║rnbqkbnr║║r bqkbnr║║r bqkbnr║
-          ║pppppppp║║ ppppppp║║ ppppppp║║ ppppppp║║ ppppppp║
-          ║        ║║p       ║║p       ║║p n     ║║p n     ║
-          ║        ║║        ║║        ║║        ║║        ║
-          ║        ║║        ║║        ║║        ║║        ║
-          ║ N      ║║ N      ║║ NP     ║║ NP     ║║ NP     ║
-          ║PPPPPPPP║║PPPPPPPP║║PP PPPPP║║PP PPPPP║║PPQPPPPP║
-          ║RNBQKBNR║║RNBQKBNR║║RNBQKBNR║║RNBQKBNR║║RNB KBNR║
-          ╚════════╝╚════════╝╚════════╝╚════════╝╚════════╝
+```fen
+[size "8x8"]
+[board "custom"]
+[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]
 ```
 
-Run this example using:
+This is how `Rook Tactics I` would be encoded:
 
-``` js
-const Chess = require('5d-chess-js');
-var chess = new Chess('1w. 1:e2:e3\n1b. 1:f7:f6\n2w. 2:Nb1<>1:b3\n2b. 1+1:a7:a6\n3w. 2+1:c2:c3\n3b. 2:Nb8:c6\n3b. 2+1:Nb8:c6\n4w. 3:Qd1:h5\n4w. 3+1:Qd1:c2#');
-chess.print();
+```fen
+[size "5x5"]
+[board "custom"]
+[puzzle "mate-in-1"]
+[4k/5/5/5/K1R:0:1:w]
+
+1. Kb2 / Ke4
+2. Re1 / Kd3
 ```
 
 ## API
@@ -195,7 +179,7 @@ chess.print();
 
 Creates a new instance of the `Chess` class.
 
-  - import - *[Optional]* List of actions to import. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
+  - import - *[Optional]* List of actions to import. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
   - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
   - **Return** - A new `Chess` object.
 
@@ -213,7 +197,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.boardHistory**
 
-  - **Return** - Array of `Board` objects representing all past and current boards.
+  - **Return** - Array of `Board` objects representing all past and current full boards.
 
 **.actionHistory**
 
@@ -239,13 +223,13 @@ These fields are implemented as a getter function. If getter functions are unsup
 
   - **Return** - Boolean indicating if the current board state has the current player in stalemate.
 
-**.checkmateTimeout**
-
-  - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function)
-
 **.hash**
 
   - **Return** - String of md5 hash of the board data.
+
+**.checkmateTimeout**
+
+  - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function)
 
 ### Functions
 
@@ -253,7 +237,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large full board state. Will throw errors.
 
-  - import - List of actions to import (this will reset the internal state). Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
+  - import - List of actions to import (this will reset the internal state). Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
   - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
@@ -262,23 +246,35 @@ Imports data to have the internal state match the state that the imported data r
 
 Check if the imported data is valid and can be imported. Does not modify internal state and will not throw errors.
 
-  - import - List of actions to import (this will reset the internal state). Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
+  - import - List of actions to import (this will reset the internal state). Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the imported data is valid and can be imported.
 
-**.reset()**
+**.fen()**
+
+Get the 5DFEN string of the starting board.
+
+  - **Return** - String containing 5DFEN of the starting board.
+
+**.fen(fen)**
+
+Modify the current board with the 5DFEN string.
+
+  - fen - String containing 5DFEN to apply to the current board.
+  - **Return** - Nothing.
+
+**.fenable(fen)**
+
+Check if the 5DFEN string is valid and can be applied. Does not modify internal state and will not throw errors.
+
+  - fen - String containing 5DFEN to apply to the current board.
+  - **Return** - Boolean representing if the 5DFEN string is valid and can be applied.
+
+**.reset([variant])**
 
 Resets the internal state to the initial full board state.
 
-  - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
-  - **Return** - Nothing.
-
-**.action(action, [skipDetection])**
-
-Plays an action as the current player and submits the move. Will modify internal state and will throw errors.
-
-  - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
+  - variant - *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
   - **Return** - Nothing.
 
 **.copy()**
@@ -287,11 +283,45 @@ Creates a new instance of the Chess class with the exact same internal state.
 
   - **Return** - New Chess class instance.
 
+**.state()**
+
+Get the internal state of this instance of the Chess class. Used internally by `.copy()`, this is used for serializable copy (for example, copying state from web worker to main thread).
+
+  - **Return** - Object (JSON compatible) containing all information to make exact copy.
+
+**.state(state)**
+
+Set the internal state of this instance of the Chess class. Used internally by `.copy()`, this is used for serializable copy (for example, copying state from web worker to main thread).
+
+  - state - Object (JSON compatible) containing all information to make exact copy.
+  - **Return** - Nothing.
+
+**.compare(input1, input2, [type])**
+
+Returns number indicating if object is equal, useful for consistent sorting. Non-zero return value may be arbitrary, but it is consistent. If the return value is zero, both inputs are equivalent in value.
+
+  - input1 - First value to compare. See below for valid inputs per type.
+  - input2 - Second value to compare. See below for valid inputs per type.
+  - type = *[Optional]* Defaults to `"board"`. Indicates input type.
+
+    Valid types are:
+
+    - `"board"` - When using this type, input can be a 4D array (raw board format), `Board` object, or JSON string of either.
+    - `"move"` - When using this type, input can be a raw move, `Move` object, JSON string of either, `5dpgn` string, or notation string *(depreciated)*.
+
+**.action(action, [skipDetection])**
+
+Plays an action as the current player and submits the move. Will modify internal state and will throw errors.
+
+  - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
+  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
+  - **Return** - Nothing.
+
 **.actionable(action, [skipDetection])**
 
 Check if an action is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
-  - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
+  - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the action is playable and submittable.
 
@@ -301,17 +331,38 @@ Generate all possible submittable actions. Does not modify internal state, but w
 
 **Warning! Due to the complexity of 5D chess, performance may severely suffer if the full board is large enough. Calling this function with more than 3 present timelines is not advised.**
 
-  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
+  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. 
+    
+    Valid formats are: 
+    - `"object"`
+    - `"json"`
+    - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
+        - `"active"` - This prompts the inclusion of timeline activation indicator tokens.
+        - `"timeline"` - This prompts the inclusion of new timeline creation indicator tokens.
+        - `"superphysical"` - This prompts the inclusion of super-physical tokens, regardless of if it is required.
+    - `"notation"` *(depreciated)*
+    - `"notation_short"` *(depreciated)*
+
   - activeOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves in the action come from only active timelines.
   - presentOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves in the action come from only present timelines (will override `activeOnly` argument).
   - newActiveTimelinesOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if the action will only create active timelines (i.e. cannot create inactive timelines).
-  - **Return** - List of actions. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
+  - **Return** - List of actions. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
 
 **.checks([format])**
 
 Generate all opponent moves that can capture the king (assuming a null move on any present timelines that still have not advanced). Does not modify internal state, but will throw errors.
 
-  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
+  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
+
+    Valid formats are: 
+    - `"object"`
+    - `"json"`
+    - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
+        - `"active"` - This prompts the inclusion of timeline activation indicator tokens.
+        - `"timeline"` - This prompts the inclusion of new timeline creation indicator tokens.
+        - `"superphysical"` - This prompts the inclusion of super-physical tokens, regardless of if it is required.
+    - `"notation"` *(depreciated)*
+    - `"notation_short"` *(depreciated)*
 
 **.move(move)**
 
@@ -332,11 +383,22 @@ Check if a move is playable as the current player and can submit. Does not modif
 
 Generate all possible moves. Does not modify internal state, but will throw errors.
 
-  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
+  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
+
+    Valid formats are: 
+    - `"object"`
+    - `"json"`
+    - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
+        - `"active"` - This prompts the inclusion of timeline activation indicator tokens.
+        - `"timeline"` - This prompts the inclusion of new timeline creation indicator tokens.
+        - `"superphysical"` - This prompts the inclusion of super-physical tokens, regardless of if it is required.
+    - `"notation"` *(depreciated)*
+    - `"notation_short"` *(depreciated)*
+
   - activeOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only active timelines.
   - presentOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only present timelines (will override `activeOnly` argument).
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
-  - **Return** - List of moves. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
+  - **Return** - List of moves. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
 
 **.submit([skipDetection])**
 
@@ -370,7 +432,7 @@ Passes the turn as the current player and submits. Will modify internal state an
 
 **Warning! This is primarily used for bot and engine purposes. In the regular game, you cannot pass turns!**
 
-  - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
+  - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
@@ -378,7 +440,7 @@ Passes the turn as the current player and submits. Will modify internal state an
 
 Check if current player can pass and can submit. Does not modify internal state and will not throw errors.
 
-  - action - The action (list of moves) to play as the current player. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
+  - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the action is playable and submittable.
 
@@ -386,12 +448,24 @@ Check if current player can pass and can submit. Does not modify internal state 
 
 Return exportable data as a list of all actions the both players have played during the whole game.
 
-  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. Valid formats are: `"object"`, `"json"`, `"notation"`, or `"notation_short"`.
-  - **Return** - List of actions. Can be notation string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
+  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
+
+    Valid formats are: 
+    - `"object"`
+    - `"json"`
+    - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
+        - `"inline"` - This promps the usage of space instead of newline to delimit between actions.
+        - `"active"` - This prompts the inclusion of timeline activation indicator tokens.
+        - `"timeline"` - This prompts the inclusion of new timeline creation indicator tokens.
+        - `"superphysical"` - This prompts the inclusion of super-physical tokens, regardless of if it is required.
+    - `"notation"` *(depreciated)*
+    - `"notation_short"` *(depreciated)*
+
+  - **Return** - List of actions. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
 
 **.print()**
 
-Print the current internal state to console through `console.log()` function.
+Print the current internal state to console through `console.log()` function. Useful for debug purposes only.
 
   - **Return** - Nothing.
 
@@ -496,15 +570,17 @@ This version uses a 4D array to store the full board state, with numbers as the 
 Here is the format: `board[timeline][turn][rank][file] = piece`
   - Timeline: starts from 0 (0, +1, +2, +3 => 0, 2, 4, 6 and -1, -2, -3 => 1, 3, 5)
   - Turn: starts from 0 (white player: 1, 2, 3 => 0, 2, 4 and black player: 1, 2, 3 => 1, 3, 5)
-  - Rank: starts from 0 (1, 2, 3 => 7, 6 ,5)
+  - Rank: starts from 0 (1, 2, 3 => 0, 1, 2)
   - File: start from 0 (a, b, c => 0, 1, 2)
-  - Piece:
-    - Pawn: (white player: -2 [unmoved], 2 and black player: -1 [unmoved], 1)
+  - Piece (negative value indicates piece is unmoved):
+    - Pawn: (white player: 2 and black player: 1)
     - Bishop: (white player: 4 and black player: 3)
     - Knight: (white player: 6 and black player: 5)
-    - Rook: (white player: -8 [unmoved], 8 and black player: -7 [unmoved], 7)
+    - Rook: (white player: 8 and black player: 7)
     - Queen: (white player: 10 and black player: 9)
-    - King: (white player: -12 [unmoved], 12 and black player: -11 [unmoved], 11)
+    - King: (white player: 12 and black player: 11)
+    - Princess: (white player: 14 and black player: 13)
+
 
 ## FAQ
 
@@ -535,3 +611,4 @@ Also of note is this article from the American Bar Association (https://www.amer
 All source code is released under AGPL v3.0 (license can be found under the `LICENSE` file).
 
 Any addition copyrightable material not covered under AGPL v3.0 is released under CC BY-SA.
+

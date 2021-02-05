@@ -16,11 +16,11 @@ exports.blankAction = (board, actionNum) => {
   }
 }
 
-exports.checks = (board, actionNum, variant = 'standard') => {
+exports.checks = (board, actionNum) => {
   var res = [];
   var tmpBoard = boardFuncs.copy(board);
   this.blankAction(tmpBoard, actionNum);
-  var moves = boardFuncs.moves(tmpBoard, actionNum + 1, false, false, variant);
+  var moves = boardFuncs.moves(tmpBoard, actionNum + 1, false, false);
   for(var i = 0;i < moves.length;i++) {
     if(moves[i].length === 2 && boardFuncs.positionExists(tmpBoard, moves[i][1])) {
       var destPiece = tmpBoard[moves[i][1][0]][moves[i][1][1]][moves[i][1][2]][moves[i][1][3]];
@@ -32,41 +32,42 @@ exports.checks = (board, actionNum, variant = 'standard') => {
   return res;
 }
 
-exports.checkmate = (board, actionNum, maxTime = 60000, variant = 'standard') => {
-  if(this.stalemate(board, actionNum, variant)) {
-    return false;
+exports.checkmate = (board, actionNum, maxTime = 60000) => {
+  if(this.stalemate(board, actionNum)) {
+    return [false, false];
   }
   var start = present();
 
   // Super fast single pass looking for moves solving checks
-  var moves = boardFuncs.moves(board, actionNum, false, false, variant);
+  var moves = boardFuncs.moves(board, actionNum, false, false);
   for(var i = 0;i < moves.length;i++) {
     var tmpBoard = boardFuncs.copy(board);
     boardFuncs.move(tmpBoard, moves[i]);
-    var tmpChecks = this.checks(tmpBoard, actionNum, variant);
-    if(tmpChecks.length <= 0) { return false; }
-    if((present() - start) > maxTime) { return true; }
+    var tmpChecks = this.checks(tmpBoard, actionNum);
+    if(tmpChecks.length <= 0) { return [false, false]; }
+    if((present() - start) > maxTime) { return [true, true]; }
   }
   // Fast pass looking for moves solving checks using DFS
   var recurse = (board, actionNum, checks = []) => {
-    var moves = boardFuncs.moves(board, actionNum, false, false, variant);
-    if(checks.length <= 0) { checks = this.checks(board, actionNum, variant); }
-    if(checks.length <= 0) { return false; }
-    if((present() - start) > maxTime) { return true; }
+    var moves = boardFuncs.moves(board, actionNum, false, false);
+    if(checks.length <= 0) { checks = this.checks(board, actionNum); }
+    if(checks.length <= 0) { return [false, false]; }
+    if((present() - start) > maxTime) { return [true, true]; }
     for(var i = 0;i < moves.length;i++) {
       var tmpBoard = boardFuncs.copy(board);
       boardFuncs.move(tmpBoard, moves[i]);
-      var tmpChecks = this.checks(tmpBoard, actionNum, variant);
+      var tmpChecks = this.checks(tmpBoard, actionNum);
       var solvedACheck = tmpChecks.length < checks.length;
       if(solvedACheck) {
-        if(!recurse(tmpBoard, actionNum, tmpChecks)) {
-          return false;
+        if(!recurse(tmpBoard, actionNum, tmpChecks)[0]) {
+          return [false, false];
         }
       }
     }
-    return true;
+    return [true, false];
   }
-  if(!recurse(board, actionNum)) { return false; }
+  var r = recurse(board, actionNum);
+  if(!r[0] || r[1]) { return r; }
 
   var checkSig = (checks) => {
     var res = {
@@ -95,21 +96,21 @@ exports.checkmate = (board, actionNum, maxTime = 60000, variant = 'standard') =>
   var exhausted = false;
   var moveTree = [{
     board: board,
-    checkSig: checkSig(this.checks(board, actionNum, variant))
+    checkSig: checkSig(this.checks(board, actionNum))
   }];
   var moveTreeIndex = 0;
   //Slow BFS exhaustive search prioritizing check solving, check changing, then timeline changing moves
   while(moveTreeIndex < moveTree.length) {
-    if((present() - start) > maxTime) { return true; }
+    if((present() - start) > maxTime) { return [true, true]; }
     var currNode = moveTree[moveTreeIndex];
     if(currNode) {
-      var moves = boardFuncs.moves(currNode.board, actionNum, false, false, variant);
+      var moves = boardFuncs.moves(currNode.board, actionNum, false, false);
       var tmpMoveTree = [];
       for(var i = 0;i < moves.length;i++) {
         var tmpBoard = boardFuncs.copy(currNode.board);
         boardFuncs.move(tmpBoard, moves[i]);
-        var tmpChecks = this.checks(tmpBoard, actionNum, variant);
-        if(tmpChecks.length <= 0) { return false; }
+        var tmpChecks = this.checks(tmpBoard, actionNum);
+        if(tmpChecks.length <= 0) { return [false, false]; }
         var tmpCheckSig = checkSig(tmpChecks);
         tmpMoveTree.push({
           board: tmpBoard,
@@ -125,12 +126,12 @@ exports.checkmate = (board, actionNum, maxTime = 60000, variant = 'standard') =>
     }
     moveTreeIndex++;
   }
-  return true;
+  return [true, false];
 }
 
-exports.stalemate = (board, actionNum, variant = 'standard') => {
-  var moves = boardFuncs.moves(board, actionNum, true, true, variant);
-  var checks = this.checks(board, actionNum, variant);
+exports.stalemate = (board, actionNum) => {
+  var moves = boardFuncs.moves(board, actionNum, true, true);
+  var checks = this.checks(board, actionNum);
   var presentTimelines = boardFuncs.present(board, actionNum);
   return moves.length <= 0 && checks.length <= 0 && presentTimelines.length > 0;
 }
