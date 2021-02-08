@@ -256,7 +256,7 @@ exports.present = (board, actionNum) => {
   return res;
 }
 
-exports.moves = (board, actionNum, activeOnly = true, presentOnly = true) => {
+exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, spatialOnly = false) => {
   var res = [];
   if(presentOnly) {
     var presentTimelines = this.present(board, actionNum);
@@ -268,7 +268,7 @@ exports.moves = (board, actionNum, activeOnly = true, presentOnly = true) => {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
               if(Math.abs(latestTurn[r][f]) % 2 === actionNum % 2) {
-                var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f]);
+                var moves = pieceFuncs.moves(board, [presentTimelines[i], currTimeline.length - 1, r, f], spatialOnly);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
                 }
@@ -289,7 +289,7 @@ exports.moves = (board, actionNum, activeOnly = true, presentOnly = true) => {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
               if(Math.abs(latestTurn[r][f]) % 2 === actionNum % 2) {
-                var moves = pieceFuncs.moves(board, [activeTimelines[i], currTimeline.length - 1, r, f]);
+                var moves = pieceFuncs.moves(board, [activeTimelines[i], currTimeline.length - 1, r, f], spatialOnly);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
                 }
@@ -309,7 +309,7 @@ exports.moves = (board, actionNum, activeOnly = true, presentOnly = true) => {
           for(var r = 0;latestTurn && r < latestTurn.length;r++) {
             for(var f = 0;latestTurn[r] && f < latestTurn[r].length;f++) {
               if(Math.abs(latestTurn[r][f]) % 2 === actionNum % 2) {
-                var moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f]);
+                var moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f], spatialOnly);
                 for(var j = 0;j < moves.length;j++) {
                   res.push(moves[j]);
                 }
