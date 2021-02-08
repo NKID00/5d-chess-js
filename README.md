@@ -379,7 +379,7 @@ Check if a move is playable as the current player and can submit. Does not modif
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the move is playable.
 
-**.moves([format, activeOnly, presentOnly, skipDetection])**
+**.moves([format, activeOnly, presentOnly, spatialOnly, skipDetection])**
 
 Generate all possible moves. Does not modify internal state, but will throw errors.
 
@@ -397,6 +397,7 @@ Generate all possible moves. Does not modify internal state, but will throw erro
 
   - activeOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only active timelines.
   - presentOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only present timelines (will override `activeOnly` argument).
+  - spatialOnly - *[Optional]* Defaults to `false`. Must be boolean. Indicates if all the moves are spatial only (non-timeline/time travel).
   - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - List of moves. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
 

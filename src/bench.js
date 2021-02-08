@@ -19,7 +19,7 @@ var benchCurrMoves = () => {
   console.log('' + maxTimelines + ' Timeline(s), ' + maxTurns + ' Turn(s) Benchmark (x10000 Samples)');
   var startM = performance.now();
   for(var i = 0;i < 10000;i++) {
-    movesGenerated += chess.moves('object', false, false, true).length;
+    movesGenerated += chess.moves('object', false, false, false, true).length;
   }
   var endM = performance.now();
   benchResults[Date.now() + ' ' + maxTimelines + ' Timelines, ' + maxTurns + ' Turns'] = {
