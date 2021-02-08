@@ -3,7 +3,7 @@ const boardFuncs = require('@local/board');
 exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, variant = 'standard') => {
   var recurse =  (board, actionNum, layer = 0, totalMoves = 0, totalLayers = 0, totalIndex = []) => {
     var returnArr = [];
-    var moves = boardFuncs.moves(board, actionNum, activeOnly, presentOnly, variant);
+    var moves = boardFuncs.moves(board, actionNum, activeOnly, presentOnly);
     for(var i = 0;i < moves.length;i++) {
       var moddedBoard = boardFuncs.copy(board);
       if(
