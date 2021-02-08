@@ -314,13 +314,13 @@ class Chess {
     this.rawMoveBuffer.push(move);
     boardFuncs.move(this.rawBoard, move);
   }
-  moves(format = 'object', activeOnly = true, presentOnly = true, skipDetection = false) {
+  moves(format = 'object', activeOnly = true, presentOnly = true, spatialOnly = false, skipDetection = false) {
     var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
     if(!skipDetection) {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
     }
-    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, this.metadata.board);
+    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, spatialOnly);
     if(format === 'raw') { return moves; }
     if(format.includes('notation')) {
       var res = '';
