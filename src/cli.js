@@ -16,6 +16,14 @@ r.context.validateFuncs = require('@local/validate');
 r.context.Chess = require('@local/index');
 r.context.chess = new r.context.Chess();
 
+r.context.chess.import(`[Board "Standard"]
+[Mode "5D"]
+1. e3 / e5
+2. (0T2)Nb1>>(0T1)b3 (~T2) (>L1) / (1T1)Nb8>>(0T1)b6 (~T1) (>L-1)
+3. (1T2)e3 (-1T2)f3`);
+r.context.chess.print();
+console.log(r.context.actionFuncs.actions(r.context.chess.rawBoard, r.context.chess.rawAction));
+
 /*
 chess.import('1w. 1:e2:e3\n1b. 1:e7:e6\n2w. 2:Qd1:e2\n2b. 2:Qd8:e7\n3w. 3:d2:d3\n3b. 3:d7:d6\n4w. 4:Bc1:d2\n4b. 4:Bc8:d7\n5w. 5:Nb1:c3\n5b. 5:Nb8:c6');
 currMoves = chess.moves('raw');

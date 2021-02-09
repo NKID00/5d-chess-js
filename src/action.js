@@ -2,6 +2,81 @@ const boardFuncs = require('@local/board');
 const copyFuncs = require('@local/copy');
 
 /*
+In pursuit of efficient action gen:
+
+Theorem 1 - List of all possible moves (including on inactive timelines) are the only possible moves. When moving, no new moves are created.
+Theorem 2 - Within the action, the moves that do not matter for move action is only if they are purely spatial moves.
+Theorem 3 - If the present is moved backwards by a move, the action should only be that move (moves before and after can be considered optional).
+
+*/
+
+/*
+exports.actions = (board, actionNum) => {
+  //Results array
+  var res = [];
+
+  // Get all possible moves
+  var possibleMoves = boardFuncs.moves(board, actionNum, false, false);
+
+  //Filter out single move actions
+  for(var i = 0;i < possibleMoves.length;i++) {
+    var currMove = possibleMoves[i];
+    var tmpBoard = boardFuncs.copy(board);
+    boardFuncs.move(tmpBoard, currMove);
+    var submittable = boardFuncs.present(tmpBoard, actionNum).length <= 0;
+    if(submittable) {
+      res.push([copyFuncs.move(currMove)]);
+      possibleMoves.splice(i,1);
+      i--;
+    }
+  }
+
+  //Sort moves into groups by timeline coord in source
+  var timelineMoves = [];
+  var timelineMovesCursor = []; //Used to track which index in timelineMoves is being used
+  for(var i = 0;i < board.length;i++) {
+    timelineMoves.push([]);
+    timelineMovesCursor.push(0);
+  }
+  for(var i = 0;i < possibleMoves.length;i++) {
+    timelineMoves[possibleMoves[i][0][0]].push(copyFuncs.move(possibleMoves[i]));
+  }
+
+  //Build permutation
+  var tmpRes = [];
+  var done = false;
+  while(!done) {
+    var currAction = [];
+    for(var i = 0;i < timelineMovesCursor.length;i++) {
+      if(timelineMovesCursor[i] < timelineMoves[i].length) {
+        currAction.push(copyFuncs.move(timelineMoves[i][timelineMovesCursor[i]]));
+      }
+    }
+    tmpRes.push(currAction);
+
+    var doneInc = false;
+    for(var i = 0;!doneInc && i < timelineMovesCursor.length;i++) {
+      timelineMovesCursor[i]++;
+      if(timelineMovesCursor[i] < timelineMoves[i].length) {
+        doneInc = true;
+      }
+      else {
+        timelineMovesCursor[i] = 0;
+        if(i + 1 >= timelineMovesCursor.length) {
+          done = true;
+        }
+      }
+    }
+  }
+
+  //
+  done = false;
+  console.log(tmpRes)
+  return res;
+}
+*/
+
+///*
 exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, variant = 'standard') => {
   var recurse =  (board, actionNum, layer = 0, totalMoves = 0, totalLayers = 0, totalIndex = []) => {
     var returnArr = [];
@@ -41,8 +116,8 @@ exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newA
   }
   return recurse(board, actionNum)[0];
 }
-*/
-
+//*/
+/*
 exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, variant = 'standard') => {
   var moves = boardFuncs.moves(board, actionNum, activeOnly, presentOnly, variant);
   var possibleMoves = copyFuncs.action(moves);
@@ -85,7 +160,7 @@ exports.actions = (board, actionNum, activeOnly = true, presentOnly = true, newA
   }
   return returnArr;
 }
-
+*/
 exports.move = (board, moves) => {
   for(var i = 0;i < moves.length;i++) {
     boardFuncs.move(board, moves[i]);
