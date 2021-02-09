@@ -432,7 +432,7 @@ exports.moves = (board, src, spatialOnly = false) => {
     var piece = board[src[0]][src[1]][src[2]][src[3]];
     var movePos = this.movePos(piece);
     for(var i = 0;i < movePos.length;i++) {
-      if(!spatialOnly || (spatialOnly && (movePos[i][0] !== 0 || movePos[i][1] !== 0))) {
+      if(!spatialOnly || (spatialOnly && (movePos[i][0] === 0 || movePos[i][1] === 0))) {
         var currMove = [src.slice(), src.slice()];
         if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
           currMove[1][0] += movePos[i][0] * 2;
@@ -456,7 +456,7 @@ exports.moves = (board, src, spatialOnly = false) => {
     }
     var moveVecs = this.moveVecs(piece);
     for(var i = 0;i < moveVecs.length;i++) {
-      if(!spatialOnly || (spatialOnly && (moveVecs[i][0] !== 0 || moveVecs[i][1] !== 0))) {
+      if(!spatialOnly || (spatialOnly && (moveVecs[i][0] === 0 || moveVecs[i][1] === 0))) {
         var currMove = [src.slice(), src.slice()];
         var blocking = false;
         while(!blocking) {
