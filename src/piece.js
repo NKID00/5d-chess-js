@@ -456,7 +456,7 @@ exports.moves = (board, src, spatialOnly = false) => {
     }
     var moveVecs = this.moveVecs(piece);
     for(var i = 0;i < moveVecs.length;i++) {
-      if(!spatialOnly || (spatialOnly && (movePos[i][0] !== 0 || movePos[i][1] !== 0))) {
+      if(!spatialOnly || (spatialOnly && (moveVecs[i][0] !== 0 || moveVecs[i][1] !== 0))) {
         var currMove = [src.slice(), src.slice()];
         var blocking = false;
         while(!blocking) {
