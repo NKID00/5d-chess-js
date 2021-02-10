@@ -410,10 +410,10 @@ exports.availablePromotionPieces = (board) => {
           var piece = Math.abs(board[l][t][r][f]);
           if(!res.includes(piece)) {
             if(
-              piece !== 0,
-              piece !== 1,
-              piece !== 2,
-              piece !== 11,
+              piece !== 0 &&
+              piece !== 1 &&
+              piece !== 2 &&
+              piece !== 11 &&
               piece !== 12
             ) {
               res.push(piece);
