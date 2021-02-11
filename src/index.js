@@ -369,9 +369,9 @@ class Chess {
       if(this.inCheck) {
         throw 'Cannot submit, currently in check.';
       }
-      if(!this.submittable()) {
-        throw 'Action is not complete, more moves are needed';
-      }
+    }
+    if(!this.submittable()) {
+      throw 'Action is not complete, more moves are needed';
     }
     this.rawBoardHistory.push(boardFuncs.copy(this.rawBoard));
     this.rawActionHistory.push(copyFuncs.action(this.rawMoveBuffer));
@@ -383,9 +383,8 @@ class Chess {
       if(this.inCheckmate) { return false; }
       if(this.inStalemate) { return false; }
       if(this.inCheck) { return false; }
-      return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
     }
-    return true;
+    return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
   }
   undo() {
     if(this.rawMoveBuffer.length > 0) {
