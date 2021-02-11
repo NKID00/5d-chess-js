@@ -16,7 +16,7 @@ exports.blankAction = (board, actionNum) => {
   }
 }
 
-exports.checks = (board, actionNum) => {
+exports.checks = (board, actionNum, detectionOnly = false) => {
   var res = [];
   var tmpBoard = boardFuncs.copy(board);
   this.blankAction(tmpBoard, actionNum);
@@ -25,10 +25,12 @@ exports.checks = (board, actionNum) => {
     if(moves[i].length === 2 && boardFuncs.positionExists(tmpBoard, moves[i][1])) {
       var destPiece = tmpBoard[moves[i][1][0]][moves[i][1][1]][moves[i][1][2]][moves[i][1][3]];
       if((Math.abs(destPiece) === 11 || Math.abs(destPiece) === 12) && Math.abs(destPiece) % 2 === actionNum % 2) {
+        if(detectionOnly) { return true; }
         res.push(moves[i]);
       }
     }
   }
+  if(detectionOnly) { return false; }
   return res;
 }
 
@@ -130,10 +132,19 @@ exports.checkmate = (board, actionNum, maxTime = 60000) => {
 }
 
 exports.stalemate = (board, actionNum) => {
-  var moves = boardFuncs.moves(board, actionNum, true, true);
-  var checks = this.checks(board, actionNum);
+  var inCheck = this.checks(board, actionNum, true);
+  if(inCheck) {
+    return false;
+  }
   var presentTimelines = boardFuncs.present(board, actionNum);
-  return moves.length <= 0 && checks.length <= 0 && presentTimelines.length > 0;
+  if(presentTimelines.length <= 0) {
+    return false;
+  }
+  var moves = boardFuncs.moves(board, actionNum, true, true);
+  if(moves.length > 0) {
+    return false;
+  }
+  return moves.length <= 0 && !inCheck && presentTimelines.length > 0;
 }
 
 exports.moveCompare = (move1, move2) => {
