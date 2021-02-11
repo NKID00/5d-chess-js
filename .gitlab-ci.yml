@@ -1,6 +1,6 @@
 # This file is a template, and might need editing before it works on your project.
 default:
-  image: node:14-buster
+  image: tmtmt/rust-wasm-bindgen
 
 install_package:
   stage: build

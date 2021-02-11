@@ -15,7 +15,9 @@
     "bench": "node --max_old_space_size=8192 ./src/bench.js",
     "profile": "clinic flame -- node --max_old_space_size=8192 ./src/bench.js",
     "prepare": "npm run-script build",
-    "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js"
+    "build": "npm run-script build-wasm && npm run-script build-js",
+    "build-wasm": "cd ./src/wasm && wasm-pack build --target nodejs",
+    "build-js": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js"
   },
   "aliasify": {
     "aliases": {
@@ -51,18 +53,19 @@
   ],
   "homepage": "https://gitlab.com/alexbay218/5d-chess-js#readme",
   "dependencies": {
+    "5dchess-notation": "git+https://github.com/adri326/5dchess-notation.git#977b7c59be669d2a338339b432ff57b0414e88f8",
     "blueimp-md5": "^2.18.0",
     "chalk": "^4.1.0",
     "deep-equal": "^2.0.3",
     "module-alias": "^2.2.2",
-    "nodemon": "^2.0.4",
     "present": "^1.0.0"
   },
   "devDependencies": {
-    "browserify": "^16.5.2",
     "aliasify": "^2.1.0",
+    "browserify": "^16.5.2",
     "clinic": "^7.0.0",
     "jest": "^26.4.2",
+    "nodemon": "^2.0.4",
     "tinyify": "^3.0.0",
     "uglify-js": "^3.10.4"
   }
