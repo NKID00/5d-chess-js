@@ -35,6 +35,7 @@ class Chess {
       validateFuncs: validateFuncs
     };
     this.checkmateTimeout = 60000;
+    this.skipDetection = false;
     this.checkmateCache = [];
     this.metadata = {
       board: 'standard',
@@ -66,6 +67,7 @@ class Chess {
     if(state === null) {
       var res = {};
       res.checkmateTimeout = this.checkmateTimeout;
+      res.skipDetection = this.skipDetection;
       res.checkmateCache = this.checkmateCache.slice();
       res.metadata = Object.assign({}, this.metadata);
       res.rawAction = this.rawAction;
@@ -81,6 +83,7 @@ class Chess {
     }
     else {
       this.checkmateTimeout = state.checkmateTimeout;
+      this.skipDetection = state.skipDetection;
       this.checkmateCache = state.checkmateCache.slice();
       this.metadata = Object.assign({}, state.metadata);
       this.rawAction = state.rawAction;
@@ -128,7 +131,7 @@ class Chess {
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
   }
-  import(input, variant, skipDetection = false) {
+  import(input, variant) {
     if(typeof input === 'string') {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
     }
@@ -145,14 +148,14 @@ class Chess {
       var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction);
       for(var i = 0;i < actions.length;i++) {
         for(var j = 0;j < actions[i].length;j++) {
-          this.move(actions[i][j], skipDetection);
+          this.move(actions[i][j]);
         }
         if(i + 1 < actions.length) {
-          this.submit(skipDetection);
+          this.submit();
         }
         else {
           try {
-            this.submit(skipDetection);
+            this.submit();
           }
           catch(err) {
             console.error(err);
@@ -166,10 +169,10 @@ class Chess {
       console.log('Error importing actions, skipping.');
     }
   }
-  importable(input, skipDetection = false) {
+  importable(input) {
     try {
       var newInstance = this.copy();
-      newInstance.import(input, skipDetection);
+      newInstance.import(input);
       return true;
     }
     catch(err) { return false; }
@@ -218,8 +221,8 @@ class Chess {
     }
     catch(err) { return false; }
   }
-  pass(skipDetection = false) {
-    if(!skipDetection) {
+  pass() {
+    if(!this.skipDetection) {
       if(this.inCheckmate) {
         throw 'Cannot submit, currently in checkmate.';
       }
@@ -228,39 +231,31 @@ class Chess {
       }
     }
     mateFuncs.blankAction(this.rawBoard, this.rawAction);
-    this.submit(skipDetection);
+    this.submit();
   }
-  passable(skipDetection =  false) {
+  passable() {
     try {
       var newInstance = this.copy();
-      newInstance.pass(skipDetection);
+      newInstance.pass;
       return true;
     }
     catch(err) { return false; }
   }
-  action(input, skipDetection = false) {
-    if(!skipDetection) {
-      if(this.inCheckmate) {
-        throw 'Cannot submit, currently in checkmate.';
-      }
-      if(this.inStalemate) {
-        throw 'Cannot submit, currently in stalemate.';
-      }
-    }
+  action(input) {
     var moves = convertFuncs.action(input, this.rawBoard, this.rawAction);
     for(var i = 0;i < moves.length;i++) {
-      this.move(moves[i], skipDetection);
+      this.move(moves[i]);
     }
-    this.submit(skipDetection);
+    this.submit();
   }
-  actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true, skipDetection = false) {
+  actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true) {
     var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
     var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.board);
     if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
       var res = '';
       for(var i = 0;i < actions.length;i++) {
-        if(skipDetection || this.actionable(actions[i], skipDetection)) {
+        if(this.skipDetection || this.actionable(actions[i])) {
           for(var j = 0;j < actions[i].length;j++) {
             res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, actions[i][j], format.includes('short')).str + '\n';
           }
@@ -285,7 +280,7 @@ class Chess {
     }
     res = [];
     for(var i = 0;i < actions.length;i++) {
-      if(skipDetection || this.actionable(actions[i], skipDetection)) {
+      if(this.skipDetection || this.actionable(actions[i])) {
         res.push(parseFuncs.fromAction(this.rawAction, actions[i], isTurnZero));
       }
     }
@@ -294,18 +289,18 @@ class Chess {
     }
     return res;
   }
-  actionable(input, skipDetection = false) {
+  actionable(input) {
     try {
       var newInstance = this.copy();
-      newInstance.action(input, skipDetection);
+      newInstance.action(input);
       return true;
     }
     catch(err) { return false; }
   }
-  move(input, skipDetection = false) {
+  move(input) {
     var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
-    if(!skipDetection) {
-      if(!this.moveable(move, skipDetection)) {
+    if(!this.skipDetection) {
+      if(!this.moveable(move)) {
         var notationObj = notationFuncs.moveNotation(this.rawBoard, this.rawAction, move);
         console.error(notationObj);
         throw 'Move is invalid and an error has occurred with this move: ' + notationObj.str;
@@ -314,9 +309,9 @@ class Chess {
     this.rawMoveBuffer.push(move);
     boardFuncs.move(this.rawBoard, move);
   }
-  moves(format = 'object', activeOnly = true, presentOnly = true, spatialOnly = false, skipDetection = false) {
+  moves(format = 'object', activeOnly = true, presentOnly = true, spatialOnly = false) {
     var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
-    if(!skipDetection) {
+    if(!this.skipDetection) {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
     }
@@ -353,48 +348,52 @@ class Chess {
     }
     return res;
   }
-  moveable(input, skipDetection = false, moveGen = []) {
+  moveable(input, moveGen = []) {
     try {
+      if(this.skipDetection) {
+        return true;
+      }
       var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
       return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.metadata.board);
     }
     catch(err) { return false; }
   }
-  submit(skipDetection = false) {
-    if(!skipDetection) {
+  submit() {
+    if(!this.skipDetection) {
       if(this.inCheckmate) {
         throw 'Cannot submit, currently in checkmate.';
       }
       if(this.inStalemate) {
         throw 'Cannot submit, currently in stalemate.';
+      }  
+      if(this.inCheck) {
+        throw 'Cannot submit, currently in check.';
       }
-    }
-    if(this.inCheck) {
-      throw 'Cannot submit, currently in check.';
-    }
-    if(!this.submittable(skipDetection)) {
-      throw 'Action is not complete, more moves are needed';
+      if(!this.submittable()) {
+        throw 'Action is not complete, more moves are needed';
+      }
     }
     this.rawBoardHistory.push(boardFuncs.copy(this.rawBoard));
     this.rawActionHistory.push(copyFuncs.action(this.rawMoveBuffer));
     this.rawMoveBuffer = [];
     this.rawAction++;
   }
-  submittable(skipDetection = false) {
-    if(!skipDetection) {
+  submittable() {
+    if(!this.skipDetection) {
       if(this.inCheckmate) { return false; }
       if(this.inStalemate) { return false; }
+      if(this.inCheck) { return false; }
+      return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
     }
-    if(this.inCheck) { return false; }
-    return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
+    return true;
   }
-  undo(skipDetection = false) {
+  undo() {
     if(this.rawMoveBuffer.length > 0) {
       var tmpBuffer = copyFuncs.action(this.rawMoveBuffer);
       tmpBuffer.pop();
       var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
-        if(!skipDetection) {
+        if(!this.skipDetection) {
           if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.board)) {
             var notationObj = notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]);
             console.error(notationObj);
@@ -410,9 +409,9 @@ class Chess {
       throw 'No moves to undo.';
     }
   }
-  undoable(skipDetection = false) {
+  undoable() {
     try {
-      this.copy().undo(skipDetection);
+      this.copy().undo();
       return true;
     }
     catch(err) { return false; }
@@ -466,10 +465,11 @@ class Chess {
     return res[0];
   }
   get inCheck() {
-    return mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.board).length > 0;
+    return mateFuncs.checks(this.rawBoard, this.rawAction).length > 0;
   }
   get inStalemate() {
-    return mateFuncs.stalemate(this.rawBoard, this.rawAction, this.metadata.board);
+    var latestBoard = this.rawBoardHistory[this.rawBoardHistory.length - 1];
+    return mateFuncs.stalemate(latestBoard, this.rawAction);
   }
   get hash() {
     return hashFuncs.hash(this.rawBoard);

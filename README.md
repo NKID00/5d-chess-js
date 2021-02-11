@@ -229,17 +229,20 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.checkmateTimeout**
 
-  - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function)
+  - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function). By default set to 1 minute.
+  
+**.skipDetection**
+
+  - **Return** - Boolean indicating whether to skip validation and checkmate detection, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false. Primarily used for engine purposes (to reduce CPU waste).
 
 ### Functions
 
-**.import(import, [variant, skipDetection])**
+**.import(import, [variant])**
 
 Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large full board state. Will throw errors.
 
   - import - List of actions to import (this will reset the internal state). Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
   - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
 **.importable(import)**
@@ -247,7 +250,6 @@ Imports data to have the internal state match the state that the imported data r
 Check if the imported data is valid and can be imported. Does not modify internal state and will not throw errors.
 
   - import - List of actions to import (this will reset the internal state). Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the imported data is valid and can be imported.
 
 **.fen()**
@@ -309,20 +311,18 @@ Returns number indicating if object is equal, useful for consistent sorting. Non
     - `"board"` - When using this type, input can be a 4D array (raw board format), `Board` object, or JSON string of either.
     - `"move"` - When using this type, input can be a raw move, `Move` object, JSON string of either, `5dpgn` string, or notation string *(depreciated)*.
 
-**.action(action, [skipDetection])**
+**.action(action, )**
 
 Plays an action as the current player and submits the move. Will modify internal state and will throw errors.
 
   - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
-**.actionable(action, [skipDetection])**
+**.actionable(action, )**
 
 Check if an action is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
   - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the action is playable and submittable.
 
 **.actions([format, activeOnly, presentOnly, newActiveTimelinesOnly])**
@@ -371,15 +371,14 @@ Plays an move as the current player. Will modify internal state and will throw e
   - move - The move to play as the current player. Can be a notation string, `Move` object, or JSON string of a `Move` object.
   - **Return** - Nothing.
 
-**.moveable(move, [skipDetection])**
+**.moveable(move, )**
 
 Check if a move is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
   - move - The move to play as the current player. Can be a notation string, `Move` object, or JSON string of a `Move` object.
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the move is playable.
 
-**.moves([format, activeOnly, presentOnly, spatialOnly, skipDetection])**
+**.moves([format, activeOnly, presentOnly, spatialOnly])**
 
 Generate all possible moves. Does not modify internal state, but will throw errors.
 
@@ -398,21 +397,18 @@ Generate all possible moves. Does not modify internal state, but will throw erro
   - activeOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only active timelines.
   - presentOnly - *[Optional]* Defaults to `true`. Must be boolean. Indicates if all the moves come from only present timelines (will override `activeOnly` argument).
   - spatialOnly - *[Optional]* Defaults to `false`. Must be boolean. Indicates if all the moves are spatial only (non-timeline/time travel).
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - List of moves. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
 
-**.submit([skipDetection])**
+**.submit()**
 
 Submit all moves in move buffer and switch the current player to the other player. Advances the action number counter. Will modify internal state and will throw errors.
 
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
-**.submittable([skipDetection])**
+**.submittable()**
 
 Check if the player can submit all moves in move buffer. Does not modify internal state and will not throw errors.
 
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the current internal state is submittable.
 
 **.undo()**
@@ -427,22 +423,20 @@ Check if the current internal state allows undoing. Does not modify internal sta
 
   - **Return** - Boolean representing if the current player can undo current internal state.
 
-**.pass([skipDetection])**
+**.pass()**
 
 Passes the turn as the current player and submits. Will modify internal state and will throw errors.
 
 **Warning! This is primarily used for bot and engine purposes. In the regular game, you cannot pass turns!**
 
   - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Nothing.
 
-**.passable(action, [skipDetection])**
+**.passable(action, )**
 
 Check if current player can pass and can submit. Does not modify internal state and will not throw errors.
 
   - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
-  - skipDetection - *[Optional]* Defaults to false, this argument indicating whether to check for checkmate and stalemate as part of validation (primarily used to prevent checkmate detection multiple times).
   - **Return** - Boolean representing if the action is playable and submittable.
 
 **.export([format])**
