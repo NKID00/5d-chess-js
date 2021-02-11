@@ -465,10 +465,11 @@ class Chess {
     return res[0];
   }
   get inCheck() {
-    return mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.board).length > 0;
+    return mateFuncs.checks(this.rawBoard, this.rawAction).length > 0;
   }
   get inStalemate() {
-    return mateFuncs.stalemate(this.rawBoard, this.rawAction, this.metadata.board);
+    var latestBoard = this.rawBoardHistory[this.rawBoardHistory.length - 1];
+    return mateFuncs.stalemate(latestBoard, this.rawAction);
   }
   get hash() {
     return hashFuncs.hash(this.rawBoard);

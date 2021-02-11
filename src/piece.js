@@ -430,6 +430,7 @@ exports.moves = (board, src, spatialOnly = false) => {
   var res = [];
   if(boardFuncs.positionExists(board, src)) {
     var piece = board[src[0]][src[1]][src[2]][src[3]];
+    if(Math.abs(piece) === 0) { return []; }
     var movePos = this.movePos(piece);
     for(var i = 0;i < movePos.length;i++) {
       if(!spatialOnly || (spatialOnly && (movePos[i][0] === 0 || movePos[i][1] === 0))) {
