@@ -417,7 +417,7 @@ class Chess {
   }
   checks(format = 'object') {
     var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
-    var checks = mateFuncs.checks(this.rawBoard, this.rawAction, this.metadata.board);
+    var checks = mateFuncs.checks(this.rawBoard, this.rawAction, false);
     if(format === 'raw') { return checks; }
     if(format.includes('notation')) {
       var res = '';
