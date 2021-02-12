@@ -16,7 +16,7 @@
     "profile": "clinic flame -- node --max_old_space_size=8192 ./src/bench.js",
     "prepare": "npm run-script build",
     "build": "npm run-script build-wasm && npm run-script build-js",
-    "build-wasm": "cd ./src/wasm && wasm-pack build --target nodejs",
+    "build-wasm": "wasm-pack build --target nodejs ./src/wasm",
     "build-js": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js"
   },
   "aliasify": {
@@ -67,6 +67,7 @@
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
     "tinyify": "^3.0.0",
-    "uglify-js": "^3.10.4"
+    "uglify-js": "^3.10.4",
+    "wasm-pack": "^0.9.1"
   }
 }
