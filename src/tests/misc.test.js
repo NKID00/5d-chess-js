@@ -7,5 +7,7 @@ test('Misc 1', () => {
     //chess.move('5w. 4:Re3<>-1:e3');
     chess.import('1. a4 / a5 2. Ra3 / Ra6 3. Re3 / (0T3)Nb8>>(0T2)b6 4. (-1T3)Rb3 / (-1T3)c6');
     chess.move('(0T4)Re3>(-1T4)e3');
+    chess.undo();
+    chess.move('(0T4)Re3>(-1T4)e3');
   }).not.toThrow();
 });
