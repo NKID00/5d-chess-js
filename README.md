@@ -475,7 +475,7 @@ These schemas define the various object types that the API interacts with.
   timeline: Integer,                                          // Timeline number of the position, 0 is neutral, negative integers are for black and positive integers are for white.
   turn: Integer,                                              // Turn number of the position, starts from 1.
   player: String Enum ['white','black'],                      // Indicates the player that the turn belongs to.
-  coordinate: String SAN Coordinate ['(a-h)(1-8)'),           // SAN Coordinate of the rank and file of this position.
+  coordinate: String SAN Coordinate ['(a-h)(1-8)'),           // SAN Coordinate of the rank and file of this position. This field is not required when used as an input.
   rank: Integer,                                              // Rank number of the position, range is from 1 to 8 (same as rank component of a SAN Coordinate).
   file: Integer                                               // File number of the position, range is from 1 to 8 (a = 1, b = 2, etc).
 }
@@ -487,12 +487,14 @@ These schemas define the various object types that the API interacts with.
 {
   start: Position,                                            // Position object of the starting location of the move.
   end: Position,                                              // Position object of the end location of the move.
+  realEnd: Position,                                          // Position object of the real location of the piece after the move. Turn is incremented and timeline is different if new timeline was created. This field is not required when used as an input.
   player: String Enum ['white','black'],                      // Indicates the player that is making the move.
-  promotion: null || String SAN Piece ['B','N','R','Q','K'],  // SAN Piece character of the piece to promote to during pawn promotion. Null if move is not promotion.
+  promotion: null || String SAN Piece ['B','N','R','S','Q'],  // SAN Piece character of the piece to promote to during pawn promotion. Null if move is not promotion.
   enPassant: null || Position,                                // Position object of the location of the piece captured during pawn En Passant movement. Null if move is not En Passant.
   castling: null || Object,                                   // Object containing start and end position object of rook movement during castling. Null if move is not castling.
     start: Position,                                          // Position object of the starting location of the rook movement during castling.
-    end: Position                                             // Position object of the end location of the rook movement during castling.
+    end: Position,                                            // Position object of the end location of the rook movement during castling.
+    realEnd: Position                                         // Position object of the real location of the piece after the move. Turn is incremented. This field is not required when used as an input.
 }
 ```
 
@@ -500,8 +502,8 @@ These schemas define the various object types that the API interacts with.
 
 ``` js
 {
-  action: Integer,                                            // Action number of the action.
-  player: String Enum ['white','black'],                      // Indicates the player that is making the action.
+  action: Integer,                                            // Action number of the action. This field is not required when used as an input.
+  player: String Enum ['white','black'],                      // Indicates the player that is making the action. This field is not required when used as an input.
   moves: Array,                                               // Array of Move objects (ordered from first move to the last)
     items: Move
 }
@@ -511,7 +513,7 @@ These schemas define the various object types that the API interacts with.
 
 ``` js
 {
-  piece: String SAN Piece ['B','N','R','Q','K'],              // SAN Piece character of the piece (empty character is pawn).
+  piece: String SAN Piece ['B','N','R','S','Q','K'],          // SAN Piece character of the piece (empty character is pawn).
   player: String Enum ['white','black'],                      // Indicates the player that the piece belongs to.
   position: Position,                                         // Position object of the location of the piece on a board.
   hasMoved: Boolean                                           // Indicate if the piece has moved

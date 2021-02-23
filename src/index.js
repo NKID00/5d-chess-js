@@ -281,7 +281,7 @@ class Chess {
     res = [];
     for(var i = 0;i < actions.length;i++) {
       if(this.skipDetection || this.actionable(actions[i])) {
-        res.push(parseFuncs.fromAction(this.rawAction, actions[i], isTurnZero));
+        res.push(parseFuncs.fromAction(this.rawBoard, this.rawAction, actions[i], isTurnZero));
       }
     }
     if(format === 'json') {
@@ -301,9 +301,9 @@ class Chess {
     var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
     if(!this.skipDetection) {
       if(!this.moveable(move)) {
-        var notationObj = notationFuncs.moveNotation(this.rawBoard, this.rawAction, move);
-        console.error(notationObj);
-        throw 'Move is invalid and an error has occurred with this move: ' + notationObj.str;
+        var pgnStr = 'Move is invalid and an error has occurred with this move: ' + pgnFuncs.fromMove(move, this.rawBoard, this.rawAction);
+        console.error(pgnStr);
+        throw pgnStr;
       }
     }
     this.rawMoveBuffer.push(move);
@@ -341,7 +341,7 @@ class Chess {
     }
     res = [];
     for(var i = 0;i < moves.length;i++) {
-      res.push(parseFuncs.fromMove(moves[i], isTurnZero));
+      res.push(parseFuncs.fromMove(this.rawBoard, moves[i], isTurnZero));
     }
     if(format === 'json') {
       return JSON.stringify(res);
@@ -354,7 +354,7 @@ class Chess {
         return true;
       }
       var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
-      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.metadata.board);
+      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen);
     }
     catch(err) { return false; }
   }
@@ -393,10 +393,10 @@ class Chess {
       var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
         if(!this.skipDetection) {
-          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.metadata.board)) {
-            var notationObj = notationFuncs.moveNotation(tmpBoard, this.rawAction, tmpBuffer[i]);
-            console.error(notationObj);
-            throw 'Undo buffer is corrupted and an error has occurred with this move: ' + notationObj.str;
+          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i])) {
+            var pgnStr = 'Undo buffer is corrupted and an error has occurred with this move: ' + pgnFuncs.fromMove(tmpBuffer[i], tmpBoard, this.rawAction);
+            console.error(pgnStr);
+            throw pgnStr;
           }
         }
         boardFuncs.move(tmpBoard, tmpBuffer[i]);
@@ -418,11 +418,13 @@ class Chess {
   checks(format = 'object') {
     var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
     var checks = mateFuncs.checks(this.rawBoard, this.rawAction, false);
+    var tmpBoard = boardFuncs.copy(this.rawBoard);
+    mateFuncs.blankAction(tmpBoard, this.rawAction);
     if(format === 'raw') { return checks; }
     if(format.includes('notation')) {
       var res = '';
       for(var i = 0;i < checks.length;i++) {
-        res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, checks[i], format.includes('short')).str + '\n';
+        res += notationFuncs.moveNotation(tmpBoard, this.rawAction, checks[i], format.includes('short')).str + '\n';
       }
       return res;
     }
@@ -431,7 +433,7 @@ class Chess {
       for(var i = 0;i < checks.length;i++) {
         res += pgnFuncs.fromMove(
           checks[i],
-          this.rawBoard,
+          tmpBoard,
           this.rawAction,
           format.includes('active'),
           format.includes('timeline'),
@@ -442,7 +444,7 @@ class Chess {
     }
     var res = [];
     for(var i = 0;i < checks.length;i++) {
-      res.push(parseFuncs.fromMove(checks[i], isTurnZero));
+      res.push(parseFuncs.fromMove(tmpBoard, checks[i], isTurnZero));
     }
     if(format === 'json') {
       return JSON.stringify(res);
@@ -478,10 +480,10 @@ class Chess {
     var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
     if(format === 'raw') { return this.rawActionHistory; }
     if(format === 'json') { return JSON.stringify(this.rawActionHistory.map((e,i) => {
-      return parseFuncs.fromAction(i,e, isTurnZero);
+      return parseFuncs.fromAction(this.rawBoardHistory[i], i, e, isTurnZero);
     })); }
     if(format === 'object') { return this.rawActionHistory.map((e,i) => {
-      return parseFuncs.fromAction(i,e, isTurnZero);
+      return parseFuncs.fromAction(this.rawBoardHistory[i], i, e, isTurnZero);
     }); }
     var res = '';
     res += metadataFuncs.objToStr(this.metadata);
@@ -544,8 +546,10 @@ class Chess {
     var res = [];
     var board = this.rawBoard;
     var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+    var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
     for(var i = 0;i < this.rawMoveBuffer.length;i++) {
-      res.push(parseFuncs.fromMove(this.rawMoveBuffer[i], isTurnZero));
+      res.push(parseFuncs.fromMove(tmpBoard, this.rawMoveBuffer[i], isTurnZero));
+      boardFuncs.move(tmpBoard, this.rawMoveBuffer[i]);
     }
     return res;
   }

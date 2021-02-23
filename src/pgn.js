@@ -92,7 +92,7 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   var src = move[0];
   var dest = move[1];
   var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
-  var moveObj = parseFuncs.fromMove(move, isTurnZero);
+  var moveObj = parseFuncs.fromMove(board, move, isTurnZero);
   var isSingleTimeline = board.length <= 1;
   var isTimelineTravel = src[0] !== dest[0];
   var isTimeTravel = src[1] !== dest[1];
