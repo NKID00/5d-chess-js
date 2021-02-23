@@ -15,9 +15,8 @@ exports.toPosition = (positionObj, isTurnZero = false) => {
     currTurn++;
   }
   res[1] = ((currTurn - 1) * 2) + (positionObj.player === 'white' ? 0 : 1);
-  var coord = pgnFuncs.fromSanCoord(positionObj.coordinate);
-  res[2] = coord[0];
-  res[3] = coord[1];
+  res[2] = positionObj.rank - 1;
+  res[3] = positionObj.file - 1;
   return res;
 }
 
@@ -48,21 +47,7 @@ exports.toMove = (moveObj, isTurnZero = false) => {
   res[0] = this.toPosition(moveObj.start, isTurnZero);
   res[1] = this.toPosition(moveObj.end, isTurnZero);
   if(moveObj.promotion !== null) {
-    if(moveObj.promotion === 'B') {
-      res[1][4] = 3 + (moveObj.player === 'white' ? 1 : 0);
-    }
-    else if(moveObj.promotion === 'N') {
-      res[1][4] = 5 + (moveObj.player === 'white' ? 1 : 0);
-    }
-    else if(moveObj.promotion === 'R') {
-      res[1][4] = 7 + (moveObj.player === 'white' ? 1 : 0);
-    }
-    else if(moveObj.promotion === 'Q') {
-      res[1][4] = 9 + (moveObj.player === 'white' ? 1 : 0);
-    }
-    else if(moveObj.promotion === 'K') {
-      res[1][4] = 11 + (moveObj.player === 'white' ? 1 : 0);
-    }
+    res[1][4] = pieceFuncs.fromChar(moveObj.promotion, moveObj.player === 'white' ? 0 : 1);
   }
   if(moveObj.enPassant !== null) {
     res[2] = this.toPosition(moveObj.enPassant, isTurnZero);
@@ -74,7 +59,7 @@ exports.toMove = (moveObj, isTurnZero = false) => {
   return res;
 }
 
-exports.fromMove = (move, isTurnZero = false) => {
+exports.fromMove = (board, move, isTurnZero = false) => {
   var res = {
     promotion: null,
     enPassant: null,
@@ -90,11 +75,54 @@ exports.fromMove = (move, isTurnZero = false) => {
     res.enPassant = this.fromPosition(move[2], isTurnZero);
   }
   if(move.length === 4) {
+    var realEnd = move[3].slice();
+    realEnd[1] = realEnd[1] + 1;
     res.castling = {
       start: this.fromPosition(move[2], isTurnZero),
-      end: this.fromPosition(move[3], isTurnZero)
+      end: this.fromPosition(move[3], isTurnZero),
+      realEnd: this.fromPosition(realEnd, isTurnZero)
     }
   }
+
+  //Calculating real end position
+  var currMinT = 0;
+  var currMaxT = 0;
+  var newMinT = 0;
+  var newMaxT = 0;
+  var tmpBoard = boardFuncs.copy(board);
+  try {
+    for(var i = 0;i < tmpBoard.length;i++) {
+      if(typeof tmpBoard[i] !== 'undefined' && tmpBoard[i] !== null) {
+        if(i % 2 === 0) {
+          currMaxT = i;
+        }
+        else {
+          currMinT = i;
+        }
+      }
+    }
+    boardFuncs.move(tmpBoard, move);
+    for(var i = 0;i < tmpBoard.length;i++) {
+      if(typeof tmpBoard[i] !== 'undefined' && tmpBoard[i] !== null) {
+        if(i % 2 === 0) {
+          newMaxT = i;
+        }
+        else {
+          newMinT = i;
+        }
+      }
+    }
+  }
+  catch(err) {}
+  var realEnd = move[1].slice();
+  realEnd[1] = realEnd[1] + 1;
+  if(currMinT !== newMinT) {
+    realEnd[0] = newMinT;
+  }
+  else if(currMaxT !== newMaxT) {
+    realEnd[0] = newMaxT;
+  }
+  res.realEnd = this.fromPosition(realEnd, isTurnZero);
   return res;
 }
 
@@ -106,13 +134,13 @@ exports.toAction = (actionObj, isTurnZero = false) => {
   return res;
 }
 
-exports.fromAction = (actionNum, moves, isTurnZero = false) => {
+exports.fromAction = (board, actionNum, moves, isTurnZero = false) => {
   var res = {};
   res.action = Math.floor(actionNum/2) + 1;
   res.player = (actionNum % 2 === 0 ? 'white' : 'black');
   res.moves = [];
   for(var i = 0;i < moves.length;i++) {
-    res.moves.push(this.fromMove(moves[i], isTurnZero));
+    res.moves.push(this.fromMove(board, moves[i], isTurnZero));
   }
   return res;
 }
