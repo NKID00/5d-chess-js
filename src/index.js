@@ -524,7 +524,7 @@ class Chess {
     for(var i = 0;i < this.rawMoveBuffer.length;i++) {
       console.log('  ' + pgnFuncs.fromMove(this.rawMoveBuffer[i], this.rawBoard, this.rawAction));
     }
-    printFuncs.printBoard(this.rawBoard);
+    console.log(printFuncs.printBoard(this.rawBoard));
   }
   get board() {
     return parseFuncs.fromBoard(this.rawBoard, this.rawAction);

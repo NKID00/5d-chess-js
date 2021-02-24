@@ -1,8 +1,8 @@
 {
   "name": "5d-chess-js",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.",
-  "main": "./dist/5d-chess.js",
+  "main": "./src/index.js",
   "browser": {
     "module-alias/register": false
   },
@@ -52,7 +52,6 @@
   "homepage": "https://gitlab.com/alexbay218/5d-chess-js#readme",
   "dependencies": {
     "blueimp-md5": "^2.18.0",
-    "chalk": "^4.1.0",
     "module-alias": "^2.2.2",
     "present": "^1.0.0"
   },
