@@ -1,5 +1,3 @@
-const chalk = require('chalk');
-
 exports.turnArray = (board, timeline, turn) => {
   var res = [];
   for(var r = 0;r < 10;r++) {
@@ -7,34 +5,34 @@ exports.turnArray = (board, timeline, turn) => {
     for(var f = 0;f < 10;f++) {
       if(r === 0) {
         if(f === 0) {
-          res[r][f] = (turn % 2 === 0 ? '' + chalk.inverse('╔') : '╔');
+          res[r][f] = (turn % 2 === 0 ? '' + '╔' : '╔');
         }
         else if(f === 9) {
-          res[r][f] = (turn % 2 === 0 ? '' + chalk.inverse('╗') : '╗');
+          res[r][f] = (turn % 2 === 0 ? '' + '╗' : '╗');
         }
         else {
-          res[r][f] = (turn % 2 === 0 ? '' + chalk.inverse('═') : '═');
+          res[r][f] = (turn % 2 === 0 ? '' + '═' : '═');
         }
       }
       else if(r === 9) {
         if(f === 0) {
-          res[r][f] = (turn % 2 === 0 ? '' + chalk.inverse('╚') : '╚');
+          res[r][f] = (turn % 2 === 0 ? '' + '╚' : '╚');
         }
         else if(f === 9) {
-          res[r][f] = (turn % 2 === 0 ? '' + chalk.inverse('╝') : '╝');
+          res[r][f] = (turn % 2 === 0 ? '' + '╝' : '╝');
         }
         else {
-          res[r][f] = (turn % 2 === 0 ? '' + chalk.inverse('═') : '═');
+          res[r][f] = (turn % 2 === 0 ? '' + '═' : '═');
         }
       }
       else if(f === 0) {
-        res[r][f] = (turn % 2 === 0 ? '' + chalk.inverse('║') : '║');
+        res[r][f] = (turn % 2 === 0 ? '' + '║' : '║');
       }
       else if(f === 9) {
-        res[r][f] = (turn % 2 === 0 ? '' + chalk.inverse('║') : '║');
+        res[r][f] = (turn % 2 === 0 ? '' + '║' : '║');
       }
       else {
-        res[r][f] = ' ';
+        res[r][f] = '.';
       }
     }
   }
@@ -98,7 +96,7 @@ exports.turnArray = (board, timeline, turn) => {
   for(var r = 1;r < 9;r++) {
     for(var f = 1;f < 9;f++) {
       if((r + f) % 2 === 0) {
-        res[r][f] = chalk.inverse(res[r][f]);
+        res[r][f] = res[r][f];
       }
     }
   }
@@ -164,5 +162,5 @@ exports.printBoard = (board) => {
       printStr += '\n';
     }
   }
-  console.log(printStr);
+  return printStr;
 }
