@@ -23,6 +23,14 @@ test("Brawn normal moves", () => {
     [4/4/4/WW*2:0:1:w]
     `, 'custom');
     chess.move('Wa2');
+
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [4/4/4/WW*2:0:1:w]
+    `, 'custom');
+    chess.move('BRa2');
   }).not.toThrow();
 
   // Suppress error because of https://github.com/facebook/jest/issues/5785
@@ -131,6 +139,17 @@ test("Brawn advanced moves", () => {
     2. Wb2
     `, 'custom');
     chess.move('(0T2)Wa3>>x(0T1)a2~');
+
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [ww*2/4/4/WW2:0:1:w]
+
+    1. BRa2 / BRa3
+    2. BRb2
+    `, 'custom');
+    chess.move('(0T2)BRa3>>x(0T1)a2~');
   }).not.toThrow();
 
   expect(() => {

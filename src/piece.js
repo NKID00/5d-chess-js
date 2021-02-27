@@ -50,7 +50,7 @@ exports.fromChar = (char, actionNum = 0) => {
   if(char === 'S') {
     return (actionNum % 2 === 0 ? 14 : 13);
   }
-  if(char === 'W') {
+  if(char === 'W' || char === 'BR') {
     return (actionNum % 2 === 0 ? 16 : 15);
   }
   return (actionNum % 2 === 0 ? 2 : 1);
