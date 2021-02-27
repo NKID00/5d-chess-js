@@ -163,7 +163,6 @@ test("Brawn advanced moves", () => {
     chess.move('(-1T3)Wa3>x(0T3)a2');
   }).not.toThrow();
 
-
   expect(() => {
     // LX-capture
     chess.import(`
@@ -180,7 +179,6 @@ test("Brawn advanced moves", () => {
     chess.move('(-1T3)Wa3>x(0T3)b3');
   }).not.toThrow();
 
-
   expect(() => {
     // Promotion
     chess.import(`
@@ -192,6 +190,79 @@ test("Brawn advanced moves", () => {
     1. Wb3 / Wa3
     `, 'custom');
     chess.move('Wb4=Q');
+
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [w3/4/4/WW*1B:0:1:w]
+
+    1. Wb3 / Wa3
+    `, 'custom');
+    chess.move('Wb4=B');
+  }).not.toThrow();
+
+  expect(() => {
+    // XY-capture with promotion
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [w3/1W2/4/3Q:0:1:w]
+    `, 'custom');
+    chess.move('Wbxa4=Q');
+
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [w3/1W2/4/3B:0:1:w]
+    `, 'custom');
+    chess.move('Wbxa4=B');
+  }).not.toThrow();
+
+  expect(() => {
+    // TY-capture with promotion
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [ww2/1W2/4/3Q:0:1:w]
+
+    1. Qc1 / Wa3
+    `, 'custom');
+    chess.move('(0T2)Wb3>>x(0T1)b4=Q');
+
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [ww2/1W2/4/3B:0:1:w]
+
+    1. Bc2 / Wa3
+    `, 'custom');
+    chess.move('(0T2)Wb3>>x(0T1)b4=B');
+  }).not.toThrow();
+
+  expect(() => {
+    // LY-capture with promotion
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [4/1W2/4/3Q:0:1:w]
+    [1w2/4/4/4:-1:1:w]
+    `, 'custom');
+    chess.move('(0T1)Wb3>>x(-1T1)b4=Q');
+
+    chess.import(`
+    [Size "4x4"]
+    [Mode "5D"]
+    [Board "custom"]
+    [4/1W2/4/3R:0:1:w]
+    [1w2/4/4/4:-1:1:w]
+    `, 'custom');
+    chess.move('(0T1)Wb3>>x(-1T1)b4=R');
   }).not.toThrow();
 
   expect(() => {
