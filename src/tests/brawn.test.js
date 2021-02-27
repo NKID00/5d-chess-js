@@ -15,15 +15,14 @@ test("Brawn normal moves", () => {
   }).not.toThrow();
 
   expect(() => {
-    //
+    // White single brawn push
     chess.import(`
     [Size "4x4"]
     [Mode "5D"]
     [Board "custom"]
     [4/4/4/WW*2:0:1:w]
-
-    1. Wa2
     `, 'custom');
+    chess.move('Wa2');
   }).not.toThrow();
 
   // Suppress error because of https://github.com/facebook/jest/issues/5785
@@ -37,9 +36,8 @@ test("Brawn normal moves", () => {
     [Mode "5D"]
     [Board "custom"]
     [4/4/4/WW*2:0:1:w]
-
-    1. Wa3
     `, 'custom');
+    chess.move('Wa3');
   }).toThrow();
 
   expect(() => {
@@ -49,9 +47,10 @@ test("Brawn normal moves", () => {
     [Mode "5D"]
     [Board "custom"]
     [ww*2/4/4/1W2:0:1:w]
-
-    1. Wb2 / Wa2
     `, 'custom');
+    chess.move('Wb2');
+    chess.submit();
+    chess.move('Wa2');
   }).toThrow();
   console.error.mockRestore();
 
@@ -62,9 +61,8 @@ test("Brawn normal moves", () => {
     [Mode "5D"]
     [Board "custom"]
     [4/4/4/WW*2:0:1:w]
-
-    1. Wb2
     `, 'custom');
+    chess.move('Wb2');
   }).not.toThrow();
 
   expect(() => {
@@ -74,9 +72,8 @@ test("Brawn normal moves", () => {
     [Mode "5D"]
     [Board "custom"]
     [4/4/4/WW*2:0:1:w]
-
-    1. Wb3
     `, 'custom');
+    chess.move('Wb3');
   }).not.toThrow();
 
   expect(() => {
@@ -86,9 +83,10 @@ test("Brawn normal moves", () => {
     [Mode "5D"]
     [Board "custom"]
     [ww*2/4/4/1W2:0:1:w]
-
-    1. Wb2 / Wa3
     `, 'custom');
+    chess.move('Wb2');
+    chess.submit();
+    chess.move('Wa3');
   }).not.toThrow();
 
   expect(() => {
@@ -98,9 +96,10 @@ test("Brawn normal moves", () => {
     [Mode "5D"]
     [Board "custom"]
     [ww*2/4/4/W3:0:1:w]
-
-    1. Wa2 / Wb3
     `, 'custom');
+    chess.move('Wa2');
+    chess.submit();
+    chess.move('Wb3');
   }).not.toThrow();
 
   expect(() => {
@@ -110,9 +109,10 @@ test("Brawn normal moves", () => {
     [Mode "5D"]
     [Board "custom"]
     [ww*2/4/4/W3:0:1:w]
-
-    1. Wa2 / Wb2
     `, 'custom');
+    chess.move('Wa2');
+    chess.submit();
+    chess.move('Wb2');
   }).not.toThrow();
 });
 
@@ -128,8 +128,9 @@ test("Brawn advanced moves", () => {
     [ww*2/4/4/WW2:0:1:w]
 
     1. Wa2 / Wa3
-    2. Wb2 / (0T2)Wa3>>x(0T1)a2~
+    2. Wb2
     `, 'custom');
+    chess.move('(0T2)Wa3>>x(0T1)a2~');
   }).not.toThrow();
 
   expect(() => {
@@ -142,8 +143,8 @@ test("Brawn advanced moves", () => {
 
     1. Wa2 / Wa3
     2. Wb2 / (0T2)Wa3>>x(0T1)a2~
-    3. (0T3)Wa2>x(-1T2)a2
     `, 'custom');
+    chess.move('(0T3)Wa2>x(-1T2)a2');
   }).not.toThrow();
 
   expect(() => {
@@ -157,8 +158,9 @@ test("Brawn advanced moves", () => {
     1. Wa2 / Wa3
     2. Wb2 / (0T2)Wa3>>x(0T1)a2~
     3. (-1T2)Wb2 / (-1T2)Wa3
-    4. (-1T3)Wb3 (0T3)Wb3 / (-1T3)Wa3>x(0T3)a2
+    4. (-1T3)Wb3 (0T3)Wb3
     `, 'custom');
+    chess.move('(-1T3)Wa3>x(0T3)a2');
   }).not.toThrow();
 
 
@@ -173,8 +175,9 @@ test("Brawn advanced moves", () => {
     1. Wa2 / Wa3
     2. Wb2 / (0T2)Wa3>>x(0T1)a2~
     3. (-1T2)Wb2 / (-1T2)Wa3
-    4. (-1T3)Wb3 (0T3)Wb3 / (-1T3)Wa3>x(0T3)b3
+    4. (-1T3)Wb3 (0T3)Wb3
     `, 'custom');
+    chess.move('(-1T3)Wa3>x(0T3)b3');
   }).not.toThrow();
 
 
@@ -187,7 +190,64 @@ test("Brawn advanced moves", () => {
     [w3/4/4/WW*1Q:0:1:w]
 
     1. Wb3 / Wa3
-    2. Wb4=Q
     `, 'custom');
+    chess.move('Wb4=Q');
   }).not.toThrow();
+
+  expect(() => {
+    // En passant
+    chess.import(`
+    [Size "5x5"]
+    [Mode "5D"]
+    [Board "custom"]
+    [w*w*w*w*k/5/5/5/KW*W*W*W*:0:1:w]
+
+    1. (0T1)Wd3 / (0T1)Wa3
+    2. (0T2)Wc3 / (0T2)Wd4
+    3. (0T3)Wb2 / (0T3)Wdxc3
+    4. (0T4)Wxa3 / (0T4)Wc2
+    5. (0T5)Kb2 / (0T5)Wc3+
+    `, 'custom');
+    chess.move('Wxc4');
+    chess.submit();
+    chess.move('Wxc4');
+  });
+});
+
+
+test("Brawn check/checkmates", () => {
+  let chess = new Chess();
+
+  expect(() => {
+    chess.import(`
+    [Size "5x5"]
+    [Mode "5D"]
+    [Board "custom"]
+    [w*w*w*w*k/5/5/5/KW*W*W*W*:0:1:w]
+    `);
+  }).not.toThrow();
+
+  expect(() => {
+    chess.import(`
+    [Size "5x5"]
+    [Mode "5D"]
+    [Board "custom"]
+    [w*w*w*w*k/5/5/5/KW*W*W*W*:0:1:w]
+
+    1. (0T1)Wd3 / (0T1)Wa3
+    2. (0T2)Wc3 / (0T2)Wd4
+    3. (0T3)Wb2 / (0T3)Wdxc3
+    4. (0T4)Wxa3 / (0T4)Wc2
+    5. (0T5)Kb2 / (0T5)Wc3+
+    6. (0T6)Wxc4 / (0T6)Wxc4
+    7. (0T7)We3 / (0T7)Wc3+
+    8. (0T8)Kxc2 / (0T8)Ke5>>(0T7)e4
+    9. (-1T8)Kb2>>(0T7)a2 / (+1T7)Wc3+
+    10. (+1T8)Kxc2 / (-1T8)Kxe3 (+1T8)Kd5#
+    `);
+  }).not.toThrow();
+
+  expect(chess.inCheck).toBe(true);
+  expect(chess.inCheckmate).toBe(true);
+  expect(chess.inStalemate).toBe(false);
 });
