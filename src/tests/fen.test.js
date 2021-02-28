@@ -59,7 +59,7 @@ test('5DFEN importing', () => {
   }).not.toThrow();
 
   expect(() => {
-    // Boring chess
+    // Rook tactics 1
     chess.import(`
 [size "5x5"]
 [board "custom"]
