@@ -5,7 +5,7 @@
     The FEN format is described in [fen.ebnf](../fen.ebnf).
 */
 
-exports.TO_FEN = ['', 'p', 'P', 'b', 'B', 'n', 'N', 'r', 'R', 'q', 'Q', 'k', 'K', 's', 'S'];
+exports.TO_FEN = ['', 'p', 'P', 'b', 'B', 'n', 'N', 'r', 'R', 'q', 'Q', 'k', 'K', 's', 'S', 'w', 'W'];
 exports.FROM_FEN = {
     'p': 1,
     'P': 2,
@@ -20,7 +20,9 @@ exports.FROM_FEN = {
     'k': 11,
     'K': 12,
     's': 13,
-    'S': 14
+    'S': 14,
+    'w': 15,
+    'W': 16
 };
 exports.OMMIT_UNMOVED = [
     true,           //none
@@ -31,6 +33,7 @@ exports.OMMIT_UNMOVED = [
     true, true,     //queen
     false, false,   //king
     true, true,     //princess
+    false, false    //brawn
 ];
 
 /**
