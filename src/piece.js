@@ -22,6 +22,9 @@ exports.toChar = (piece, displayPawn = false) => {
   if(Math.abs(piece) === 13 || Math.abs(piece) === 14) {
     return 'S';
   }
+  if(Math.abs(piece) === 15 || Math.abs(piece) === 16) {
+    return 'W';
+  }
   return '';
 }
 
@@ -46,6 +49,9 @@ exports.fromChar = (char, actionNum = 0) => {
   }
   if(char === 'S') {
     return (actionNum % 2 === 0 ? 14 : 13);
+  }
+  if(char === 'W' || char === 'BR') {
+    return (actionNum % 2 === 0 ? 16 : 15);
   }
   return (actionNum % 2 === 0 ? 2 : 1);
 }
@@ -410,11 +416,8 @@ exports.availablePromotionPieces = (board) => {
           var piece = Math.abs(board[l][t][r][f]);
           if(!res.includes(piece)) {
             if(
-              piece !== 0 &&
-              piece !== 1 &&
-              piece !== 2 &&
-              piece !== 11 &&
-              piece !== 12
+              piece >= 3 && piece <= 10
+              || piece >= 13 && piece <= 14
             ) {
               res.push(piece);
             }
@@ -435,7 +438,7 @@ exports.moves = (board, src, spatialOnly = false) => {
     for(var i = 0;i < movePos.length;i++) {
       if(!spatialOnly || (spatialOnly && (movePos[i][0] === 0 && movePos[i][1] === 0))) {
         var currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+        if(currMove[1][0] % 2 === 0) {
           currMove[1][0] += movePos[i][0] * 2;
         }
         else {
@@ -461,7 +464,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         var currMove = [src.slice(), src.slice()];
         var blocking = false;
         while(!blocking) {
-          if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+          if(currMove[1][0] % 2 === 0) {
             currMove[1][0] += moveVecs[i][0] * 2;
           }
           else {
@@ -486,7 +489,7 @@ exports.moves = (board, src, spatialOnly = false) => {
       }
     }
     var promotionPieces = [];
-    if(piece === 1 || piece === -1) {
+    if(Math.abs(piece) === 1 || Math.abs(piece) === 15) {
       //Black forward single square RF movement
       var currMove = [src.slice(), src.slice()];
       currMove[1][2]--;
@@ -538,7 +541,7 @@ exports.moves = (board, src, spatialOnly = false) => {
       if(boardFuncs.positionExists(board, currMove[1])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
-          if(currMove[1][2] === 0) {          
+          if(currMove[1][2] === 0) {
             if(promotionPieces.length <= 0) {
               promotionPieces = this.availablePromotionPieces(board);
             }
@@ -565,7 +568,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         currMove[1][3]
       ])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]+1][currMove[1][3]];
-        if(destPiece === 2) {
+        if(destPiece === 2 || destPiece === 16) {
           if(boardFuncs.positionExists(board, [
             currMove[1][0],
             currMove[1][1]-2,
@@ -573,7 +576,7 @@ exports.moves = (board, src, spatialOnly = false) => {
             currMove[1][3]
           ])) {
             var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]-1][currMove[1][3]];
-            if(destPiece === -2) {
+            if(destPiece === -2 || destPiece === -16) {
               res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
                 currMove[1][1],
@@ -594,7 +597,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         currMove[1][3]
       ])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]+1][currMove[1][3]];
-        if(destPiece === 2) {
+        if(destPiece === 2 || destPiece === 16) {
           if(boardFuncs.positionExists(board, [
             currMove[1][0],
             currMove[1][1]-2,
@@ -602,7 +605,7 @@ exports.moves = (board, src, spatialOnly = false) => {
             currMove[1][3]
           ])) {
             var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]-1][currMove[1][3]];
-            if(destPiece === -2) {
+            if(destPiece === -2 || destPiece === -16) {
               res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
                 currMove[1][1],
@@ -614,7 +617,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         }
       }
       //Black forward double square RF movement
-      if(piece === -1) {
+      if(piece === -1 || piece === -15) {
         currMove = [src.slice(), src.slice()];
         currMove[1][2] -= 2;
         if(boardFuncs.positionExists(board, currMove[1])) {
@@ -622,7 +625,7 @@ exports.moves = (board, src, spatialOnly = false) => {
           if(destPiece === 0) {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]+1][currMove[1][3]];
             if(destPiece === 0) {
-              if(currMove[1][2] === 0) {            
+              if(currMove[1][2] === 0) {
                 if(promotionPieces.length <= 0) {
                   promotionPieces = this.availablePromotionPieces(board);
                 }
@@ -643,7 +646,7 @@ exports.moves = (board, src, spatialOnly = false) => {
       if(!spatialOnly) {
         //Black forward single square LT movement
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+        if(currMove[1][0] % 2 === 0) {
           currMove[1][0] += 2;
         }
         else {
@@ -658,7 +661,7 @@ exports.moves = (board, src, spatialOnly = false) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             //Black forward double square LT movement
             currMove = [src.slice(), src.slice()];
-            if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+            if(currMove[1][0] % 2 === 0) {
               currMove[1][0] += 4;
             }
             else {
@@ -677,7 +680,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         }
         //Black forward single square capture LT movement
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+        if(currMove[1][0] % 2 === 0) {
           currMove[1][0] += 2;
         }
         else {
@@ -694,7 +697,7 @@ exports.moves = (board, src, spatialOnly = false) => {
           }
         }
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+        if(currMove[1][0] % 2 === 0) {
           currMove[1][0] += 2;
         }
         else {
@@ -712,7 +715,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         }
       }
     }
-    if(piece === 2 || piece === -2) {
+    if(Math.abs(piece) === 2 || Math.abs(piece) === 16) {
       //White forward single square RF movement
       var currMove = [src.slice(), src.slice()];
       currMove[1][2]++;
@@ -791,7 +794,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         currMove[1][3]
       ])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
-        if(destPiece === 1) {
+        if(destPiece === 1 || destPiece === 15) {
           if(boardFuncs.positionExists(board, [
             currMove[1][0],
             currMove[1][1]-2,
@@ -799,7 +802,7 @@ exports.moves = (board, src, spatialOnly = false) => {
             currMove[1][3]
           ])) {
             var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
-            if(destPiece === -1) {
+            if(destPiece === -1 || destPiece === -15) {
               res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
                 currMove[1][1],
@@ -820,7 +823,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         currMove[1][3]
       ])) {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
-        if(destPiece === 1) {
+        if(destPiece === 1 || destPiece === 15) {
           if(boardFuncs.positionExists(board, [
             currMove[1][0],
             currMove[1][1]-2,
@@ -828,7 +831,7 @@ exports.moves = (board, src, spatialOnly = false) => {
             currMove[1][3]
           ])) {
             var destPiece = board[currMove[1][0]][currMove[1][1]-2][currMove[1][2]+1][currMove[1][3]];
-            if(destPiece === -1) {
+            if(destPiece === -1 || destPiece === -15) {
               res.push([currMove[0].slice(), currMove[1].slice(), [
                 currMove[1][0],
                 currMove[1][1],
@@ -840,7 +843,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         }
       }
       //White forward double square RF movement
-      if(piece === -2) {
+      if(piece === -2 || piece === -16) {
         currMove = [src.slice(), src.slice()];
         currMove[1][2] += 2;
         if(boardFuncs.positionExists(board, currMove[1])) {
@@ -869,7 +872,7 @@ exports.moves = (board, src, spatialOnly = false) => {
       if(!spatialOnly) {
         //White forward single square LT movement
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+        if(currMove[1][0] % 2 === 0) {
           currMove[1][0] -= 2;
         }
         else {
@@ -884,7 +887,7 @@ exports.moves = (board, src, spatialOnly = false) => {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             //White forward double square LT movement
             currMove = [src.slice(), src.slice()];
-            if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+            if(currMove[1][0] % 2 === 0) {
               currMove[1][0] -= 4;
             }
             else {
@@ -903,7 +906,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         }
         //White forward single square capture LT movement
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+        if(currMove[1][0] % 2 === 0) {
           currMove[1][0] -= 2;
         }
         else {
@@ -920,7 +923,7 @@ exports.moves = (board, src, spatialOnly = false) => {
           }
         }
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] === 0 || currMove[1][0] % 2 === 0) {
+        if(currMove[1][0] % 2 === 0) {
           currMove[1][0] -= 2;
         }
         else {
@@ -934,6 +937,67 @@ exports.moves = (board, src, spatialOnly = false) => {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
           if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
             res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+        }
+      }
+    }
+    // Brawn-specific captures
+    if (Math.abs(piece) === 15 || Math.abs(piece) === 16) {
+      let promotionRank = Math.abs(piece) % 2 === 0 ? board[src[0]][src[1]].length - 1 : 0;
+      let forward = Math.abs(piece) % 2 === 0 ? 1 : -1;
+      // ⟨l, t, y, x⟩
+      let cardinalities = [
+        [-forward, 0, 0, 1],
+        [-forward, 0, 0, -1],
+        [-forward, 0, forward, 0],
+        [0, -1, forward, 0],
+      ];
+
+      for (let [dl, dt, dy, dx] of cardinalities) {
+        if (src[0] % 2 === 0) {
+          // White's timelines
+          currMove = [src.slice(), [
+            src[0] + 2 * dl,
+            src[1] + 2 * dt,
+            src[2] + dy,
+            src[3] + dx
+          ]];
+        } else {
+          // Black's timelines
+          currMove = [src.slice(), [
+            src[0] - 2 * dl,
+            src[1] + 2 * dt,
+            src[2] + dy,
+            src[3] + dx
+          ]];
+        }
+
+        // Wrap back to white's timelines
+        if(currMove[1][0] < 0) {
+          currMove[1][0] = -currMove[1][0] - 1;
+        }
+
+        // Verify the capture and yield the move
+        if(boardFuncs.positionExists(board, currMove[1])) {
+          var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
+          if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
+
+            if(currMove[1][2] === promotionRank) {
+              // Must promote
+              if(promotionPieces.length <= 0) {
+                promotionPieces = this.availablePromotionPieces(board);
+              }
+              for(var i = 0;i < promotionPieces.length;i++) {
+                if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                  currMove[1][4] = promotionPieces[i];
+                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                }
+              }
+            }
+            else {
+              // Can't promote
+              res.push([currMove[0], currMove[1]]);
+            }
           }
         }
       }
