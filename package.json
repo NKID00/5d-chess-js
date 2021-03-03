@@ -1,5 +1,15 @@
 {
   "name": "5d-chess-js",
+  "author": {
+    "name": "Shaun Wu",
+    "email": "alexbay218@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Shad Amethyst",
+      "url": "https://gitlab.com/adri326"
+    }
+  ],
   "version": "1.0.21",
   "description": "Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.",
   "main": "./dist/5d-chess.js",
@@ -34,7 +44,6 @@
     "type": "git",
     "url": "git+https://gitlab.com/alexbay218/5d-chess-js.git"
   },
-  "author": "Shaun Wu",
   "license": "AGPL-3.0-or-later",
   "bugs": {
     "url": "https://gitlab.com/alexbay218/5d-chess-js/issues"
