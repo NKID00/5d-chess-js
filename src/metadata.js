@@ -50,7 +50,7 @@ exports.lookupVariant = (variantPrettyStr) => {
     if(variantDict[i][0].toLocaleLowerCase().includes(variantPrettyStr.toLocaleLowerCase().replace(/_/g, ' '))) {
       return variantDict[i][1];
     }
-    if(variantDict[i][0] === this.lookupVariantFull(variantPrettyStr)) {
+    if(variantDict[i][1] === this.lookupVariantFull(variantPrettyStr) && variantDict[i][1] !== 'Standard') {
       return variantDict[i][1];
     }
   }
