@@ -104,7 +104,7 @@ exports.actions = (input, startingBoard = [], startingActionNum = []) => {
     var tmpActionNum = startingActionNum;
     for(var i = 0;i < input.length;i++) {
       res.push(this.action(input[i], tmpBoard, tmpActionNum));
-      for(var j = 0;j < input[i].length;i++) {
+      for(var j = 0;j < input[i].length;j++) {
         boardFuncs.move(tmpBoard, input[i][j]);
       }
       tmpActionNum++;
