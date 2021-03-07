@@ -45,8 +45,12 @@ const variantDict = [
 ]
 
 exports.lookupVariant = (variantPrettyStr) => {
+  //More lenient input since its used frequently in front facing application.
   for(var i = 0;i < variantDict.length;i++) {
-    if(variantDict[i][0].toLocaleLowerCase().includes(variantPrettyStr.toLocaleLowerCase())) {
+    if(variantDict[i][0].toLocaleLowerCase().includes(variantPrettyStr.toLocaleLowerCase().replace(/_/g, ' '))) {
+      return variantDict[i][1];
+    }
+    if(variantDict[i][0] === this.lookupVariantFull(variantPrettyStr)) {
       return variantDict[i][1];
     }
   }
