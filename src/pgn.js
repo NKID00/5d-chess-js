@@ -102,23 +102,32 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   var isJump = (isTimelineTravel || isTimeTravel);
   var isBranching = false;
   var isPresentMoving = false;
-  var newActive = null;
+  var newActivePresent = null;
   var newTimeline = null;
   if(isJump) {
     var tmpBoard = boardFuncs.copy(board);
+    var excludeActive = null;
+    var newActive = null;
     boardFuncs.move(tmpBoard, move);
     for(var i = 0;i < tmpBoard.length;i++) {
       if(Array.isArray(tmpBoard[i]) && !Array.isArray(board[i])) {
         isBranching = true;
         newTimeline = i % 2 === 0 ? Math.ceil(i/2) : -Math.ceil(i/2);
+        excludeActive = i;
       }
     }
     var actives = boardFuncs.active(board);
     var tmpActives = boardFuncs.active(tmpBoard);
     for(var i = 0;i < tmpActives.length;i++) {
-      if(!actives.includes(tmpActives[i])) {
+      if(!actives.includes(tmpActives[i]) && tmpActives[i] !== excludeActive) {
         newActive = tmpActives[i];
       }
+    }
+    if(newActive !== null && tmpBoard[newActive].length + 1 < tmpBoard[excludeActive].length) {
+      newActivePresent = Math.floor((tmpBoard[newActive].length + 1) / 2);
+    }
+    if(tmpActives.includes(excludeActive)) {
+      isPresentMoving = true;
     }
   }
   var srcSP = `(${moveObj.start.timeline}T${moveObj.start.turn})`;
@@ -162,8 +171,8 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   }
   res += suffix;
   res += isPresentMoving ? '~' : '';
-  if(timelineActivationToken && newActive !== null) {
-    res += ` (~T${newActive})`;
+  if(timelineActivationToken && newActivePresent !== null) {
+    res += ` (~T${newActivePresent})`;
   }
   if(newTimelineToken && newTimeline !== null) {
     res += ` (>L${newTimeline})`;
