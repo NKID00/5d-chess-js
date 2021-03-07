@@ -301,7 +301,7 @@ class Chess {
     var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
     if(!this.skipDetection) {
       if(!this.moveable(move)) {
-        var pgnStr = 'Move is invalid and an error has occurred with this move: ' + pgnFuncs.fromMove(move, this.rawBoard, this.rawAction);
+        var pgnStr = 'Move is invalid and an error has occurred with this move: ' + move;
         console.error(pgnStr);
         throw pgnStr;
       }
