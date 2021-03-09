@@ -142,7 +142,7 @@ exports.fromAction = (board, actionNum, moves, isTurnZero = false) => {
   var tmpBoard = boardFuncs.copy(board);
   for(var i = 0;i < moves.length;i++) {
     res.moves.push(this.fromMove(tmpBoard, moves[i], isTurnZero));
-    boardFuncs.move(board, moves[i]);
+    boardFuncs.move(tmpBoard, moves[i]);
   }
   return res;
 }
