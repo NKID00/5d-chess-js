@@ -139,8 +139,10 @@ exports.fromAction = (board, actionNum, moves, isTurnZero = false) => {
   res.action = Math.floor(actionNum/2) + 1;
   res.player = (actionNum % 2 === 0 ? 'white' : 'black');
   res.moves = [];
+  var tmpBoard = boardFuncs.copy(board);
   for(var i = 0;i < moves.length;i++) {
-    res.moves.push(this.fromMove(board, moves[i], isTurnZero));
+    res.moves.push(this.fromMove(tmpBoard, moves[i], isTurnZero));
+    boardFuncs.move(board, moves[i]);
   }
   return res;
 }

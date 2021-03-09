@@ -179,6 +179,7 @@ exports.move = (board, move) => {
 exports.positionExists = (board, pos) => {
   return Boolean(
     board !== undefined &&
+    board !== null &&
     board[pos[0]] &&
     board[pos[0]][pos[1]] &&
     board[pos[0]][pos[1]][pos[2]] &&
