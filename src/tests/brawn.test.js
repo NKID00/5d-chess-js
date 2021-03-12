@@ -341,3 +341,38 @@ test("Brawn check/checkmates", () => {
   expect(chess.inCheckmate).toBe(true);
   expect(chess.inStalemate).toBe(false);
 });
+
+test("Brawn promotion", () => {
+  let chess = new Chess();
+
+  expect(() => {
+    chess.import(`
+    [Board "custom"]
+    [Size "5x5"]
+    [Mode "5D"]
+    [w*w*w*w*k/5/5/5/KW*W*W*W*:0:1:w]
+
+    1. Wb3 / Wc3
+    2. Wbxc4 / Wdxc4
+    3. We3 / Wb3
+    4. Wd1d2 / Kd5
+    5. Wc2 / Wbxc2
+    6. Kb2 / Wa3
+    7. Kxc2 / Kc5
+    8. Kc1 / Wa3a2
+    9. Kb2 / Wa2a1=Q
+    10. Kxa1 / Kd5
+    11. We3e4 / Kd4
+    12. Kb1 / Kxe4
+    13. Kc1 / Kd4
+    14. Kd1 / Ke4
+    15. Ke2 / Kd4
+    16. Kd1 / Ke4
+    17. Ke2 / Kd4
+    18. Kd1 / Ke4
+    19. Ke2
+    `);
+    chess.move('Kd4');
+    chess.submit();
+  }).not.toThrow();
+})
