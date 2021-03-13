@@ -31,7 +31,7 @@ exports.board = (input) => {
   return res;
 }
 
-exports.actions = (input, startingBoard = [], startingActionNum = []) => {
+exports.actions = (input, startingBoard = [], startingActionNum = [], promotionPieces = null) => {
   /*
     Supported input:
      - 2D Array of moves (raw or object)
@@ -48,7 +48,7 @@ exports.actions = (input, startingBoard = [], startingActionNum = []) => {
     catch(err) {}
     if(tmp === null) {
       try {
-        tmp = pgnFuncs.toActionHistory(input, startingBoard, startingActionNum);
+        tmp = pgnFuncs.toActionHistory(input, startingBoard, startingActionNum, promotionPieces);
         if(tmp.length <= 0 && input.length > 0) {
           tmp = null;
           throw 'No pgn actions found';
@@ -113,7 +113,7 @@ exports.actions = (input, startingBoard = [], startingActionNum = []) => {
   return res;
 }
 
-exports.action = (input, board = [], actionNum = 0) => {
+exports.action = (input, board = [], actionNum = 0, promotionPieces = null) => {
   /*
     Supported input:
      - Array of moves (raw or object)
@@ -131,7 +131,7 @@ exports.action = (input, board = [], actionNum = 0) => {
     catch(err) {}
     if(tmp === null) {
       try {
-        tmp = pgnFuncs.toAction(input, board, actionNum);
+        tmp = pgnFuncs.toAction(input, board, actionNum, promotionPieces);
       }
       catch(err) {
         console.error(err);
@@ -183,7 +183,7 @@ exports.action = (input, board = [], actionNum = 0) => {
   return res;
 }
 
-exports.move = (input, board = [], actionNum = 0) => {
+exports.move = (input, board = [], actionNum = 0, promotionPieces = null) => {
   /*
     Supported input:
      - Move (raw or object)
@@ -200,7 +200,7 @@ exports.move = (input, board = [], actionNum = 0) => {
     catch(err) {}
     if(tmp === null) {
       try {
-        tmp = pgnFuncs.toMove(input, board, actionNum);
+        tmp = pgnFuncs.toMove(input, board, actionNum, [], promotionPieces);
       }
       catch(err) {
         console.error(err);
