@@ -350,6 +350,7 @@ test("Brawn promotion", () => {
     [Board "custom"]
     [Size "5x5"]
     [Mode "5D"]
+    [Promotions "Q,N,B,R"]
     [w*w*w*w*k/5/5/5/KW*W*W*W*:0:1:w]
 
     1. Wb3 / Wc3
