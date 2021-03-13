@@ -429,7 +429,7 @@ exports.availablePromotionPieces = (board) => {
   return res;
 }
 
-exports.moves = (board, src, spatialOnly = false) => {
+exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
   var res = [];
   if(boardFuncs.positionExists(board, src)) {
     var piece = board[src[0]][src[1]][src[2]][src[3]];
@@ -488,7 +488,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         }
       }
     }
-    var promotionPieces = [];
+
     if(Math.abs(piece) === 1 || Math.abs(piece) === 15) {
       //Black forward single square RF movement
       var currMove = [src.slice(), src.slice()];
@@ -497,7 +497,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0) {
           if(currMove[1][2] === 0) {
-            if(promotionPieces.length <= 0) {
+            if(!promotionPieces || promotionPieces.length <= 0) {
               promotionPieces = this.availablePromotionPieces(board);
             }
             for(var i = 0;i < promotionPieces.length;i++) {
@@ -520,7 +520,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           if(currMove[1][2] === 0) {
-            if(promotionPieces.length <= 0) {
+            if(!promotionPieces || promotionPieces.length <= 0) {
               promotionPieces = this.availablePromotionPieces(board);
             }
             for(var i = 0;i < promotionPieces.length;i++) {
@@ -542,7 +542,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           if(currMove[1][2] === 0) {
-            if(promotionPieces.length <= 0) {
+            if(!promotionPieces || promotionPieces.length <= 0) {
               promotionPieces = this.availablePromotionPieces(board);
             }
             for(var i = 0;i < promotionPieces.length;i++) {
@@ -626,7 +626,8 @@ exports.moves = (board, src, spatialOnly = false) => {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]+1][currMove[1][3]];
             if(destPiece === 0) {
               if(currMove[1][2] === 0) {
-                if(promotionPieces.length <= 0) {
+
+                if(!promotionPieces || promotionPieces.length <= 0) {
                   promotionPieces = this.availablePromotionPieces(board);
                 }
                 for(var i = 0;i < promotionPieces.length;i++) {
@@ -723,7 +724,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece === 0) {
           if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-            if(promotionPieces.length <= 0) {
+            if(!promotionPieces || promotionPieces.length <= 0) {
               promotionPieces = this.availablePromotionPieces(board);
             }
             for(var i = 0;i < promotionPieces.length;i++) {
@@ -746,7 +747,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-            if(promotionPieces.length <= 0) {
+            if(!promotionPieces || promotionPieces.length <= 0) {
               promotionPieces = this.availablePromotionPieces(board);
             }
             for(var i = 0;i < promotionPieces.length;i++) {
@@ -768,7 +769,7 @@ exports.moves = (board, src, spatialOnly = false) => {
         var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
         if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
           if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-            if(promotionPieces.length <= 0) {
+            if(!promotionPieces || promotionPieces.length <= 0) {
               promotionPieces = this.availablePromotionPieces(board);
             }
             for(var i = 0;i < promotionPieces.length;i++) {
@@ -852,7 +853,8 @@ exports.moves = (board, src, spatialOnly = false) => {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
             if(destPiece === 0) {
               if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-                if(promotionPieces.length <= 0) {
+
+                if(!promotionPieces || promotionPieces.length <= 0) {
                   promotionPieces = this.availablePromotionPieces(board);
                 }
                 for(var i = 0;i < promotionPieces.length;i++) {
@@ -984,7 +986,7 @@ exports.moves = (board, src, spatialOnly = false) => {
 
             if(currMove[1][2] === promotionRank) {
               // Must promote
-              if(promotionPieces.length <= 0) {
+              if(!promotionPieces || promotionPieces.length <= 0) {
                 promotionPieces = this.availablePromotionPieces(board);
               }
               for(var i = 0;i < promotionPieces.length;i++) {
