@@ -71,3 +71,20 @@ test('5DFEN importing', () => {
     `);
   }).not.toThrow();
 });
+
+test('5DFEN importing over non-custom variant in GUI', () => {
+  expect(() => {
+    let chess = new Chess();
+    chess.import(`
+[Board "custom"]
+[Size "8x8"]
+[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]
+[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:1:1:w]
+[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:-1:1:w]
+    `, 'standard');
+    chess.move('(0T1)Nc3');
+    chess.move('(1T1)Nc3');
+    chess.move('(-1T1)Nf3');
+    chess.submit();
+  }).not.toThrow();
+});

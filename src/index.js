@@ -41,6 +41,7 @@ class Chess {
       board: 'standard',
       mode: '5D'
     };
+    this.promotionPieces = null;
     if(typeof input !== 'undefined') {
       this.import(input, variant);
     }
@@ -104,8 +105,8 @@ class Chess {
       return boardFuncs.compare(board1, board2);
     }
     if(type === 'move') {
-      var move1 = convertFuncs.move(input1, this.rawBoard, this.rawAction);
-      var move2 = convertFuncs.move(input2, this.rawBoard, this.rawAction);
+      var move1 = convertFuncs.move(input1, this.rawBoard, this.rawAction, this.promotionPieces);
+      var move2 = convertFuncs.move(input2, this.rawBoard, this.rawAction, this.promotionPieces);
       return mateFuncs.moveCompare(move1, move2);
     }
     throw 'Type not supported, valid types are \'board\' and \'move\'.';
@@ -134,8 +135,24 @@ class Chess {
   import(input, variant) {
     if(typeof input === 'string') {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
+      if (typeof this.metadata.board === 'string') {
+        this.reset(this.metadata.board);
+      } else {
+        this.reset(variant);
+      }
+    } else {
+      this.reset(variant);
     }
-    this.reset(variant);
+
+    if (this.metadata.promotions) {
+      this.promotionPieces = [];
+      for (let promotions of this.metadata.promotions.split(',')) {
+        this.promotionPieces.push(pieceFuncs.fromChar(promotions, 0));
+        this.promotionPieces.push(pieceFuncs.fromChar(promotions, 1));
+      }
+    } else {
+      this.promotionPieces = null;
+    }
     if(this.metadata.board === 'custom') {
       this.fen(input);
       if(typeof this.rawBoard[0] !== 'undefined' && this.rawBoard[0] !== null) {
@@ -145,7 +162,7 @@ class Chess {
       this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     }
     try {
-      var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction);
+      var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction, this.promotionPieces);
       for(var i = 0;i < actions.length;i++) {
         for(var j = 0;j < actions[i].length;j++) {
           this.move(actions[i][j]);
@@ -242,7 +259,7 @@ class Chess {
     catch(err) { return false; }
   }
   action(input) {
-    var moves = convertFuncs.action(input, this.rawBoard, this.rawAction);
+    var moves = convertFuncs.action(input, this.rawBoard, this.rawAction, this.promotionPieces);
     for(var i = 0;i < moves.length;i++) {
       this.move(moves[i]);
     }
@@ -250,7 +267,7 @@ class Chess {
   }
   actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true) {
     var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
-    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.board);
+    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.board, this.promotionPieces);
     if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
       var res = '';
@@ -298,7 +315,7 @@ class Chess {
     catch(err) { return false; }
   }
   move(input) {
-    var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
+    var move = convertFuncs.move(input, this.rawBoard, this.rawAction, this.promotionPieces);
     if(!this.skipDetection) {
       if(!this.moveable(move)) {
         var pgnStr = 'Move is invalid and an error has occurred with this move: ' + move;
@@ -315,7 +332,7 @@ class Chess {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
     }
-    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, spatialOnly);
+    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, spatialOnly, this.promotionPieces);
     if(format === 'raw') { return moves; }
     if(format.includes('notation')) {
       var res = '';
@@ -353,8 +370,8 @@ class Chess {
       if(this.skipDetection) {
         return true;
       }
-      var move = convertFuncs.move(input, this.rawBoard, this.rawAction);
-      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen);
+      var move = convertFuncs.move(input, this.rawBoard, this.rawAction, this.promotionPieces);
+      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.promotionPieces);
     }
     catch(err) { return false; }
   }
@@ -365,7 +382,7 @@ class Chess {
       }
       if(this.inStalemate) {
         throw 'Cannot submit, currently in stalemate.';
-      }  
+      }
       if(this.inCheck) {
         throw 'Cannot submit, currently in check.';
       }
@@ -393,7 +410,7 @@ class Chess {
       var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
         if(!this.skipDetection) {
-          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i])) {
+          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.promotionPieces)) {
             var pgnStr = 'Undo buffer is corrupted and an error has occurred with this move: ' + pgnFuncs.fromMove(tmpBuffer[i], tmpBoard, this.rawAction);
             console.error(pgnStr);
             throw pgnStr;
