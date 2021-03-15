@@ -41,6 +41,7 @@ exports.actions = (input, startingBoard = [], startingActionNum = [], promotionP
   */
   var res = [];
   if(typeof input === 'string') {
+    input = input.split('\n').map(e => e.trim()).filter(e => !e.startsWith('[') && e).join('\n').trim();
     var tmp = null;
     try {
       tmp = JSON.parse(input);
@@ -55,8 +56,10 @@ exports.actions = (input, startingBoard = [], startingActionNum = [], promotionP
         }
       }
       catch(err) {
-        console.error(err);
-        console.error('Error parsing as pgn, trying old notation');
+        console.warn('Error parsing as pgn, trying old notation: ' + err);
+        if (err instanceof Error) {
+          console.error(err);
+        }
       }
     }
     if(tmp === null) {
@@ -134,8 +137,10 @@ exports.action = (input, board = [], actionNum = 0, promotionPieces = null) => {
         tmp = pgnFuncs.toAction(input, board, actionNum, promotionPieces);
       }
       catch(err) {
-        console.error(err);
-        console.error('Error parsing as pgn, trying old notation');
+        console.warn('Error parsing as pgn, trying old notation: ' + err);
+        if (err instanceof Error) {
+          console.error(err);
+        }
       }
     }
     if(tmp === null) {
@@ -203,8 +208,10 @@ exports.move = (input, board = [], actionNum = 0, promotionPieces = null) => {
         tmp = pgnFuncs.toMove(input, board, actionNum, [], promotionPieces);
       }
       catch(err) {
-        console.error(err);
-        console.error('Error parsing as pgn, trying old notation');
+        console.warn('Error parsing as pgn, trying old notation: ' + err);
+        if (err instanceof Error) {
+          console.error(err);
+        }
       }
     }
     if(tmp === null) {
