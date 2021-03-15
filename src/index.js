@@ -136,7 +136,7 @@ class Chess {
     if(typeof input === 'string') {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
       if (typeof this.metadata.board === 'string') {
-        this.reset(this.metadata.boaard);
+        this.reset(this.metadata.board);
       } else {
         this.reset(variant);
       }
