@@ -135,12 +135,15 @@ class Chess {
   import(input, variant) {
     if(typeof input === 'string') {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
-    }
-    if (typeof this.metadata.board === 'string') {
-      this.reset(this.metadata.boaard);
+      if (typeof this.metadata.board === 'string') {
+        this.reset(this.metadata.boaard);
+      } else {
+        this.reset(variant);
+      }
     } else {
       this.reset(variant);
     }
+
     if (this.metadata.promotions) {
       this.promotionPieces = [];
       for (let promotions of this.metadata.promotions.split(',')) {
