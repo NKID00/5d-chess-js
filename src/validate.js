@@ -1,8 +1,8 @@
 const boardFuncs = require('@local/board');
 
-exports.move = (board, actionNum, move, moveGen = []) => {
+exports.move = (board, actionNum, move, moveGen = [], promotionPieces = null) => {
   if(moveGen.length <= 0) {
-    moveGen = boardFuncs.moves(board, actionNum, false, false, false);
+    moveGen = boardFuncs.moves(board, actionNum, false, false, false, promotionPieces);
   }
   for(var i = 0;i < moveGen.length;i++) {
     if(this.compareMove(moveGen[i], move) === 0) { return true; }

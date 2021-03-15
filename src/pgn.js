@@ -23,12 +23,12 @@ exports.fromSanCoord = (str) => {
   ];
 }
 
-exports.ambiguousSan = (move, board, actionNum = 0, moveGen = []) => {
+exports.ambiguousSan = (move, board, actionNum = 0, moveGen = [], promotionPieces = null) => {
   //moveGen here is for pregenerated moves (skipping generating moves again)
   var res = '';
   var moves = moveGen;
   if(moves.length <= 0) {
-    moves = boardFuncs.moves(board, actionNum, false, false);
+    moves = boardFuncs.moves(board, actionNum, false, false, promotionPieces);
   }
   var src = move[0];
   var dest = move[1];
@@ -163,7 +163,7 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
     }
     else {
       res += pieceChar;
-      res += this.ambiguousSan(move, board, actionNum);
+      res += this.ambiguousSan(move, board, actionNum, [], null);
     }
   }
   if(isPromotion) {
@@ -180,7 +180,7 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   return res;
 }
 
-exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
+exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPieces = null) => {
   //moveGen here is for pregenerated moves (skipping generating moves again)
   var res = [[0,0,-1,-1],[0,0,-1,-1]];
   //Remove tokens
@@ -296,9 +296,16 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
       res[1][3] = destP[1];
     }
   }
+
+  var promotionChar = moveStr.match(/^=([A-Z])+/);
+  if (promotionChar != null) {
+    moveStr = moveStr.slice(promotionChar[0].length);
+    res[1][4] = pieceFuncs.fromChar(promotionChar[1], actionNum);
+  }
+
   var moves = moveGen;
   if(moves.length <= 0) {
-    moves = boardFuncs.moves(board, actionNum, false, false);
+    moves = boardFuncs.moves(board, actionNum, false, false, false, promotionPieces);
   }
   var conflictMoves = [];
   for(var i = 0;i < moves.length;i++) {
@@ -308,7 +315,8 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = []) => {
       res[1][0] === moves[i][1][0] &&
       res[1][1] === moves[i][1][1] &&
       res[1][2] === moves[i][1][2] &&
-      res[1][3] === moves[i][1][3]
+      res[1][3] === moves[i][1][3] &&
+      (res[1][4] === undefined || Math.abs(res[1][4]) === Math.abs(moves[i][1][4]))
     ) {
       if(
         res[0][2] === moves[i][0][2] &&
@@ -366,7 +374,7 @@ exports.fromAction = (action, board = [], actionNum = 0, suffix = '', timelineAc
   return res;
 }
 
-exports.toAction = (actionStr, board = [], actionNum = 0) => {
+exports.toAction = (actionStr, board = [], actionNum = 0, promotionPieces = null) => {
   var tmpStr = '' + actionStr;
   tmpStr = tmpStr.replace(/\r\n/g, '\n');
   tmpStr = tmpStr.replace(/\{[^\{\}]*\}/g, '');
@@ -379,7 +387,7 @@ exports.toAction = (actionStr, board = [], actionNum = 0) => {
   var tmpBoard = boardFuncs.copy(board);
   for(var i = 0;i < splitArr.length;i++) {
     if(splitArr[i].length > 0) {
-      var currMove = this.toMove(splitArr[i], tmpBoard, actionNum);
+      var currMove = this.toMove(splitArr[i], tmpBoard, actionNum, [], promotionPieces);
       res.push(currMove);
       boardFuncs.move(tmpBoard, currMove);
     }
@@ -411,7 +419,7 @@ exports.fromActionHistory = (actionHistory, startingBoard = [], startingActionNu
   return res;
 }
 
-exports.toActionHistory = (actionHistoryStr, startingBoard = [], startingActionNum = 0) => {
+exports.toActionHistory = (actionHistoryStr, startingBoard = [], startingActionNum = 0, promotionPieces = null) => {
   var tmpBoard = boardFuncs.copy(startingBoard);
   var tmpActionNum = startingActionNum;
   var tmpStr = '' + actionHistoryStr;
@@ -440,7 +448,8 @@ exports.toActionHistory = (actionHistoryStr, startingBoard = [], startingActionN
   }
   splitArr = splitArr.flat(1);
   for(var i = 0;i < splitArr.length;i++) {
-    var currAction = this.toAction(splitArr[i], tmpBoard, tmpActionNum);
+    if (!splitArr[i].trim()) continue;
+    var currAction = this.toAction(splitArr[i], tmpBoard, tmpActionNum, promotionPieces);
     res.push(currAction);
     for(var j = 0;j < currAction.length;j++) {
       boardFuncs.move(tmpBoard, currAction[j]);
