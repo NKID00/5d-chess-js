@@ -41,7 +41,7 @@ class Chess {
       board: 'standard',
       mode: '5D'
     };
-    this.promotionPieces = null;
+    this.rawPromotionPieces = []; //TODO: Expose this variable as endpoint for getting available promotions options
     if(typeof input !== 'undefined') {
       this.import(input, variant);
     }
@@ -80,6 +80,7 @@ class Chess {
       res.rawBoard = boardFuncs.copy(this.rawBoard);
       res.rawActionHistory = copyFuncs.actions(this.rawActionHistory);
       res.rawMoveBuffer = copyFuncs.action(this.rawMoveBuffer);
+      res.rawPromotionPieces = this.rawPromotionPieces.slice();
       return res;
     }
     else {
@@ -96,6 +97,7 @@ class Chess {
       this.rawBoard = boardFuncs.copy(state.rawBoard);
       this.rawActionHistory = copyFuncs.actions(state.rawActionHistory);
       this.rawMoveBuffer = copyFuncs.action(state.rawMoveBuffer);
+      this.rawPromotionPieces = state.rawPromotionPieces.slice();
     }
   }
   compare(input1, input2, type = 'board') {
@@ -105,8 +107,8 @@ class Chess {
       return boardFuncs.compare(board1, board2);
     }
     if(type === 'move') {
-      var move1 = convertFuncs.move(input1, this.rawBoard, this.rawAction, this.promotionPieces);
-      var move2 = convertFuncs.move(input2, this.rawBoard, this.rawAction, this.promotionPieces);
+      var move1 = convertFuncs.move(input1, this.rawBoard, this.rawAction, this.rawPromotionPieces);
+      var move2 = convertFuncs.move(input2, this.rawBoard, this.rawAction, this.rawPromotionPieces);
       return mateFuncs.moveCompare(move1, move2);
     }
     throw 'Type not supported, valid types are \'board\' and \'move\'.';
@@ -131,6 +133,7 @@ class Chess {
     this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     this.rawActionHistory = [];
     this.rawMoveBuffer = [];
+    this.rawPromotionPieces = pieceFuncs.availablePromotionPieces(this.rawBoard);
   }
   import(input, variant) {
     if(typeof input === 'string') {
@@ -145,13 +148,11 @@ class Chess {
     }
 
     if (this.metadata.promotions) {
-      this.promotionPieces = [];
+      this.rawPromotionPieces = [];
       for (let promotions of this.metadata.promotions.split(',')) {
-        this.promotionPieces.push(pieceFuncs.fromChar(promotions, 0));
-        this.promotionPieces.push(pieceFuncs.fromChar(promotions, 1));
+        this.rawPromotionPieces.push(pieceFuncs.fromChar(promotions, 0));
+        this.rawPromotionPieces.push(pieceFuncs.fromChar(promotions, 1));
       }
-    } else {
-      this.promotionPieces = null;
     }
     if(this.metadata.board === 'custom') {
       this.fen(input);
@@ -162,7 +163,7 @@ class Chess {
       this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     }
     try {
-      var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction, this.promotionPieces);
+      var actions = convertFuncs.actions(input, this.rawBoardHistory[0], this.rawStartingAction, this.rawPromotionPieces);
       for(var i = 0;i < actions.length;i++) {
         for(var j = 0;j < actions[i].length;j++) {
           this.move(actions[i][j]);
@@ -259,7 +260,7 @@ class Chess {
     catch(err) { return false; }
   }
   action(input) {
-    var moves = convertFuncs.action(input, this.rawBoard, this.rawAction, this.promotionPieces);
+    var moves = convertFuncs.action(input, this.rawBoard, this.rawAction, this.rawPromotionPieces);
     for(var i = 0;i < moves.length;i++) {
       this.move(moves[i]);
     }
@@ -267,7 +268,7 @@ class Chess {
   }
   actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true) {
     var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
-    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.board, this.promotionPieces);
+    var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.board, this.rawPromotionPieces);
     if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
       var res = '';
@@ -315,7 +316,7 @@ class Chess {
     catch(err) { return false; }
   }
   move(input) {
-    var move = convertFuncs.move(input, this.rawBoard, this.rawAction, this.promotionPieces);
+    var move = convertFuncs.move(input, this.rawBoard, this.rawAction, this.rawPromotionPieces);
     if(!this.skipDetection) {
       if(!this.moveable(move)) {
         var pgnStr = 'Move is invalid and an error has occurred with this move: ' + move;
@@ -332,7 +333,7 @@ class Chess {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
     }
-    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, spatialOnly, this.promotionPieces);
+    var moves = boardFuncs.moves(this.rawBoard, this.rawAction, activeOnly, presentOnly, spatialOnly, this.rawPromotionPieces);
     if(format === 'raw') { return moves; }
     if(format.includes('notation')) {
       var res = '';
@@ -370,8 +371,8 @@ class Chess {
       if(this.skipDetection) {
         return true;
       }
-      var move = convertFuncs.move(input, this.rawBoard, this.rawAction, this.promotionPieces);
-      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.promotionPieces);
+      var move = convertFuncs.move(input, this.rawBoard, this.rawAction, this.rawPromotionPieces);
+      return validateFuncs.move(this.rawBoard, this.rawAction, move, moveGen, this.rawPromotionPieces);
     }
     catch(err) { return false; }
   }
@@ -410,7 +411,7 @@ class Chess {
       var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
         if(!this.skipDetection) {
-          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.promotionPieces)) {
+          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.rawPromotionPieces)) {
             var pgnStr = 'Undo buffer is corrupted and an error has occurred with this move: ' + pgnFuncs.fromMove(tmpBuffer[i], tmpBoard, this.rawAction);
             console.error(pgnStr);
             throw pgnStr;
