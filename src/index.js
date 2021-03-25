@@ -400,8 +400,8 @@ class Chess {
     if(!this.skipDetection) {
       if(this.inCheckmate) { return false; }
       if(this.inStalemate) { return false; }
-      if(this.inCheck) { return false; }
     }
+    if(this.inCheck) { return false; }
     return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
   }
   undo() {
