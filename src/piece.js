@@ -416,8 +416,8 @@ exports.availablePromotionPieces = (board) => {
           var piece = Math.abs(board[l][t][r][f]);
           if(!res.includes(piece)) {
             if(
-              piece >= 3 && piece <= 10
-              || piece >= 13 && piece <= 14
+              piece >= 3 && piece <= 10 || 
+              piece >= 13 && piece <= 14
             ) {
               res.push(piece);
             }
@@ -426,7 +426,10 @@ exports.availablePromotionPieces = (board) => {
       }
     }
   }
-  return res;
+  //Order pieces in order of importance
+  //Works for now, since no builtin variant has both princess and queen in the same board
+  //TODO: system to modify this.promotionPieces on index.js for builtin variants that need it
+  return res.sort((a, b) => b - a);
 }
 
 exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {

@@ -382,6 +382,8 @@ Check if a move is playable as the current player and can submit. Does not modif
 
 Generate all possible moves. Does not modify internal state, but will throw errors.
 
+*Note: for promotion moves, this function will return promotion moves from most to least valuable pieces.*
+
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
 
     Valid formats are: 
