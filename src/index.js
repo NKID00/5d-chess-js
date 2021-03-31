@@ -400,8 +400,8 @@ class Chess {
     if(!this.skipDetection) {
       if(this.inCheckmate) { return false; }
       if(this.inStalemate) { return false; }
-      if(this.inCheck) { return false; }
     }
+    if(this.inCheck) { return false; }
     return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
   }
   undo() {
@@ -411,7 +411,7 @@ class Chess {
       var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
       for(var i = 0;i < tmpBuffer.length;i++) {
         if(!this.skipDetection) {
-          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], this.rawPromotionPieces)) {
+          if(!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], [], this.rawPromotionPieces)) {
             var pgnStr = 'Undo buffer is corrupted and an error has occurred with this move: ' + pgnFuncs.fromMove(tmpBuffer[i], tmpBoard, this.rawAction);
             console.error(pgnStr);
             throw pgnStr;
