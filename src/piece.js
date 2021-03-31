@@ -433,6 +433,7 @@ exports.availablePromotionPieces = (board) => {
 }
 
 exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
+  //TODO: Reformat castling to be flexible
   var res = [];
   if(boardFuncs.positionExists(board, src)) {
     var piece = board[src[0]][src[1]][src[2]][src[3]];

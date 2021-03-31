@@ -233,7 +233,7 @@ These fields are implemented as a getter function. If getter functions are unsup
   
 **.skipDetection**
 
-  - **Return** - Boolean indicating whether to skip validation and checkmate detection, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false. Primarily used for engine purposes (to reduce CPU waste).
+  - **Return** - Boolean indicating whether to skip validation and checkmate detection, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false. Primarily used for engine purposes (to reduce CPU usage).
 
 ### Functions
 
@@ -304,21 +304,21 @@ Returns number indicating if object is equal, useful for consistent sorting. Non
 
   - input1 - First value to compare. See below for valid inputs per type.
   - input2 - Second value to compare. See below for valid inputs per type.
-  - type = *[Optional]* Defaults to `"board"`. Indicates input type.
+  - type - *[Optional]* Defaults to `"board"`. Indicates input type.
 
     Valid types are:
 
     - `"board"` - When using this type, input can be a 4D array (raw board format), `Board` object, or JSON string of either.
     - `"move"` - When using this type, input can be a raw move, `Move` object, JSON string of either, `5dpgn` string, or notation string *(depreciated)*.
 
-**.action(action, )**
+**.action(action)**
 
 Plays an action as the current player and submits the move. Will modify internal state and will throw errors.
 
   - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
   - **Return** - Nothing.
 
-**.actionable(action, )**
+**.actionable(action)**
 
 Check if an action is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
@@ -371,7 +371,7 @@ Plays an move as the current player. Will modify internal state and will throw e
   - move - The move to play as the current player. Can be a notation string, `Move` object, or JSON string of a `Move` object.
   - **Return** - Nothing.
 
-**.moveable(move, )**
+**.moveable(move)**
 
 Check if a move is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
@@ -431,14 +431,12 @@ Passes the turn as the current player and submits. Will modify internal state an
 
 **Warning! This is primarily used for bot and engine purposes. In the regular game, you cannot pass turns!**
 
-  - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
   - **Return** - Nothing.
 
-**.passable(action, )**
+**.passable()**
 
 Check if current player can pass and can submit. Does not modify internal state and will not throw errors.
 
-  - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
   - **Return** - Boolean representing if the action is playable and submittable.
 
 **.export([format])**
