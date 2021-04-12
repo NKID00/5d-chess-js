@@ -25,6 +25,12 @@ exports.toChar = (piece, displayPawn = false) => {
   if(Math.abs(piece) === 15 || Math.abs(piece) === 16) {
     return 'W';
   }
+  if(Math.abs(piece) === 17 || Math.abs(piece) === 18) {
+    return 'C';
+  }
+  if(Math.abs(piece) === 19 || Math.abs(piece) === 20) {
+    return 'Y';
+  }
   return '';
 }
 
@@ -52,6 +58,12 @@ exports.fromChar = (char, actionNum = 0) => {
   }
   if(char === 'W' || char === 'BR') {
     return (actionNum % 2 === 0 ? 16 : 15);
+  }
+  if(char === 'C' || char === 'CK') {
+    return (actionNum % 2 === 0 ? 18 : 17);
+  }
+  if(char === 'Y' || char === 'RQ') {
+    return (actionNum % 2 === 0 ? 20 : 19);
   }
   return (actionNum % 2 === 0 ? 2 : 1);
 }
@@ -114,7 +126,7 @@ exports.movePos = (piece) => {
       [-2,-1, 0, 0]
     ];
   }
-  if(Math.abs(piece) === 11 || Math.abs(piece) === 12) {
+  if(Math.abs(piece) === 11 || Math.abs(piece) === 12 || Math.abs(piece) === 17 || Math.abs(piece) === 18) {
     return [
       [ 0, 0, 0, 1],
       [ 0, 0, 0,-1],
@@ -261,7 +273,7 @@ exports.moveVecs = (piece) => {
       [-1, 0, 0, 0]
     ];
   }
-  if(Math.abs(piece) === 9 || Math.abs(piece) === 10) {
+  if(Math.abs(piece) === 9 || Math.abs(piece) === 10 || Math.abs(piece) === 19 || Math.abs(piece) === 20) {
     return [
       [ 0, 0, 0, 1],
       [ 0, 0, 0,-1],
@@ -416,8 +428,9 @@ exports.availablePromotionPieces = (board) => {
           var piece = Math.abs(board[l][t][r][f]);
           if(!res.includes(piece)) {
             if(
-              piece >= 3 && piece <= 10 || 
-              piece >= 13 && piece <= 14
+              piece >= 3 && piece <= 10 ||
+              piece >= 13 && piece <= 14 ||
+              piece >= 17 && piece <= 18
             ) {
               res.push(piece);
             }

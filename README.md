@@ -69,6 +69,7 @@ Currently supported variants:
  - Half Reflected - This variant switches the black queen and black king (the string literal `half_reflected` is used internally).
  - Princess - This variant replaces the queen with a princess, a piece that only has rook + bishop movement (the string literal `princess` is used internally). Note the SAN piece equivalent is `S`.
  - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (the string literal `turn_zero` is used internally).
+ - Reversed Royalty - This variant switches the roles of the queen and king: the queen becomes the royal queen, which is vulnerable to checks and the king becomes the common king, which is not vulnerable to checks (`reversed_royalty` is used internally). The royal queen is referred to with `Y` and the common king with `C`.
 
 ## Terminology
 
@@ -104,9 +105,9 @@ There should be no spaces, as to not confuse a board string with a regular heade
 
 The first field contains the board's pieces:
 - The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
-- Each row is a string of pieces - encoded using letters (optionally followed by a `+`) - and blanks - encoded using numbers.
+- Each row is a string of pieces - encoded using letters (optionally preceded by a `+`) - and blanks - encoded using numbers.
 - A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
-- To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be followed
+- To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be preceded
 by a `+`.
 
 This is the list of the available pieces that you may put in a 5DFEN board string:
@@ -119,9 +120,9 @@ This is the list of the available pieces that you may put in a 5DFEN board strin
 - ~~`U/u` for [u]nicorn~~ (not yet available)
 - ~~`D/d` for [d]ragon~~ (not yet available)
 - `S/s` for prince[s]s
-- ~~`W/w` for bra[w]n~~ (not yet available)
-- ~~`C/c` for [c]ommon king~~ (not yet available)
-- ~~`Q+/q+` for royal [q]ueen~~ (not yet available)
+- `W/w` for bra[w]n
+- `C/c` for [c]ommon king
+- `Y/y` for ro[y]al queen
 
 Blanks are encoded using numbers:
 - If there is a one-piece blank, then it is encoded using `1`.
@@ -132,8 +133,6 @@ Blanks are encoded using numbers:
 If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
 - An unmoved white pawn is encoded as `P*`
 - An unmoved black king is encoded as `k*`
-
-If `+` and `*` need to be combined, then `+` comes first: `q+*`.
 
 The other three fields are:
 - Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
@@ -230,7 +229,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 **.checkmateTimeout**
 
   - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function). By default set to 1 minute.
-  
+
 **.skipDetection**
 
   - **Return** - Boolean indicating whether to skip validation and checkmate detection, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false. Primarily used for engine purposes (to reduce CPU usage).
@@ -331,9 +330,9 @@ Generate all possible submittable actions. Does not modify internal state, but w
 
 **Warning! Due to the complexity of 5D chess, performance may severely suffer if the full board is large enough. Calling this function with more than 3 present timelines is not advised.**
 
-  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. 
-    
-    Valid formats are: 
+  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
+
+    Valid formats are:
     - `"object"`
     - `"json"`
     - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
@@ -354,7 +353,7 @@ Generate all opponent moves that can capture the king (assuming a null move on a
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
 
-    Valid formats are: 
+    Valid formats are:
     - `"object"`
     - `"json"`
     - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
@@ -386,7 +385,7 @@ Generate all possible moves. Does not modify internal state, but will throw erro
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
 
-    Valid formats are: 
+    Valid formats are:
     - `"object"`
     - `"json"`
     - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
@@ -445,7 +444,7 @@ Return exportable data as a list of all actions the both players have played dur
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
 
-    Valid formats are: 
+    Valid formats are:
     - `"object"`
     - `"json"`
     - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
@@ -608,4 +607,3 @@ Also of note is this article from the American Bar Association (https://www.amer
 All source code is released under AGPL v3.0 (license can be found under the `LICENSE` file).
 
 Any addition copyrightable material not covered under AGPL v3.0 is released under CC BY-SA.
-

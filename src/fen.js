@@ -5,7 +5,7 @@
     The FEN format is described in [fen.ebnf](../fen.ebnf).
 */
 
-exports.TO_FEN = ['', 'p', 'P', 'b', 'B', 'n', 'N', 'r', 'R', 'q', 'Q', 'k', 'K', 's', 'S', 'w', 'W'];
+exports.TO_FEN = ['', 'p', 'P', 'b', 'B', 'n', 'N', 'r', 'R', 'q', 'Q', 'k', 'K', 's', 'S', 'w', 'W', 'c', 'C', 'y', 'Y'];
 exports.FROM_FEN = {
     'p': 1,
     'P': 2,
@@ -22,7 +22,11 @@ exports.FROM_FEN = {
     's': 13,
     'S': 14,
     'w': 15,
-    'W': 16
+    'W': 16,
+    'c': 17,
+    'C': 18,
+    'y': 19,
+    'Y': 20,
 };
 exports.OMMIT_UNMOVED = [
     true,           //none
@@ -33,7 +37,9 @@ exports.OMMIT_UNMOVED = [
     true, true,     //queen
     false, false,   //king
     true, true,     //princess
-    false, false    //brawn
+    false, false,    //brawn
+    false, false,    //common king
+    false, false,    //royal queen
 ];
 
 /**
@@ -129,7 +135,7 @@ exports.fromFen = (raw, width = 8, height = 8, isTurnZero = false) => {
                 for (let n = 0; n < +match[0]; n++) {
                     row.push(0);
                 }
-            } else if (match = /^([a-zA-Z]\+?)(\*?)/.exec(raw_row)) {
+            } else if (match = /^\+?([a-zA-Z])(\*?)/.exec(raw_row)) {
                 raw_row = raw_row.slice(match[0].length);
                 let piece = exports.FROM_FEN[match[1]];
                 if (!piece) {
@@ -184,4 +190,3 @@ exports.fromFen = (raw, width = 8, height = 8, isTurnZero = false) => {
 
     return [reversedTurn, l, t];
 }
-
