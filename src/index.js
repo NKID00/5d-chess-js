@@ -136,6 +136,8 @@ class Chess {
     this.rawPromotionPieces = pieceFuncs.availablePromotionPieces(this.rawBoard);
   }
   import(input, variant) {
+    //Reset everything to "Standard" first
+    this.reset('standard');
     if(typeof input === 'string') {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
       if (typeof this.metadata.board === 'string') {
@@ -195,8 +197,8 @@ class Chess {
     }
     catch(err) { return false; }
   }
-  fen(input) {
-    if(typeof input !== 'undefined') {
+  fen(input, currentBoard = false) {
+    if(typeof input === 'string') {
       // Read width and height
       let width = 8;
       let height = 8;
@@ -208,23 +210,38 @@ class Chess {
         height = +match[2];
       }
       var isTurnZero = input.includes('0:b]') || input.includes('0:w]');
+      var isEvenTimeline = input.includes(':+0:') || input.includes(':-0:');
       // Look for 5DFEN strings and parse them
       for(var line of input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n')) {
         line = line.trim();
         if(line.startsWith('[') && line.endsWith(']') && !/\s/.exec(line)) {
-          let [turn, l, t] = fenFuncs.fromFen(line, width, height, isTurnZero);
+          let [turn, l, t] = fenFuncs.fromFen(line, width, height, isTurnZero, isEvenTimeline);
           boardFuncs.setTurn(this.rawBoard, l, t, turn);
         }
       }
     }
-    else {
+    else if(!currentBoard) {
       var res = '';
       var firstBoard = this.rawBoardHistory[0];
       var isTurnZero = boardFuncs.isTurnZero(firstBoard);
+      var isEvenTimeline = boardFuncs.isEvenTimeline(firstBoard);
       for(var l = 0;l < firstBoard.length;l++) {
         for(var t = 0;firstBoard[l] && t < firstBoard[l].length;t++) {
           if(firstBoard[l][t]) {
-            res += fenFuncs.toFen(firstBoard[l][t], l, t, isTurnZero) + '\n';
+            res += fenFuncs.toFen(firstBoard[l][t], l, t, isTurnZero, isEvenTimeline) + '\n';
+          }
+        }
+      }
+      return res;
+    }
+    else {
+      var res = '';
+      var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
+      var isEvenTimeline = boardFuncs.isEvenTimeline(this.rawBoard);
+      for(var l = 0;l < this.rawBoard.length;l++) {
+        for(var t = 0;this.rawBoard[l] && t < this.rawBoard[l].length;t++) {
+          if(this.rawBoard[l][t]) {
+            res += fenFuncs.toFen(this.rawBoard[l][t], l, t, isTurnZero, isEvenTimeline) + '\n';
           }
         }
       }

@@ -41,6 +41,7 @@ const variantDict = [
   ['Standard - Half Reflected', 'half_reflected'],
   ['Standard - Princess', 'princess'],
   ['Standard - Turn Zero', 'turn_zero'],
+  ['Standard - Two Timelines', 'two_timelines'],
   ['Standard - Reversed Royalty', 'reversed_royalty'],
   ['Custom', 'custom']
 ]
