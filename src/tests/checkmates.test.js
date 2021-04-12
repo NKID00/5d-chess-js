@@ -71,3 +71,21 @@ test('Test check but not checkmate', () => {
   expect(chess.inCheck).toBe(true);
   expect(chess.inCheckmate).toBe(false);
 });
+
+test('Test reversed royalty checkmates', () => {
+  let chess = new Chess();
+  chess.import(`
+[Board "Standard - Reversed Royalty"]
+[Size "8x8"]
+
+1. d4 / Nf6
+2. Bf4 / d5
+3. Bxc7 / RQxc7
+4. Nc3 / Bd7
+5. (0T5)Nc3>>(0T4)c5* / (0T5)Yc7>>(0T2)c4
+6. (-1T3)e3 / (-1T3)Ya4
+7. (-1T4)Nc3#
+  `);
+  expect(chess.inCheck).toBe(true);
+  expect(chess.inCheckmate).toBe(true);
+});
