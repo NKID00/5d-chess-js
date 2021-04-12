@@ -24,7 +24,12 @@ exports.checks = (board, actionNum, detectionOnly = false) => {
   for(var i = 0;i < moves.length;i++) {
     if(moves[i].length === 2 && boardFuncs.positionExists(tmpBoard, moves[i][1])) {
       var destPiece = tmpBoard[moves[i][1][0]][moves[i][1][1]][moves[i][1][2]][moves[i][1][3]];
-      if((Math.abs(destPiece) === 11 || Math.abs(destPiece) === 12) && Math.abs(destPiece) % 2 === actionNum % 2) {
+      if(
+        (
+          Math.abs(destPiece) === 11 || Math.abs(destPiece) === 12 // King
+          || Math.abs(destPiece) === 19 || Math.abs(destPiece) === 20 // Royal queen
+        ) && Math.abs(destPiece) % 2 === actionNum % 2
+      ) {
         if(detectionOnly) { return true; }
         res.push(moves[i]);
       }
