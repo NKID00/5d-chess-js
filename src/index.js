@@ -220,7 +220,7 @@ class Chess {
     else {
       var res = '';
       var firstBoard = this.rawBoardHistory[0];
-      var isTurnZero = firstBoard.length > 0 ? (firstBoard[0].length > 0 ? firstBoard[0][0] === null : false) : false;
+      var isTurnZero = boardFuncs.isTurnZero(firstBoard);
       for(var l = 0;l < firstBoard.length;l++) {
         for(var t = 0;firstBoard[l] && t < firstBoard[l].length;t++) {
           if(firstBoard[l][t]) {
@@ -267,7 +267,7 @@ class Chess {
     this.submit();
   }
   actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true) {
-    var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
     var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.board, this.rawPromotionPieces);
     if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
@@ -328,7 +328,7 @@ class Chess {
     boardFuncs.move(this.rawBoard, move);
   }
   moves(format = 'object', activeOnly = true, presentOnly = true, spatialOnly = false) {
-    var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
     if(!this.skipDetection) {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
@@ -434,7 +434,7 @@ class Chess {
     catch(err) { return false; }
   }
   checks(format = 'object') {
-    var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
     var checks = mateFuncs.checks(this.rawBoard, this.rawAction, false);
     var tmpBoard = boardFuncs.copy(this.rawBoard);
     mateFuncs.blankAction(tmpBoard, this.rawAction);
@@ -495,7 +495,7 @@ class Chess {
   }
   export(format = '5dpgn') {
     var board = this.rawBoard;
-    var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(board);
     if(format === 'raw') { return this.rawActionHistory; }
     if(format === 'json') { return JSON.stringify(this.rawActionHistory.map((e,i) => {
       return parseFuncs.fromAction(this.rawBoardHistory[i], i, e, isTurnZero);
@@ -563,7 +563,7 @@ class Chess {
   get moveBuffer() {
     var res = [];
     var board = this.rawBoard;
-    var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
     var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
     for(var i = 0;i < this.rawMoveBuffer.length;i++) {
       res.push(parseFuncs.fromMove(tmpBoard, this.rawMoveBuffer[i], isTurnZero));

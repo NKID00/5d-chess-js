@@ -91,7 +91,7 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   var res = '';
   var src = move[0];
   var dest = move[1];
-  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+  var isTurnZero = boardFuncs.isTurnZero(board);
   var moveObj = parseFuncs.fromMove(board, move, isTurnZero);
   var isSingleTimeline = board.length <= 1;
   var isTimelineTravel = src[0] !== dest[0];
@@ -193,7 +193,7 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPie
   moveStr = moveStr.replace(/\(>L\-?\d*\)/g, '');
   //Start move reconstruction
   var isJump = moveStr.includes('>');
-  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+  var isTurnZero = boardFuncs.isTurnZero(board);
   var piece = actionNum % 2 === 0 ? 2 : 1;
   if(isJump) {
     try {
