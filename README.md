@@ -226,6 +226,10 @@ These fields are implemented as a getter function. If getter functions are unsup
 **.hash**
 
   - **Return** - String of md5 hash of the full board data. Follows the proposed full state hashing in the 5DPGN specifications.
+  
+**.variants**
+
+  - **Return** - Array of objects indicating supported variants. Objects follow the format of `{ name: <full variant name>, shortName: <internal variant name> }`.
 
 **.checkmateTimeout**
 

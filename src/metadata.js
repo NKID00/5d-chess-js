@@ -67,3 +67,5 @@ exports.lookupVariantFull = (variantStr) => {
   }
   return 'Standard';
 }
+
+exports.variantDict = variantDict;

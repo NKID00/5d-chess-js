@@ -603,6 +603,14 @@ class Chess {
   get player() {
     return (this.rawAction % 2 === 0 ? 'white' : 'black');
   }
+  get variants() {
+    return metadataFuncs.variantDict.map(v => {
+      return {
+        name: v[0],
+        shortName: v[1]
+      };
+    });
+  }
 }
 
 module.exports = Chess;
