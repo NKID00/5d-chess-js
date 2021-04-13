@@ -1,4 +1,5 @@
 require('module-alias/register');
+const md5 = require('blueimp-md5');
 
 const actionFuncs = require('@local/action');
 const boardFuncs = require('@local/board');
@@ -238,10 +239,21 @@ class Chess {
       var res = '';
       var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
       var isEvenTimeline = boardFuncs.isEvenTimeline(this.rawBoard);
+      for(var l = this.rawBoard.length - 1;l > 0;l--) {
+        if(this.rawBoard[l] && l % 2 !== 0) {
+          for(var t = 0;t < this.rawBoard[l].length;t++) {
+            if(this.rawBoard[l][t]) {
+              res += fenFuncs.toFen(this.rawBoard[l][t], l, t, isTurnZero, isEvenTimeline) + '\n';
+            }
+          }
+        }
+      }
       for(var l = 0;l < this.rawBoard.length;l++) {
-        for(var t = 0;this.rawBoard[l] && t < this.rawBoard[l].length;t++) {
-          if(this.rawBoard[l][t]) {
-            res += fenFuncs.toFen(this.rawBoard[l][t], l, t, isTurnZero, isEvenTimeline) + '\n';
+        if(this.rawBoard[l] && l % 2 === 0) {
+          for(var t = 0;t < this.rawBoard[l].length;t++) {
+            if(this.rawBoard[l][t]) {
+              res += fenFuncs.toFen(this.rawBoard[l][t], l, t, isTurnZero, isEvenTimeline) + '\n';
+            }
           }
         }
       }
@@ -508,7 +520,7 @@ class Chess {
     return mateFuncs.stalemate(latestBoard, this.rawAction);
   }
   get hash() {
-    return hashFuncs.hash(this.rawBoard);
+    return md5(this.fen(null, true).replace(/\n/g,''));
   }
   export(format = '5dpgn') {
     var board = this.rawBoard;
