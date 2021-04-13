@@ -91,7 +91,8 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   var res = '';
   var src = move[0];
   var dest = move[1];
-  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+  var isTurnZero = boardFuncs.isTurnZero(board);
+  var isEvenTimeline = boardFuncs.isEvenTimeline(board);
   var moveObj = parseFuncs.fromMove(board, move, isTurnZero);
   var isSingleTimeline = board.length <= 1;
   var isTimelineTravel = src[0] !== dest[0];
@@ -131,7 +132,37 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
     }
   }
   var srcSP = `(${moveObj.start.timeline}T${moveObj.start.turn})`;
+  //Adjust the timeline field for even timelines
+  if(isEvenTimeline) {
+    if(moveObj.start.timeline < -1) {
+      srcSP = `(${moveObj.start.timeline + 1}T${moveObj.start.turn})`;
+    }
+    else if(moveObj.start.timeline === -1) {
+      srcSP = `(-0T${moveObj.start.turn})`;
+    }
+    else if(moveObj.start.timeline === 1) {
+      srcSP = `(+0T${moveObj.start.turn})`;
+    }
+    else {
+      srcSP = `(${moveObj.start.timeline - 1}T${moveObj.start.turn})`;
+    }
+  }
   var destSP = `(${moveObj.end.timeline}T${moveObj.end.turn})`;
+  //Adjust the timeline field for even timelines
+  if(isEvenTimeline) {
+    if(moveObj.end.timeline < -1) {
+      destSP = `(${moveObj.end.timeline + 1}T${moveObj.end.turn})`;
+    }
+    else if(moveObj.end.timeline === -1) {
+      destSP = `(-0T${moveObj.end.turn})`;
+    }
+    else if(moveObj.end.timeline === 1) {
+      destSP = `(+0T${moveObj.end.turn})`;
+    }
+    else {
+      destSP = `(${moveObj.end.timeline - 1}T${moveObj.end.turn})`;
+    }
+  }
   var srcPiece = board[src[0]][src[1]][src[2]][src[3]];
   var destPiece = board[dest[0]][dest[1]][dest[2]][dest[3]];
   var isCapturing = Math.abs(destPiece) !== 0;
@@ -193,7 +224,8 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPie
   moveStr = moveStr.replace(/\(>L\-?\d*\)/g, '');
   //Start move reconstruction
   var isJump = moveStr.includes('>');
-  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+  var isTurnZero = boardFuncs.isTurnZero(board);
+  var isEvenTimeline = boardFuncs.isEvenTimeline(board);
   var piece = actionNum % 2 === 0 ? 2 : 1;
   if(isJump) {
     try {
@@ -202,6 +234,21 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPie
       srcSP = srcSP.replace(/L/g,'');
       var srcSPArr = srcSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
       var srcL = Number(srcSPArr[1]);
+      //Adjust extracted timeline if in even timeline mode
+      if(isEvenTimeline) {
+        if(srcSPArr[1] === '-0') {
+          srcL = -1;
+        }
+        else if(srcSPArr[1] === '+0') {
+          srcL = 1;
+        }
+        else if(srcL < 0) {
+          srcL--;
+        }
+        else if(srcL > 0) {
+          srcL++;
+        }
+      }
       var srcT = Number(srcSPArr[2]);
       res[0][0] = Math.abs(srcL) * 2 + (srcL < 0 ? -1 : 0);
       res[0][1] = (srcT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
@@ -227,6 +274,21 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPie
       destSP = destSP.replace(/L/g,'');
       var destSPArr = destSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
       var destL = Number(destSPArr[1]);
+      //Adjust extracted timeline if in even timeline mode
+      if(isEvenTimeline) {
+        if(destSPArr[1] === '-0') {
+          destL = -1;
+        }
+        else if(destSPArr[1] === '+0') {
+          destL = 1;
+        }
+        else if(destL < 0) {
+          destL--;
+        }
+        else if(destL > 0) {
+          destL++;
+        }
+      }
       var destT = Number(destSPArr[2]);
       res[1][0] = Math.abs(destL) * 2 + (destL < 0 ? -1 : 0);
       res[1][1] = (destT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
@@ -246,6 +308,21 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPie
       srcSP = srcSP.replace(/L/g,'');
       var srcSPArr = srcSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
       var srcL = Number(srcSPArr[1]);
+      //Adjust extracted timeline if in even timeline mode
+      if(isEvenTimeline) {
+        if(srcSPArr[1] === '-0') {
+          srcL = -1;
+        }
+        else if(srcSPArr[1] === '+0') {
+          srcL = 1;
+        }
+        else if(srcL < 0) {
+          srcL--;
+        }
+        else if(srcL > 0) {
+          srcL++;
+        }
+      }
       var srcT = Number(srcSPArr[2]);
       res[0][0] = Math.abs(srcL) * 2 + (srcL < 0 ? -1 : 0);
       res[0][1] = (srcT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
