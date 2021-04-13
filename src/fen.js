@@ -2,7 +2,7 @@
 
     This module contains a few functions allowing the conversion from/to 5DFEN.
 
-    The FEN format is described in [fen.ebnf](../fen.ebnf).
+    The FEN format is described in [fen.ebnf](https://github.com/adri326/5dchess-notation/blob/master/fen.ebnf).
 */
 
 exports.TO_FEN = ['', 'p', 'P', 'b', 'B', 'n', 'N', 'r', 'R', 'q', 'Q', 'k', 'K', 's', 'S', 'w', 'W', 'c', 'C', 'y', 'Y'];
@@ -45,7 +45,7 @@ exports.OMMIT_UNMOVED = [
 /**
     Converts a raw turn (`turn`) into a 5DFEN board string.
 **/
-exports.toFen = (turnObj, l, t, isTurnZero = false) => {
+exports.toFen = (turnObj, l, t, isTurnZero = false, isEvenTimeline = false) => {
     let blanks = 0;
     let res = '';
     for (var row = turnObj.length - 1;row >= 0;row--) {
@@ -85,13 +85,23 @@ exports.toFen = (turnObj, l, t, isTurnZero = false) => {
     } else {
         l /= 2;
     }
-
-    if (l > 0) {
-        res += '+' + Math.floor(l);
-    } else if (l < 0) {
-        res += '-' + Math.floor(-l);
-    } else {
-        res += '0';
+    if(isEvenTimeline) {
+        if (l > 0) {
+            res += '+' + Math.floor(l - 1);
+        } else if (l < 0) {
+            res += '-' + Math.floor(-(l + 1));
+        } else {
+            res += '0';
+        }
+    }
+    else {
+        if (l > 0) {
+            res += '+' + Math.floor(l);
+        } else if (l < 0) {
+            res += '-' + Math.floor(-l);
+        } else {
+            res += '0';
+        }
     }
 
     res += ':';
@@ -110,7 +120,7 @@ exports.toFen = (turnObj, l, t, isTurnZero = false) => {
 /**
     Converts a 5DFEN board string into its corresponding internal board and position.
 **/
-exports.fromFen = (raw, width = 8, height = 8, isTurnZero = false) => {
+exports.fromFen = (raw, width = 8, height = 8, isTurnZero = false, isEvenTimeline = false) => {
     if (typeof raw !== 'string') {
         throw new Error("TypeError: expected argument `raw` to be of type `string`, got: " + typeof raw);
     }
@@ -161,6 +171,22 @@ exports.fromFen = (raw, width = 8, height = 8, isTurnZero = false) => {
         l = 0;
     } else {
         l = +split[1];
+    }
+    if(isEvenTimeline) {
+        if (split[1] === '-0') {
+            l = -1;
+        }
+        else if (split[1] === '+0') {
+            l = 1;
+        } else {
+            l = +split[1];
+            if(l < 0) {
+                l--;
+            }
+            else {
+                l++;
+            }
+        }
     }
 
     if (isNaN(l)) {

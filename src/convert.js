@@ -125,7 +125,7 @@ exports.action = (input, board = [], actionNum = 0, promotionPieces = null) => {
      - Single action as expressed in notation
   */
   var res = [];
-  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+  var isTurnZero = boardFuncs.isTurnZero(board);
   if(typeof input === 'string') {
     var tmp = null;
     try {
@@ -196,7 +196,7 @@ exports.move = (input, board = [], actionNum = 0, promotionPieces = null) => {
      - Single move as expressed in notation
   */
   var res = [];
-  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+  var isTurnZero = boardFuncs.isTurnZero(board);
   if(typeof input === 'string') {
     var tmp = null;
     try {
