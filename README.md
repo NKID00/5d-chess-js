@@ -69,6 +69,7 @@ Currently supported variants:
  - Half Reflected - This variant switches the black queen and black king (the string literal `half_reflected` is used internally).
  - Princess - This variant replaces the queen with a princess, a piece that only has rook + bishop movement (the string literal `princess` is used internally). Note the SAN piece equivalent is `S`.
  - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (the string literal `turn_zero` is used internally).
+ - Two Timelines - This variant switches to a even timeline start, with -0 and +0 timelines available from the start (the string literal `two_timelines` is used internally).
  - Reversed Royalty - This variant switches the roles of the queen and king: the queen becomes the royal queen, which is vulnerable to checks and the king becomes the common king, which is not vulnerable to checks (`reversed_royalty` is used internally). The royal queen is referred to with `Y` and the common king with `C`.
 
 ## Terminology
@@ -224,7 +225,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.hash**
 
-  - **Return** - String of md5 hash of the board data.
+  - **Return** - String of md5 hash of the full board data. Follows the proposed full state hashing in the 5DPGN specifications.
 
 **.checkmateTimeout**
 
