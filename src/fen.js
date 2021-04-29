@@ -37,9 +37,9 @@ exports.OMMIT_UNMOVED = [
     true, true,     //queen
     false, false,   //king
     true, true,     //princess
-    false, false,    //brawn
-    false, false,    //common king
-    false, false,    //royal queen
+    false, false,   //brawn
+    true, true,     //common king
+    true, true,     //royal queen
 ];
 
 /**
