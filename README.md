@@ -609,6 +609,6 @@ Also of note is this article from the American Bar Association (https://www.amer
 
 ## Copyright
 
-All source code is released under AGPL v3.0 (license can be found under the `LICENSE` file).
+All source code is released under AGPL v3.0 (license can be found under the LICENSE file).
 
-Any addition copyrightable material not covered under AGPL v3.0 is released under CC BY-SA.
+Any addition copyrightable material not covered under AGPL v3.0 is released under CC BY-SA v3.0.
