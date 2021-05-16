@@ -517,7 +517,7 @@ class Chess {
   }
   get inStalemate() {
     var latestBoard = this.rawBoardHistory[this.rawBoardHistory.length - 1];
-    return mateFuncs.stalemate(latestBoard, this.rawAction);
+    return mateFuncs.stalemate(latestBoard, this.rawAction, this.checkmateTimeout)[0];
   }
   get hash() {
     return md5(this.fen(null, true).replace(/\n/g,''));

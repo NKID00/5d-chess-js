@@ -112,10 +112,10 @@ exports.checkmate = (board, actionNum, maxTime = 60000) => {
     if((present() - start) > maxTime) { return [true, true]; }
     var currNode = moveTree[moveTreeIndex];
     if(currNode) {
-      var moves = boardFuncs.moves(currNode.board, actionNum, false, false);
+      var moves = boardFuncs.moves(currNode, actionNum, false, false);
       var tmpMoveTree = [];
       for(var i = 0;i < moves.length;i++) {
-        var tmpBoard = boardFuncs.copy(currNode.board);
+        var tmpBoard = boardFuncs.copy(currNode);
         boardFuncs.move(tmpBoard, moves[i]);
         var tmpChecks = this.checks(tmpBoard, actionNum);
         if(tmpChecks.length <= 0) { return [false, false]; }
@@ -151,9 +151,9 @@ exports.stalemate = (board, actionNum, maxTime = 60000) => {
     if((present() - start) > maxTime) { return [true, true]; }
     var currNode = moveTree[0];
     if(currNode) {
-      var moves = boardFuncs.moves(currNode.board, actionNum, false, false);
+      var moves = boardFuncs.moves(currNode, actionNum, false, false);
       for(var i = 0;i < moves.length;i++) {
-        var tmpBoard = boardFuncs.copy(currNode.board);
+        var tmpBoard = boardFuncs.copy(currNode);
         boardFuncs.move(tmpBoard, moves[i]);
         var inCheck = this.checks(tmpBoard, actionNum, true);
         if(!inCheck) {
@@ -161,7 +161,7 @@ exports.stalemate = (board, actionNum, maxTime = 60000) => {
           if(presentTimelines.length <= 0) {
             return [false, false];
           }
-          moveTree.splice(moveTreeIndex + 1, 0, tmpBoard);
+          moveTree.push(tmpBoard);
         }
       }
     }
