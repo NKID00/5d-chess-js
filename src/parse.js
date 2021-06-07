@@ -294,7 +294,7 @@ exports.toBoard = (boardObj) => {
 
 exports.fromBoard = (board, actionNum) => {
   var res = {};
-  var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+  var isTurnZero = boardFuncs.isTurnZero(board);
   res.action = Math.floor(actionNum/2) + 1;
   res.player = (actionNum % 2 === 0 ? 'white' : 'black');
   res.timelines = [];

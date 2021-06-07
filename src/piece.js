@@ -25,6 +25,18 @@ exports.toChar = (piece, displayPawn = false) => {
   if(Math.abs(piece) === 15 || Math.abs(piece) === 16) {
     return 'W';
   }
+  if(Math.abs(piece) === 17 || Math.abs(piece) === 18) {
+    return 'C';
+  }
+  if(Math.abs(piece) === 19 || Math.abs(piece) === 20) {
+    return 'Y';
+  }
+  if(Math.abs(piece) === 21 || Math.abs(piece) === 22) {
+    return 'U';
+  }
+  if(Math.abs(piece) === 23 || Math.abs(piece) === 24) {
+    return 'D';
+  }
   return '';
 }
 
@@ -52,6 +64,18 @@ exports.fromChar = (char, actionNum = 0) => {
   }
   if(char === 'W' || char === 'BR') {
     return (actionNum % 2 === 0 ? 16 : 15);
+  }
+  if(char === 'C' || char === 'CK') {
+    return (actionNum % 2 === 0 ? 18 : 17);
+  }
+  if(char === 'Y' || char === 'RQ') {
+    return (actionNum % 2 === 0 ? 20 : 19);
+  }
+  if(char === 'U') {
+    return (actionNum % 2 === 0 ? 22 : 21);
+  }
+  if(char === 'D') {
+    return (actionNum % 2 === 0 ? 24 : 23);
   }
   return (actionNum % 2 === 0 ? 2 : 1);
 }
@@ -114,7 +138,7 @@ exports.movePos = (piece) => {
       [-2,-1, 0, 0]
     ];
   }
-  if(Math.abs(piece) === 11 || Math.abs(piece) === 12) {
+  if(Math.abs(piece) === 11 || Math.abs(piece) === 12 || Math.abs(piece) === 17 || Math.abs(piece) === 18) {
     return [
       [ 0, 0, 0, 1],
       [ 0, 0, 0,-1],
@@ -261,7 +285,7 @@ exports.moveVecs = (piece) => {
       [-1, 0, 0, 0]
     ];
   }
-  if(Math.abs(piece) === 9 || Math.abs(piece) === 10) {
+  if(Math.abs(piece) === 9 || Math.abs(piece) === 10 || Math.abs(piece) === 19 || Math.abs(piece) === 20) {
     return [
       [ 0, 0, 0, 1],
       [ 0, 0, 0,-1],
@@ -404,6 +428,65 @@ exports.moveVecs = (piece) => {
       [-1,-1, 0, 0]
     ];
   }
+  if(Math.abs(piece) === 21 || Math.abs(piece) === 22) {
+    return [
+      [ 0, 1, 1, 1],
+      [ 0, 1, 1,-1],
+      [ 0, 1,-1, 1],
+      [ 0, 1,-1,-1],
+      [ 0,-1, 1, 1],
+      [ 0,-1, 1,-1],
+      [ 0,-1,-1, 1],
+      [ 0,-1,-1,-1],
+
+      [ 1, 0, 1, 1],
+      [ 1, 0, 1,-1],
+      [ 1, 0,-1, 1],
+      [ 1, 0,-1,-1],
+      [-1, 0, 1, 1],
+      [-1, 0, 1,-1],
+      [-1, 0,-1, 1],
+      [-1, 0,-1,-1],
+
+      [ 1, 1, 0, 1],
+      [ 1, 1, 0,-1],
+      [ 1,-1, 0, 1],
+      [ 1,-1, 0,-1],
+      [-1, 1, 0, 1],
+      [-1, 1, 0,-1],
+      [-1,-1, 0, 1],
+      [-1,-1, 0,-1],
+
+      [ 1, 1, 1, 0],
+      [ 1, 1,-1, 0],
+      [ 1,-1, 1, 0],
+      [ 1,-1,-1, 0],
+      [-1, 1, 1, 0],
+      [-1, 1,-1, 0],
+      [-1,-1, 1, 0],
+      [-1,-1,-1, 0],
+    ];
+  }
+  if(Math.abs(piece) === 23 || Math.abs(piece) === 24) {
+    return [
+      [ 1, 1, 1, 1],
+      [ 1, 1, 1,-1],
+      [ 1, 1,-1, 1],
+      [ 1, 1,-1,-1],
+      [ 1,-1, 1, 1],
+      [ 1,-1, 1,-1],
+      [ 1,-1,-1, 1],
+      [ 1,-1,-1,-1],
+      [-1, 1, 1, 1],
+      [-1, 1, 1,-1],
+      [-1, 1,-1, 1],
+      [-1, 1,-1,-1],
+      [-1,-1, 1, 1],
+      [-1,-1, 1,-1],
+      [-1,-1,-1, 1],
+      [-1,-1,-1,-1]
+    ];
+  }
   return [];
 }
 
@@ -416,8 +499,9 @@ exports.availablePromotionPieces = (board) => {
           var piece = Math.abs(board[l][t][r][f]);
           if(!res.includes(piece)) {
             if(
-              piece >= 3 && piece <= 10 || 
-              piece >= 13 && piece <= 14
+              piece >= 3 && piece <= 10 ||
+              piece >= 13 && piece <= 14 ||
+              piece >= 17 && piece <= 18
             ) {
               res.push(piece);
             }
@@ -427,29 +511,39 @@ exports.availablePromotionPieces = (board) => {
     }
   }
   //Order pieces in order of importance
-  //Works for now, since no builtin variant has both princess and queen in the same board
   //TODO: system to modify this.promotionPieces on index.js for builtin variants that need it
   return res.sort((a, b) => b - a);
 }
 
+exports.timelineMove = (sourceTimelineIndex, timelineMoveVector, isEvenTimeline = false) => {
+  var ret = 0;
+  if(sourceTimelineIndex % 2 === 0) {
+    ret = sourceTimelineIndex + (timelineMoveVector * 2);
+  }
+  else {
+    ret = sourceTimelineIndex - (timelineMoveVector * 2);
+  }
+  if(!isEvenTimeline && ret < 0) {
+    ret = (ret * -1) - 1;
+  }
+  if(isEvenTimeline && ret <= 0) {
+    ret = (ret * -1) + 1;
+  }
+  return ret;
+}
+
 exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
   var res = [];
+  var isEvenTimeline = boardFuncs.isEvenTimeline(board);
   if(boardFuncs.positionExists(board, src)) {
     var piece = board[src[0]][src[1]][src[2]][src[3]];
     if(Math.abs(piece) === 0) { return []; }
+    //Single square moves
     var movePos = this.movePos(piece);
     for(var i = 0;i < movePos.length;i++) {
       if(!spatialOnly || (spatialOnly && (movePos[i][0] === 0 && movePos[i][1] === 0))) {
         var currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] % 2 === 0) {
-          currMove[1][0] += movePos[i][0] * 2;
-        }
-        else {
-          currMove[1][0] -= movePos[i][0] * 2;
-        }
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+        currMove[1][0] = this.timelineMove(currMove[1][0], movePos[i][0], isEvenTimeline);
         currMove[1][1] += movePos[i][1] * 2;
         currMove[1][2] += movePos[i][2];
         currMove[1][3] += movePos[i][3];
@@ -461,21 +555,14 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
         }
       }
     }
+    //Vector moves
     var moveVecs = this.moveVecs(piece);
     for(var i = 0;i < moveVecs.length;i++) {
       if(!spatialOnly || (spatialOnly && (moveVecs[i][0] === 0 && moveVecs[i][1] === 0))) {
         var currMove = [src.slice(), src.slice()];
         var blocking = false;
         while(!blocking) {
-          if(currMove[1][0] % 2 === 0) {
-            currMove[1][0] += moveVecs[i][0] * 2;
-          }
-          else {
-            currMove[1][0] += moveVecs[i][0] * -2;
-          }
-          if(currMove[1][0] < 0) {
-            currMove[1][0] = (currMove[1][0] * -1) - 1;
-          }
+          currMove[1][0] = this.timelineMove(currMove[1][0], moveVecs[i][0], isEvenTimeline);
           currMove[1][1] += moveVecs[i][1] * 2;
           currMove[1][2] += moveVecs[i][2];
           currMove[1][3] += moveVecs[i][3];
@@ -491,7 +578,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
         }
       }
     }
-
+    //Black pawn/brawn moves
     if(Math.abs(piece) === 1 || Math.abs(piece) === 15) {
       //Black forward single square RF movement
       var currMove = [src.slice(), src.slice()];
@@ -629,7 +716,6 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]+1][currMove[1][3]];
             if(destPiece === 0) {
               if(currMove[1][2] === 0) {
-
                 if(!promotionPieces || promotionPieces.length <= 0) {
                   promotionPieces = this.availablePromotionPieces(board);
                 }
@@ -650,49 +736,27 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
       if(!spatialOnly) {
         //Black forward single square LT movement
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] % 2 === 0) {
-          currMove[1][0] += 2;
-        }
-        else {
-          currMove[1][0] -= 2;
-        }
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+        currMove[1][0] = this.timelineMove(currMove[1][0], 1, isEvenTimeline);
         if(boardFuncs.positionExists(board, currMove[1])) {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
           if(destPiece === 0) {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             //Black forward double square LT movement
-            currMove = [src.slice(), src.slice()];
-            if(currMove[1][0] % 2 === 0) {
-              currMove[1][0] += 4;
-            }
-            else {
-              currMove[1][0] -= 4;
-            }
-            if(currMove[1][0] < 0) {
-              currMove[1][0] = (currMove[1][0] * -1) - 1;
-            }
-            if(boardFuncs.positionExists(board, currMove[1])) {
-              var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-              if(destPiece === 0) {
-                res.push([currMove[0].slice(), currMove[1].slice()]);
+            if(piece === -1 || piece === -15) {
+              currMove = [src.slice(), src.slice()];
+              currMove[1][0] = this.timelineMove(currMove[1][0], 2, isEvenTimeline);
+              if(boardFuncs.positionExists(board, currMove[1])) {
+                var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
+                if(destPiece === 0) {
+                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                }
               }
             }
           }
         }
         //Black forward single square capture LT movement
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] % 2 === 0) {
-          currMove[1][0] += 2;
-        }
-        else {
-          currMove[1][0] -= 2;
-        }
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+        currMove[1][0] = this.timelineMove(currMove[1][0], 1, isEvenTimeline);
         currMove[1][1] += 2;
         if(boardFuncs.positionExists(board, currMove[1])) {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
@@ -701,15 +765,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
           }
         }
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] % 2 === 0) {
-          currMove[1][0] += 2;
-        }
-        else {
-          currMove[1][0] -= 2;
-        }
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+        currMove[1][0] = this.timelineMove(currMove[1][0], 1, isEvenTimeline);
         currMove[1][1] -= 2;
         if(boardFuncs.positionExists(board, currMove[1])) {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
@@ -719,6 +775,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
         }
       }
     }
+    //White pawn/brawn moves
     if(Math.abs(piece) === 2 || Math.abs(piece) === 16) {
       //White forward single square RF movement
       var currMove = [src.slice(), src.slice()];
@@ -856,7 +913,6 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
             destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]-1][currMove[1][3]];
             if(destPiece === 0) {
               if(currMove[1][2] === (board[currMove[0][0]][currMove[0][1]].length - 1)) {
-
                 if(!promotionPieces || promotionPieces.length <= 0) {
                   promotionPieces = this.availablePromotionPieces(board);
                 }
@@ -877,49 +933,27 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
       if(!spatialOnly) {
         //White forward single square LT movement
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] % 2 === 0) {
-          currMove[1][0] -= 2;
-        }
-        else {
-          currMove[1][0] += 2;
-        }
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+        currMove[1][0] = this.timelineMove(currMove[1][0], -1, isEvenTimeline);
         if(boardFuncs.positionExists(board, currMove[1])) {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
           if(destPiece === 0) {
             res.push([currMove[0].slice(), currMove[1].slice()]);
             //White forward double square LT movement
-            currMove = [src.slice(), src.slice()];
-            if(currMove[1][0] % 2 === 0) {
-              currMove[1][0] -= 4;
-            }
-            else {
-              currMove[1][0] += 4;
-            }
-            if(currMove[1][0] < 0) {
-              currMove[1][0] = (currMove[1][0] * -1) - 1;
-            }
-            if(boardFuncs.positionExists(board, currMove[1])) {
-              var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-              if(destPiece === 0) {
-                res.push([currMove[0].slice(), currMove[1].slice()]);
+            if(piece === -1 || piece === -15) {
+              currMove = [src.slice(), src.slice()];
+              currMove[1][0] = this.timelineMove(currMove[1][0], -2, isEvenTimeline);
+              if(boardFuncs.positionExists(board, currMove[1])) {
+                var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
+                if(destPiece === 0) {
+                  res.push([currMove[0].slice(), currMove[1].slice()]);
+                }
               }
             }
           }
         }
         //White forward single square capture LT movement
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] % 2 === 0) {
-          currMove[1][0] -= 2;
-        }
-        else {
-          currMove[1][0] += 2;
-        }
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+        currMove[1][0] = this.timelineMove(currMove[1][0], -1, isEvenTimeline);
         currMove[1][1] += 2;
         if(boardFuncs.positionExists(board, currMove[1])) {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
@@ -928,15 +962,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
           }
         }
         currMove = [src.slice(), src.slice()];
-        if(currMove[1][0] % 2 === 0) {
-          currMove[1][0] -= 2;
-        }
-        else {
-          currMove[1][0] += 2;
-        }
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = (currMove[1][0] * -1) - 1;
-        }
+        currMove[1][0] = this.timelineMove(currMove[1][0], -1, isEvenTimeline);
         currMove[1][1] -= 2;
         if(boardFuncs.positionExists(board, currMove[1])) {
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
@@ -962,24 +988,21 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
         if (src[0] % 2 === 0) {
           // White's timelines
           currMove = [src.slice(), [
-            src[0] + 2 * dl,
+            src[0],
             src[1] + 2 * dt,
             src[2] + dy,
             src[3] + dx
           ]];
+          currMove[1][0] = this.timelineMove(currMove[1][0], dl, isEvenTimeline);
         } else {
           // Black's timelines
           currMove = [src.slice(), [
-            src[0] - 2 * dl,
+            src[0],
             src[1] + 2 * dt,
             src[2] + dy,
             src[3] + dx
           ]];
-        }
-
-        // Wrap back to white's timelines
-        if(currMove[1][0] < 0) {
-          currMove[1][0] = -currMove[1][0] - 1;
+          currMove[1][0] = this.timelineMove(currMove[1][0], dl, isEvenTimeline);
         }
 
         // Verify the capture and yield the move
@@ -1001,12 +1024,14 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
             }
             else {
               // Can't promote
-              res.push([currMove[0], currMove[1]]);
+              res.push([currMove[0].slice(), currMove[1].slice()]);
             }
           }
         }
       }
     }
+    //Castling
+    //TODO: Fix and reformat castling to be flexible
     if(piece === -11 || piece === -12) {
       //Queenside Castling Movement
       currMove = [src.slice(), src.slice()];

@@ -69,6 +69,8 @@ Currently supported variants:
  - Half Reflected - This variant switches the black queen and black king (the string literal `half_reflected` is used internally).
  - Princess - This variant replaces the queen with a princess, a piece that only has rook + bishop movement (the string literal `princess` is used internally). Note the SAN piece equivalent is `S`.
  - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (the string literal `turn_zero` is used internally).
+ - Two Timelines - This variant switches to a even timeline start, with -0 and +0 timelines available from the start (the string literal `two_timelines` is used internally).
+ - Reversed Royalty - This variant switches the roles of the queen and king: the queen becomes the royal queen, which is vulnerable to checks and the king becomes the common king, which is not vulnerable to checks (`reversed_royalty` is used internally). The royal queen is referred to with `Y` and the common king with `C`.
 
 ## Terminology
 
@@ -92,84 +94,8 @@ For information on the old notation system see [here](./notation.old.md).
 
 ## FEN
 
-If you wish to have your own, custom variants, then you may format them using the included 5DFEN format.
+5D Chess JS uses the `5dfen` standard as defined [here](https://github.com/adri326/5dchess-notation#5dfen-and-custom-variants).
 Its grammar can be found at [fen.ebnf](https://github.com/adri326/5dchess-notation/blob/master/fen.ebnf).
-
-5DFEN lets you define custom variants and starting positions by specifying the initial boards' layout instead of giving it a "variant" metadata tag.
-The boards that emerge from previous board after a possible move are then described using this library's movement notation.
-
-A *board string* is the 5DFEN way of describing the state of an initial board.
-A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by colons (`:`).
-There should be no spaces, as to not confuse a board string with a regular header.
-
-The first field contains the board's pieces:
-- The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
-- Each row is a string of pieces - encoded using letters (optionally followed by a `+`) - and blanks - encoded using numbers.
-- A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
-- To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be followed
-by a `+`.
-
-This is the list of the available pieces that you may put in a 5DFEN board string:
-- `P/p` for [p]awn
-- `B/b` for [b]ishop
-- `R/r` for [r]ook
-- `N/n` for k[n]ight
-- `K/k` for [k]ing
-- `Q/q` for [q]ueen
-- ~~`U/u` for [u]nicorn~~ (not yet available)
-- ~~`D/d` for [d]ragon~~ (not yet available)
-- `S/s` for prince[s]s
-- ~~`W/w` for bra[w]n~~ (not yet available)
-- ~~`C/c` for [c]ommon king~~ (not yet available)
-- ~~`Q+/q+` for royal [q]ueen~~ (not yet available)
-
-Blanks are encoded using numbers:
-- If there is a one-piece blank, then it is encoded using `1`.
-- If there is a two-piece blank, then it is encoded using `2`.
-- If there is a ten-piece blank, then it is encoded using `10.
-- If there is a N-piece blank, then it is encoded by writing `N` out in base 10.
-
-If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
-- An unmoved white pawn is encoded as `P*`
-- An unmoved black king is encoded as `k*`
-
-If `+` and `*` need to be combined, then `+` comes first: `q+*`.
-
-The other three fields are:
-- Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
-- Turn, as displayed in-game, may be `0`, `1`, `2`, etc.
-- Player color, may be `w` for white and `b` for black
-
-#### Required metadata
-
-The following metadata fields are required to have within the headers of a game using 5DFEN:
-
-- `Board = "Custom"`, as to indicate that 5DFEN needs to be used
-- `Size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
-- `Puzzle = "Mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
-  as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
-
-#### 5DFEN Examples:
-
-This is how the standard position would be encoded:
-
-```fen
-[size "8x8"]
-[board "custom"]
-[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]
-```
-
-This is how `Rook Tactics I` would be encoded:
-
-```fen
-[size "5x5"]
-[board "custom"]
-[puzzle "mate-in-1"]
-[4k/5/5/5/K1R:0:1:w]
-
-1. Kb2 / Ke4
-2. Re1 / Kd3
-```
 
 ## API
 
@@ -225,15 +151,19 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.hash**
 
-  - **Return** - String of md5 hash of the board data.
+  - **Return** - String of MD5 hash of the full board data. Follows the proposed full state hashing in the 5DPGN specifications.
+
+**.variants**
+
+  - **Return** - Array of objects indicating supported variants. Objects follow the format of `{ name: <full variant name>, shortName: <internal variant name> }`. Either can be used for `variant` field.
 
 **.checkmateTimeout**
 
   - **Return** - Number indicating milliseconds for the max time the checkmate detection can run, this value is writable (Note: This is an actual internal variable and not a getter function). By default set to 1 minute.
-  
+
 **.skipDetection**
 
-  - **Return** - Boolean indicating whether to skip validation and checkmate detection, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false. Primarily used for engine purposes (to reduce CPU waste).
+  - **Return** - Boolean indicating whether to skip validation and checkmate detection, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false. Primarily used for engine purposes (to reduce CPU usage).
 
 ### Functions
 
@@ -304,21 +234,21 @@ Returns number indicating if object is equal, useful for consistent sorting. Non
 
   - input1 - First value to compare. See below for valid inputs per type.
   - input2 - Second value to compare. See below for valid inputs per type.
-  - type = *[Optional]* Defaults to `"board"`. Indicates input type.
+  - type - *[Optional]* Defaults to `"board"`. Indicates input type.
 
     Valid types are:
 
     - `"board"` - When using this type, input can be a 4D array (raw board format), `Board` object, or JSON string of either.
     - `"move"` - When using this type, input can be a raw move, `Move` object, JSON string of either, `5dpgn` string, or notation string *(depreciated)*.
 
-**.action(action, )**
+**.action(action)**
 
 Plays an action as the current player and submits the move. Will modify internal state and will throw errors.
 
   - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
   - **Return** - Nothing.
 
-**.actionable(action, )**
+**.actionable(action)**
 
 Check if an action is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
@@ -331,9 +261,9 @@ Generate all possible submittable actions. Does not modify internal state, but w
 
 **Warning! Due to the complexity of 5D chess, performance may severely suffer if the full board is large enough. Calling this function with more than 3 present timelines is not advised.**
 
-  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return. 
-    
-    Valid formats are: 
+  - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
+
+    Valid formats are:
     - `"object"`
     - `"json"`
     - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
@@ -354,7 +284,7 @@ Generate all opponent moves that can capture the king (assuming a null move on a
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
 
-    Valid formats are: 
+    Valid formats are:
     - `"object"`
     - `"json"`
     - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
@@ -371,7 +301,7 @@ Plays an move as the current player. Will modify internal state and will throw e
   - move - The move to play as the current player. Can be a notation string, `Move` object, or JSON string of a `Move` object.
   - **Return** - Nothing.
 
-**.moveable(move, )**
+**.moveable(move)**
 
 Check if a move is playable as the current player and can submit. Does not modify internal state and will not throw errors.
 
@@ -386,7 +316,7 @@ Generate all possible moves. Does not modify internal state, but will throw erro
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
 
-    Valid formats are: 
+    Valid formats are:
     - `"object"`
     - `"json"`
     - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
@@ -431,14 +361,12 @@ Passes the turn as the current player and submits. Will modify internal state an
 
 **Warning! This is primarily used for bot and engine purposes. In the regular game, you cannot pass turns!**
 
-  - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), `Action` object, JSON string of `Action` object, array of `Move` objects, or JSON string of an array of `Move` objects.
   - **Return** - Nothing.
 
-**.passable(action, )**
+**.passable()**
 
 Check if current player can pass and can submit. Does not modify internal state and will not throw errors.
 
-  - action - The action (list of moves) to play as the current player. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Move` objects, or JSON string of an array of `Move` objects.
   - **Return** - Boolean representing if the action is playable and submittable.
 
 **.export([format])**
@@ -447,7 +375,7 @@ Return exportable data as a list of all actions the both players have played dur
 
   - format - *[Optional]* Defaults to `"object"`, this argument selects the format of the data to return.
 
-    Valid formats are: 
+    Valid formats are:
     - `"object"`
     - `"json"`
     - `"5dpgn"` (Note: when using `"5dpgn"`, additional tokens can be used to control output format. Example: `"5dpgn_active_superphysical"`)
@@ -607,7 +535,6 @@ Also of note is this article from the American Bar Association (https://www.amer
 
 ## Copyright
 
-All source code is released under AGPL v3.0 (license can be found under the `LICENSE` file).
+All source code is released under AGPL v3.0 (license can be found under the LICENSE file).
 
-Any addition copyrightable material not covered under AGPL v3.0 is released under CC BY-SA.
-
+Any addition copyrightable material not covered under AGPL v3.0 is released under CC BY-SA v3.0.

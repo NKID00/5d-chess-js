@@ -24,7 +24,12 @@ exports.checks = (board, actionNum, detectionOnly = false) => {
   for(var i = 0;i < moves.length;i++) {
     if(moves[i].length === 2 && boardFuncs.positionExists(tmpBoard, moves[i][1])) {
       var destPiece = tmpBoard[moves[i][1][0]][moves[i][1][1]][moves[i][1][2]][moves[i][1][3]];
-      if((Math.abs(destPiece) === 11 || Math.abs(destPiece) === 12) && Math.abs(destPiece) % 2 === actionNum % 2) {
+      if(
+        (
+          Math.abs(destPiece) === 11 || Math.abs(destPiece) === 12 // King
+          || Math.abs(destPiece) === 19 || Math.abs(destPiece) === 20 // Royal queen
+        ) && Math.abs(destPiece) % 2 === actionNum % 2
+      ) {
         if(detectionOnly) { return true; }
         res.push(moves[i]);
       }
@@ -35,7 +40,8 @@ exports.checks = (board, actionNum, detectionOnly = false) => {
 }
 
 exports.checkmate = (board, actionNum, maxTime = 60000) => {
-  if(this.stalemate(board, actionNum)) {
+  var inCheck = this.checks(board, actionNum, true);
+  if(!inCheck) {
     return [false, false];
   }
   var start = present();
@@ -45,8 +51,8 @@ exports.checkmate = (board, actionNum, maxTime = 60000) => {
   for(var i = 0;i < moves.length;i++) {
     var tmpBoard = boardFuncs.copy(board);
     boardFuncs.move(tmpBoard, moves[i]);
-    var tmpChecks = this.checks(tmpBoard, actionNum);
-    if(tmpChecks.length <= 0) { return [false, false]; }
+    var inCheck = this.checks(tmpBoard, actionNum, true);
+    if(!inCheck) { return [false, false]; }
     if((present() - start) > maxTime) { return [true, true]; }
   }
   // Fast pass looking for moves solving checks using DFS
@@ -106,10 +112,10 @@ exports.checkmate = (board, actionNum, maxTime = 60000) => {
     if((present() - start) > maxTime) { return [true, true]; }
     var currNode = moveTree[moveTreeIndex];
     if(currNode) {
-      var moves = boardFuncs.moves(currNode.board, actionNum, false, false);
+      var moves = boardFuncs.moves(currNode, actionNum, false, false);
       var tmpMoveTree = [];
       for(var i = 0;i < moves.length;i++) {
-        var tmpBoard = boardFuncs.copy(currNode.board);
+        var tmpBoard = boardFuncs.copy(currNode);
         boardFuncs.move(tmpBoard, moves[i]);
         var tmpChecks = this.checks(tmpBoard, actionNum);
         if(tmpChecks.length <= 0) { return [false, false]; }
@@ -131,20 +137,37 @@ exports.checkmate = (board, actionNum, maxTime = 60000) => {
   return [true, false];
 }
 
-exports.stalemate = (board, actionNum) => {
+exports.stalemate = (board, actionNum, maxTime = 60000) => {
+  //TODO: Add stalemate testing
   var inCheck = this.checks(board, actionNum, true);
   if(inCheck) {
-    return false;
+    return [false, false];
   }
-  var presentTimelines = boardFuncs.present(board, actionNum);
-  if(presentTimelines.length <= 0) {
-    return false;
+  var start = present();
+
+  var moveTree = [board];
+  //DFS search for valid action
+  while(moveTree.length > 0) {
+    if((present() - start) > maxTime) { return [true, true]; }
+    var currNode = moveTree[0];
+    if(currNode) {
+      var moves = boardFuncs.moves(currNode, actionNum, false, false);
+      for(var i = 0;i < moves.length;i++) {
+        var tmpBoard = boardFuncs.copy(currNode);
+        boardFuncs.move(tmpBoard, moves[i]);
+        var inCheck = this.checks(tmpBoard, actionNum, true);
+        if(!inCheck) {
+          var presentTimelines = boardFuncs.present(tmpBoard, actionNum);
+          if(presentTimelines.length <= 0) {
+            return [false, false];
+          }
+          moveTree.push(tmpBoard);
+        }
+      }
+    }
+    moveTree.splice(0, 1);
   }
-  var moves = boardFuncs.moves(board, actionNum, true, true);
-  if(moves.length > 0) {
-    return false;
-  }
-  return moves.length <= 0 && !inCheck && presentTimelines.length > 0;
+  return [true, false];
 }
 
 exports.moveCompare = (move1, move2) => {
