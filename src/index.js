@@ -1,4 +1,5 @@
 require('module-alias/register');
+const md5 = require('blueimp-md5');
 
 const actionFuncs = require('@local/action');
 const boardFuncs = require('@local/board');
@@ -136,6 +137,8 @@ class Chess {
     this.rawPromotionPieces = pieceFuncs.availablePromotionPieces(this.rawBoard);
   }
   import(input, variant) {
+    //Reset everything to "Standard" first
+    this.reset('standard');
     if(typeof input === 'string') {
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
       if (typeof this.metadata.board === 'string') {
@@ -195,8 +198,8 @@ class Chess {
     }
     catch(err) { return false; }
   }
-  fen(input) {
-    if(typeof input !== 'undefined') {
+  fen(input, currentBoard = false) {
+    if(typeof input === 'string') {
       // Read width and height
       let width = 8;
       let height = 8;
@@ -208,23 +211,49 @@ class Chess {
         height = +match[2];
       }
       var isTurnZero = input.includes('0:b]') || input.includes('0:w]');
+      var isEvenTimeline = input.includes(':+0:') || input.includes(':-0:');
       // Look for 5DFEN strings and parse them
       for(var line of input.replace(/\r\n/g, '\n').replace(/\s*;\s*/g, '\n').split('\n')) {
         line = line.trim();
         if(line.startsWith('[') && line.endsWith(']') && !/\s/.exec(line)) {
-          let [turn, l, t] = fenFuncs.fromFen(line, width, height, isTurnZero);
+          let [turn, l, t] = fenFuncs.fromFen(line, width, height, isTurnZero, isEvenTimeline);
           boardFuncs.setTurn(this.rawBoard, l, t, turn);
         }
       }
     }
-    else {
+    else if(!currentBoard) {
       var res = '';
       var firstBoard = this.rawBoardHistory[0];
-      var isTurnZero = firstBoard.length > 0 ? (firstBoard[0].length > 0 ? firstBoard[0][0] === null : false) : false;
+      var isTurnZero = boardFuncs.isTurnZero(firstBoard);
+      var isEvenTimeline = boardFuncs.isEvenTimeline(firstBoard);
       for(var l = 0;l < firstBoard.length;l++) {
         for(var t = 0;firstBoard[l] && t < firstBoard[l].length;t++) {
           if(firstBoard[l][t]) {
-            res += fenFuncs.toFen(firstBoard[l][t], l, t, isTurnZero) + '\n';
+            res += fenFuncs.toFen(firstBoard[l][t], l, t, isTurnZero, isEvenTimeline) + '\n';
+          }
+        }
+      }
+      return res;
+    }
+    else {
+      var res = '';
+      var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
+      var isEvenTimeline = boardFuncs.isEvenTimeline(this.rawBoard);
+      for(var l = this.rawBoard.length - 1;l > 0;l--) {
+        if(this.rawBoard[l] && l % 2 !== 0) {
+          for(var t = 0;t < this.rawBoard[l].length;t++) {
+            if(this.rawBoard[l][t]) {
+              res += fenFuncs.toFen(this.rawBoard[l][t], l, t, isTurnZero, isEvenTimeline) + '\n';
+            }
+          }
+        }
+      }
+      for(var l = 0;l < this.rawBoard.length;l++) {
+        if(this.rawBoard[l] && l % 2 === 0) {
+          for(var t = 0;t < this.rawBoard[l].length;t++) {
+            if(this.rawBoard[l][t]) {
+              res += fenFuncs.toFen(this.rawBoard[l][t], l, t, isTurnZero, isEvenTimeline) + '\n';
+            }
           }
         }
       }
@@ -267,7 +296,7 @@ class Chess {
     this.submit();
   }
   actions(format = 'object', activeOnly = true, presentOnly = true, newActiveTimelinesOnly = true) {
-    var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
     var actions = actionFuncs.actions(this.rawBoard, this.rawAction, activeOnly, presentOnly, newActiveTimelinesOnly, this.metadata.board, this.rawPromotionPieces);
     if(format === 'raw') { return actions; }
     if(format.includes('notation')) {
@@ -328,7 +357,7 @@ class Chess {
     boardFuncs.move(this.rawBoard, move);
   }
   moves(format = 'object', activeOnly = true, presentOnly = true, spatialOnly = false) {
-    var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
     if(!this.skipDetection) {
       if(this.inCheckmate) { return []; }
       if(this.inStalemate) { return []; }
@@ -400,8 +429,8 @@ class Chess {
     if(!this.skipDetection) {
       if(this.inCheckmate) { return false; }
       if(this.inStalemate) { return false; }
-      if(this.inCheck) { return false; }
     }
+    if(this.inCheck) { return false; }
     return boardFuncs.present(this.rawBoard, this.rawAction).length <= 0;
   }
   undo() {
@@ -434,7 +463,7 @@ class Chess {
     catch(err) { return false; }
   }
   checks(format = 'object') {
-    var isTurnZero = this.rawBoard.length > 0 ? (this.rawBoard[0].length > 0 ? this.rawBoard[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
     var checks = mateFuncs.checks(this.rawBoard, this.rawAction, false);
     var tmpBoard = boardFuncs.copy(this.rawBoard);
     mateFuncs.blankAction(tmpBoard, this.rawAction);
@@ -488,14 +517,14 @@ class Chess {
   }
   get inStalemate() {
     var latestBoard = this.rawBoardHistory[this.rawBoardHistory.length - 1];
-    return mateFuncs.stalemate(latestBoard, this.rawAction);
+    return mateFuncs.stalemate(latestBoard, this.rawAction, this.checkmateTimeout)[0];
   }
   get hash() {
-    return hashFuncs.hash(this.rawBoard);
+    return md5(this.fen(null, true).replace(/\n/g,''));
   }
   export(format = '5dpgn') {
     var board = this.rawBoard;
-    var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(board);
     if(format === 'raw') { return this.rawActionHistory; }
     if(format === 'json') { return JSON.stringify(this.rawActionHistory.map((e,i) => {
       return parseFuncs.fromAction(this.rawBoardHistory[i], i, e, isTurnZero);
@@ -563,7 +592,7 @@ class Chess {
   get moveBuffer() {
     var res = [];
     var board = this.rawBoard;
-    var isTurnZero = board.length > 0 ? (board[0].length > 0 ? board[0][0] === null : false) : false;
+    var isTurnZero = boardFuncs.isTurnZero(this.rawBoard);
     var tmpBoard = boardFuncs.copy(this.rawBoardHistory[this.rawBoardHistory.length - 1]);
     for(var i = 0;i < this.rawMoveBuffer.length;i++) {
       res.push(parseFuncs.fromMove(tmpBoard, this.rawMoveBuffer[i], isTurnZero));
@@ -573,6 +602,14 @@ class Chess {
   }
   get player() {
     return (this.rawAction % 2 === 0 ? 'white' : 'black');
+  }
+  get variants() {
+    return metadataFuncs.variantDict.map(v => {
+      return {
+        name: v[0],
+        shortName: v[1]
+      };
+    });
   }
 }
 

@@ -39,6 +39,18 @@ exports.init = (variant) => {
       [-7,-5,-3,-13,-11,-3,-5,-7]
     ]]];
   }
+  else if(variant === 'reversed_royalty') {
+    return [[[
+      [-8,-6,-4,-20,-18,-4,-6,-8],
+      [-2,-2,-2,-2,-2,-2,-2,-2],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [ 0, 0, 0, 0, 0, 0, 0, 0],
+      [-1,-1,-1,-1,-1,-1,-1,-1],
+      [-7,-5,-3,-19,-17,-3,-5,-7]
+    ]]];
+  }
   else if(variant === 'turn_zero') {
     return [[
       null,
@@ -63,6 +75,31 @@ exports.init = (variant) => {
         [-7,-5,-3,-9,-11,-3,-5,-7]
       ]
     ]];
+  }
+  else if(variant === 'two_timelines') {
+    return [
+      null,
+      [[
+        [-8,-6,-4,-10,-12,-4,-6,-8],
+        [-2,-2,-2,-2,-2,-2,-2,-2],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [-1,-1,-1,-1,-1,-1,-1,-1],
+        [-7,-5,-3,-9,-11,-3,-5,-7]
+      ]],
+      [[
+        [-8,-6,-4,-10,-12,-4,-6,-8],
+        [-2,-2,-2,-2,-2,-2,-2,-2],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [ 0, 0, 0, 0, 0, 0, 0, 0],
+        [-1,-1,-1,-1,-1,-1,-1,-1],
+        [-7,-5,-3,-9,-11,-3,-5,-7]
+      ]]
+    ];
   }
   else if (variant === 'custom') {
     return [];
@@ -418,7 +455,39 @@ exports.positionIsAttacked = (board, pos, player, singleBoard = false) => {
   return false;
 }
 
+exports.isTurnZero = (board) => {
+  //Checking if turn exists at the zero index
+  var hasZeroIndex = false;
+  if(Array.isArray(board) && board.length > 0) {
+    for(var l = 0;l < board.length;l++) {
+      if(Array.isArray(board[l]) && board[l].length > 0) {
+        if(Array.isArray(board[l][0])) {
+          hasZeroIndex = true;
+        }
+      }
+    }
+    //Inverted, since turn zero is the lack of a zero index turn (i.e. first turn starts from the index of 1)
+    return !hasZeroIndex;
+  }
+  //Default to false
+  return false;
+}
+
+exports.isEvenTimeline = (board) => {
+  //Checking if the zero index timeline exists
+  if(Array.isArray(board) && board.length > 0) {
+    if(Array.isArray(board[0])) {
+      //Not even timelines if a timeline exists at the zero index
+      return false;
+    }
+    return true;
+  }
+  //Default to false
+  return false;
+}
+
 exports.compare = (board1, board2) => {
+  //Note: accidentally used t instead of l for timeline and l instead of t for turn
   if(Array.isArray(board1)) {
     if(Array.isArray(board2) && board1.length === board2.length) {
       for(var t = 0;t < board1.length;t++) {

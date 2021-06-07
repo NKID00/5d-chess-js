@@ -2,7 +2,6 @@ const boardFuncs = require('@local/board');
 const mateFuncs = require('@local/mate');
 const pieceFuncs = require('@local/piece');
 
-// TODO: un-hardcode 8
 exports.sanCoord = (input) => {
   var res = {
     str: '',
@@ -232,7 +231,7 @@ exports.moveNotation = (board, actionNum, input, minimize = false) => {
         if(input.length === 3) {
           res.str += 'e.p.';
         }
-        if(mateFuncs.stalemate(moddedBoard, res.action + 1)) {
+        if(mateFuncs.stalemate(moddedBoard, res.action + 1)[0]) {
           res.str += '=';
         }
         else if(mateFuncs.checkmate(moddedBoard, res.action + 1)[0]) {
