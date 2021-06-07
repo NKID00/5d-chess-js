@@ -5,7 +5,7 @@
     The FEN format is described in [fen.ebnf](https://github.com/adri326/5dchess-notation/blob/master/fen.ebnf).
 */
 
-exports.TO_FEN = ['', 'p', 'P', 'b', 'B', 'n', 'N', 'r', 'R', 'q', 'Q', 'k', 'K', 's', 'S', 'w', 'W', 'c', 'C', 'y', 'Y'];
+exports.TO_FEN = ['', 'p', 'P', 'b', 'B', 'n', 'N', 'r', 'R', 'q', 'Q', 'k', 'K', 's', 'S', 'w', 'W', 'c', 'C', 'y', 'Y', 'u', 'U', 'd', 'D'];
 exports.FROM_FEN = {
     'p': 1,
     'P': 2,
@@ -27,6 +27,10 @@ exports.FROM_FEN = {
     'C': 18,
     'y': 19,
     'Y': 20,
+    'u': 21,
+    'U': 22,
+    'd': 23,
+    'D': 24,
 };
 exports.OMMIT_UNMOVED = [
     true,           //none
@@ -40,6 +44,8 @@ exports.OMMIT_UNMOVED = [
     false, false,   //brawn
     true, true,     //common king
     true, true,     //royal queen
+    true, true,     //unicorn
+    true, true,     //dragon
 ];
 
 /**
