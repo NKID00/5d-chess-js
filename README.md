@@ -94,82 +94,8 @@ For information on the old notation system see [here](./notation.old.md).
 
 ## FEN
 
-If you wish to have your own, custom variants, then you may format them using the included 5DFEN format.
+5D Chess JS uses the `5dfen` standard as defined [here](https://github.com/adri326/5dchess-notation#5dfen-and-custom-variants).
 Its grammar can be found at [fen.ebnf](https://github.com/adri326/5dchess-notation/blob/master/fen.ebnf).
-
-5DFEN lets you define custom variants and starting positions by specifying the initial boards' layout instead of giving it a "variant" metadata tag.
-The boards that emerge from previous board after a possible move are then described using this library's movement notation.
-
-A *board string* is the 5DFEN way of describing the state of an initial board.
-A board string is enclosed within square brackets (`[]`) and is made of several fields, separated by colons (`:`).
-There should be no spaces, as to not confuse a board string with a regular header.
-
-The first field contains the board's pieces:
-- The different rows of the board are separated by slashes (`/`), the rows are read from top to bottom.
-- Each row is a string of pieces - encoded using letters (optionally preceded by a `+`) - and blanks - encoded using numbers.
-- A white piece is encoded as an uppercase letter and a black piece as a lowercase letter.
-- To extend the number of pieces that can be encoded without sacrificing readability, a piece's corresponding letter may be preceded
-by a `+`.
-
-This is the list of the available pieces that you may put in a 5DFEN board string:
-- `P/p` for [p]awn
-- `B/b` for [b]ishop
-- `R/r` for [r]ook
-- `N/n` for k[n]ight
-- `K/k` for [k]ing
-- `Q/q` for [q]ueen
-- ~~`U/u` for [u]nicorn~~ (not yet available)
-- ~~`D/d` for [d]ragon~~ (not yet available)
-- `S/s` for prince[s]s
-- `W/w` for bra[w]n
-- `C/c` for [c]ommon king
-- `Y/y` for ro[y]al queen
-
-Blanks are encoded using numbers:
-- If there is a one-piece blank, then it is encoded using `1`.
-- If there is a two-piece blank, then it is encoded using `2`.
-- If there is a ten-piece blank, then it is encoded using `10.
-- If there is a N-piece blank, then it is encoded by writing `N` out in base 10.
-
-If a piece is sensitive to having been moved already or not and hasn't moved yet, then it must be followed by an asterisk (`*`):
-- An unmoved white pawn is encoded as `P*`
-- An unmoved black king is encoded as `k*`
-
-The other three fields are:
-- Timeline, may be `-1`, `-0`, `0`, `+0`, `+1`, etc.
-- Turn, as displayed in-game, may be `0`, `1`, `2`, etc.
-- Player color, may be `w` for white and `b` for black
-
-#### Required metadata
-
-The following metadata fields are required to have within the headers of a game using 5DFEN:
-
-- `Board = "Custom"`, as to indicate that 5DFEN needs to be used
-- `Size = "WxH"`, with `W` the width of the boards and `H` the height of the boards
-- `Puzzle = "Mate-in-N"`, with `N` the number of actions to be made by the current player. This is only required if the position is meant
-  as a puzzle and where a mate in N is possible. Other kinds of puzzles may also be encoded in a similar way.
-
-#### 5DFEN Examples:
-
-This is how the standard position would be encoded:
-
-```fen
-[size "8x8"]
-[board "custom"]
-[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:0:1:w]
-```
-
-This is how `Rook Tactics I` would be encoded:
-
-```fen
-[size "5x5"]
-[board "custom"]
-[puzzle "mate-in-1"]
-[4k/5/5/5/K1R:0:1:w]
-
-1. Kb2 / Ke4
-2. Re1 / Kd3
-```
 
 ## API
 
@@ -225,11 +151,11 @@ These fields are implemented as a getter function. If getter functions are unsup
 
 **.hash**
 
-  - **Return** - String of md5 hash of the full board data. Follows the proposed full state hashing in the 5DPGN specifications.
-  
+  - **Return** - String of MD5 hash of the full board data. Follows the proposed full state hashing in the 5DPGN specifications.
+
 **.variants**
 
-  - **Return** - Array of objects indicating supported variants. Objects follow the format of `{ name: <full variant name>, shortName: <internal variant name> }`.
+  - **Return** - Array of objects indicating supported variants. Objects follow the format of `{ name: <full variant name>, shortName: <internal variant name> }`. Either can be used for `variant` field.
 
 **.checkmateTimeout**
 

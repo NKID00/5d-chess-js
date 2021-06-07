@@ -10,7 +10,7 @@
       "url": "https://gitlab.com/adri326"
     }
   ],
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.",
   "main": "./dist/5d-chess.js",
   "browser": {
