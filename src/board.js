@@ -364,70 +364,59 @@ exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, spatia
   return res;
 }
 
-
-exports.positionIsAttacked = (board, pos, player, singleBoard = false) => {
+//Only single board, not full board (does not check across time / timelines)
+//Used for castling
+exports.positionIsAttacked = (board, pos, player) => {
   var toCheck = [];
   if(this.positionExists(board, pos)) {
     var movePos = pieceFuncs.movePos(6); //Knight movement
-    var moveVec = pieceFuncs.movePos(10); //Queen movement
+    var moveVecs = pieceFuncs.moveVecs(10); //Queen movement
     for(var i = 0;i < movePos.length;i++) {
       var newSrc = pos.slice();
-      if(!singleBoard) {
-        if(newSrc[0] === 0 || newSrc[0] % 2 === 0) {
-          newSrc[0] += movePos[i][0] * 2;
-          if(newSrc[0] < 0) {
-            newSrc[0] = (newSrc[0] * -1) + 1;
+      if(
+        movePos[i][0] === 0 &&
+        movePos[i][1] === 0 &&
+        (movePos[i][2] !== 0 || movePos[i][3] !== 0)
+      ) {
+        newSrc[2] += movePos[i][2];
+        newSrc[3] += movePos[i][3];
+        if(this.positionExists(board, newSrc)) {
+          var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
+          if(destPiece !== 0 && Math.abs(destPiece) % 2 !== player) {
+            toCheck.push(newSrc.slice());
           }
-        }
-        else {
-          newSrc[0] -= movePos[i][0] * 2;
-          if(newSrc[0] < 0) {
-            newSrc[0] = (newSrc[0] * -1) - 1;
-          }
-        }
-        newSrc[1] += movePos[i][1] * 2;
-      }
-      newSrc[2] += movePos[i][2];
-      newSrc[3] += movePos[i][3];
-      if(this.positionExists(board, newSrc)) {
-        var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
-        if(Math.abs(destPiece) % 2 !== player) {
-          toCheck.push(newSrc.slice());
         }
       }
     }
-    for(var i = 0;i < moveVec.length;i++) {
-      var newSrc = pos.slice();
-      var blocking = false;
-      while(!blocking) {
-        if(newSrc[0] === 0 || newSrc[0] % 2 === 0) {
-          newSrc[0] += moveVec[i][0] * 2;
-          if(newSrc[0] < 0) {
-            newSrc[0] = (newSrc[0] * -1) + 1;
+    for(var i = 0;i < moveVecs.length;i++) {
+      if(
+        moveVecs[i][0] === 0 &&
+        moveVecs[i][1] === 0 &&
+        (moveVecs[i][2] !== 0 || moveVecs[i][3] !== 0)
+      ) {
+        var newSrc = pos.slice();
+        var blocking = false;
+        while(!blocking) {
+          newSrc[2] += moveVecs[i][2];
+          newSrc[3] += moveVecs[i][3];
+          if(this.positionExists(board, newSrc)) {
+            var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
+            if(destPiece !== 0) {
+              blocking = true;
+              if(Math.abs(destPiece) % 2 !== player) {
+                toCheck.push(newSrc.slice());
+              }
+            }
+          }
+          else {
+            blocking = true;
           }
         }
-        else {
-          newSrc[0] -= moveVec[i][0] * 2;
-          if(newSrc[0] < 0) {
-            newSrc[0] = (newSrc[0] * -1) - 1;
-          }
-        }
-        newSrc[1] += moveVec[i][1] * 2;
-        newSrc[2] += moveVec[i][2];
-        newSrc[3] += moveVec[i][3];
-        if(this.positionExists(board, newSrc)) {
-          var destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
-          if(Math.abs(destPiece) % 2 !== player) {
-            toCheck.push(newSrc.slice());
-          }
-          else if(Math.abs(destPiece) % 2 === player) { blocking = true; }
-        }
-        else { blocking = true; }
       }
     }
     //Generate moves from toCheck Arr
     for(var i = 0;i < toCheck.length;i++) {
-      var moves = pieceFuncs.moves(board, toCheck[i]);
+      var moves = pieceFuncs.moves(board, toCheck[i], true);
       for(var j = 0;j < moves.length;j++) {
         if(this.positionIsLatest(board, moves[j][0])) {
           if (
@@ -481,6 +470,31 @@ exports.isEvenTimeline = (board) => {
       return false;
     }
     return true;
+  }
+  //Default to false
+  return false;
+}
+
+exports.isNormalCastling = (board) => {
+  //Check if initial boards (not full board) can use O-O notation format
+  var hasNonNormalCastling = false;
+  var isTurnZero = this.isTurnZero(board);
+  if(Array.isArray(board) && board.length > 0) {
+    for(var l = 0;l < board.length;l++) {
+      if(Array.isArray(board[l]) && board[l].length > 0) {
+        var currTurn = board[l][0];
+        if(isTurnZero) {
+          currTurn = board[l][2];
+        }
+        if(Array.isArray(currTurn)) {
+          if(currTurn[0][4] !== -12 || currTurn[7][4] !== -11) {
+            hasNonNormalCastling = true;
+          }
+        }
+      }
+    }
+    //Inverted, since normal castling means no initial board contains non-normal castling
+    return !hasNonNormalCastling;
   }
   //Default to false
   return false;
