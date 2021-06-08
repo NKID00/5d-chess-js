@@ -1031,7 +1031,6 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
       }
     }
     //Castling
-    //TODO: Fix and reformat castling to be flexible
     if(piece === -11 || piece === -12) {
       //Queenside Castling Movement
       if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2)) {
