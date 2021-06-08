@@ -1034,104 +1034,107 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
     //TODO: Fix and reformat castling to be flexible
     if(piece === -11 || piece === -12) {
       //Queenside Castling Movement
-      currMove = [src.slice(), src.slice()];
-      if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2, true)) {
-        if(boardFuncs.positionExists(board,[
+      if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2)) {
+        var leftOnePos = [
           src[0],
           src[1],
           src[2],
           src[3] - 1,
-        ]) &&
-        board[src[0]][src[1]][src[2]][src[3] - 1] === 0) {
-          if(!boardFuncs.positionIsAttacked(board,[
+        ];
+        if(
+          boardFuncs.positionExists(board, leftOnePos) &&
+          board[leftOnePos[0]][leftOnePos[1]][leftOnePos[2]][leftOnePos[3]] === 0 &&
+          !boardFuncs.positionIsAttacked(board, leftOnePos, Math.abs(piece) % 2)
+        ) {
+          var leftTwoPos = [
             src[0],
             src[1],
             src[2],
-            src[3] - 1,
-          ], Math.abs(piece) % 2, true)) {
-            if(boardFuncs.positionExists(board,[
-              src[0],
-              src[1],
-              src[2],
-              src[3] - 2,
-            ]) &&
-            board[src[0]][src[1]][src[2]][src[3] - 2] === 0) {
-              if(!boardFuncs.positionIsAttacked(board,[
-                src[0],
-                src[1],
-                src[2],
-                src[3] - 2,
-              ], Math.abs(piece) % 2, true)) {
-                if(boardFuncs.positionExists(board,[
-                  src[0],
-                  src[1],
-                  src[2],
-                  src[3] - 3,
-                ]) &&
-                board[src[0]][src[1]][src[2]][src[3] - 3] === 0) {
-                  if(boardFuncs.positionExists(board,[
-                    src[0],
-                    src[1],
-                    src[2],
-                    src[3] - 4,
-                  ]) &&
-                  (board[src[0]][src[1]][src[2]][src[3] - 4] === -7 || board[src[0]][src[1]][src[2]][src[3] - 4] === -8)) {
+            src[3] - 2,
+          ];
+          if(
+            boardFuncs.positionExists(board, leftTwoPos) &&
+            board[leftTwoPos[0]][leftTwoPos[1]][leftTwoPos[2]][leftTwoPos[3]] === 0 &&
+            !boardFuncs.positionIsAttacked(board, leftTwoPos, Math.abs(piece) % 2)
+          ) {
+            //Search left for rook
+            var done = false;
+            var currPos = leftTwoPos.slice();
+            currPos[3]--;
+            while(!done) {
+              if(boardFuncs.positionExists(board, currPos)) {
+                var currPiece = board[currPos[0]][currPos[1]][currPos[2]][currPos[3]];
+                if(currPiece === -7 || currPiece === -8) {
+                  if(Math.abs(piece) % 2 === Math.abs(currPiece) % 2) {
                     res.push([
-                      [src[0], src[1], src[2], src[3]],
-                      [src[0], src[1], src[2], src[3] - 2],
-                      [src[0], src[1], src[2], src[3] - 4],
-                      [src[0], src[1], src[2], src[3] - 1]
+                      src.slice(),
+                      leftTwoPos.slice(),
+                      currPos.slice(),
+                      leftOnePos.slice()
                     ]);
                   }
                 }
+                else if(currPiece !== 0) {
+                  done = true;
+                }
               }
+              else {
+                done = true;
+              }
+              currPos[3]--;
             }
           }
         }
       }
       //Kingside Castling Movement
-      if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2, true)) {
-        if(boardFuncs.positionExists(board,[
+      if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2)) {
+        var rightOnePos = [
           src[0],
           src[1],
           src[2],
           src[3] + 1,
-        ]) &&
-        board[src[0]][src[1]][src[2]][src[3] + 1] === 0) {
-          if(!boardFuncs.positionIsAttacked(board,[
+        ];
+        if(
+          boardFuncs.positionExists(board, rightOnePos) &&
+          board[rightOnePos[0]][rightOnePos[1]][rightOnePos[2]][rightOnePos[3]] === 0 &&
+          !boardFuncs.positionIsAttacked(board, rightOnePos, Math.abs(piece) % 2)
+        ) {
+          var rightTwoPos = [
             src[0],
             src[1],
             src[2],
-            src[3] + 1,
-          ], Math.abs(piece) % 2, true)) {
-            if(boardFuncs.positionExists(board,[
-              src[0],
-              src[1],
-              src[2],
-              src[3] + 2,
-            ]) &&
-            board[src[0]][src[1]][src[2]][src[3] + 2] === 0) {
-              if(!boardFuncs.positionIsAttacked(board,[
-                src[0],
-                src[1],
-                src[2],
-                src[3] + 2,
-              ], Math.abs(piece) % 2, true)) {
-                if(boardFuncs.positionExists(board,[
-                  src[0],
-                  src[1],
-                  src[2],
-                  src[3] + 3,
-                ]) &&
-                (board[src[0]][src[1]][src[2]][src[3] + 3] === -7 || board[src[0]][src[1]][src[2]][src[3] + 3] === -8)) {
-                  res.push([
-                    [src[0], src[1], src[2], src[3]],
-                    [src[0], src[1], src[2], src[3] + 2],
-                    [src[0], src[1], src[2], src[3] + 3],
-                    [src[0], src[1], src[2], src[3] + 1]
-                  ]);
+            src[3] + 2,
+          ];
+          if(
+            boardFuncs.positionExists(board, rightTwoPos) &&
+            board[rightTwoPos[0]][rightTwoPos[1]][rightTwoPos[2]][rightTwoPos[3]] === 0 &&
+            !boardFuncs.positionIsAttacked(board, rightTwoPos, Math.abs(piece) % 2)
+          ) {
+            //Search right for rook
+            var done = false;
+            var currPos = rightTwoPos.slice();
+            currPos[3]++;
+            while(!done) {
+              if(boardFuncs.positionExists(board, currPos)) {
+                var currPiece = board[currPos[0]][currPos[1]][currPos[2]][currPos[3]];
+                if(currPiece === -7 || currPiece === -8) {
+                  if(Math.abs(piece) % 2 === Math.abs(currPiece) % 2) {
+                    res.push([
+                      src.slice(),
+                      rightTwoPos.slice(),
+                      currPos.slice(),
+                      rightOnePos.slice()
+                    ]);
+                  }
+                }
+                else if(currPiece !== 0) {
+                  done = true;
                 }
               }
+              else {
+                done = true;
+              }
+              currPos[3]++;
             }
           }
         }
