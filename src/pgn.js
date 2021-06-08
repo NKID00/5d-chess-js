@@ -97,7 +97,8 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
   var isSingleTimeline = board.length <= 1;
   var isTimelineTravel = src[0] !== dest[0];
   var isTimeTravel = src[1] !== dest[1];
-  var isCastling = move.length === 4;
+  //Checking if castling needs to be in O-O format
+  var isNormalCastling = move.length === 4 && boardFuncs.isNormalCastling(board);
   var isEnPassant = move.length === 3;
   var isPromotion = dest.length >= 5;
   var isJump = (isTimelineTravel || isTimeTravel);
@@ -185,7 +186,7 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
     if(superPhysicalToken || !isSingleTimeline) {
       res += srcSP;
     }
-    if(isCastling) {
+    if(isNormalCastling) {
       res += 'O-O';
       if(Math.abs(move[2][3] - move[3][3]) > 2) {
         //Queenside
@@ -340,7 +341,6 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPie
     res[1][0] = res[0][0];
     res[1][1] = res[0][1];
     if(moveStr.includes('O-O')) {
-      //TODO rework castling for non 8x8 boards
       if(actionNum % 2 !== 0) {
         res[0][2] = 7;
         res[1][2] = 7;
