@@ -532,7 +532,7 @@ exports.timelineMove = (sourceTimelineIndex, timelineMoveVector, isEvenTimeline 
   return ret;
 }
 
-exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
+exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCastling = false) => {
   var res = [];
   var isEvenTimeline = boardFuncs.isEvenTimeline(board);
   if(boardFuncs.positionExists(board, src)) {
@@ -1031,10 +1031,9 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
       }
     }
     //Castling
-    //TODO: Fix and reformat castling to be flexible
-    if(piece === -11 || piece === -12) {
+    if((piece === -11 || piece === -12) && !skipCastling) {
       //Queenside Castling Movement
-      if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2)) {
+      if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2, true)) {
         var leftOnePos = [
           src[0],
           src[1],
@@ -1044,7 +1043,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
         if(
           boardFuncs.positionExists(board, leftOnePos) &&
           board[leftOnePos[0]][leftOnePos[1]][leftOnePos[2]][leftOnePos[3]] === 0 &&
-          !boardFuncs.positionIsAttacked(board, leftOnePos, Math.abs(piece) % 2)
+          !boardFuncs.positionIsAttacked(board, leftOnePos, Math.abs(piece) % 2, true)
         ) {
           var leftTwoPos = [
             src[0],
@@ -1055,7 +1054,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
           if(
             boardFuncs.positionExists(board, leftTwoPos) &&
             board[leftTwoPos[0]][leftTwoPos[1]][leftTwoPos[2]][leftTwoPos[3]] === 0 &&
-            !boardFuncs.positionIsAttacked(board, leftTwoPos, Math.abs(piece) % 2)
+            !boardFuncs.positionIsAttacked(board, leftTwoPos, Math.abs(piece) % 2, true)
           ) {
             //Search left for rook
             var done = false;
@@ -1087,7 +1086,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
         }
       }
       //Kingside Castling Movement
-      if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2)) {
+      if(!boardFuncs.positionIsAttacked(board, src, Math.abs(piece) % 2, true)) {
         var rightOnePos = [
           src[0],
           src[1],
@@ -1097,7 +1096,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
         if(
           boardFuncs.positionExists(board, rightOnePos) &&
           board[rightOnePos[0]][rightOnePos[1]][rightOnePos[2]][rightOnePos[3]] === 0 &&
-          !boardFuncs.positionIsAttacked(board, rightOnePos, Math.abs(piece) % 2)
+          !boardFuncs.positionIsAttacked(board, rightOnePos, Math.abs(piece) % 2, true)
         ) {
           var rightTwoPos = [
             src[0],
@@ -1108,7 +1107,7 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null) => {
           if(
             boardFuncs.positionExists(board, rightTwoPos) &&
             board[rightTwoPos[0]][rightTwoPos[1]][rightTwoPos[2]][rightTwoPos[3]] === 0 &&
-            !boardFuncs.positionIsAttacked(board, rightTwoPos, Math.abs(piece) % 2)
+            !boardFuncs.positionIsAttacked(board, rightTwoPos, Math.abs(piece) % 2, true)
           ) {
             //Search right for rook
             var done = false;
