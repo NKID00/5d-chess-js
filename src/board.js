@@ -364,9 +364,7 @@ exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, spatia
   return res;
 }
 
-//Only single board, not full board (does not check across time / timelines)
-//Used for castling
-exports.positionIsAttacked = (board, pos, player) => {
+exports.positionIsAttacked = (board, pos, player, spatialOnly = false) => {
   var toCheck = [];
   if(this.positionExists(board, pos)) {
     var movePos = pieceFuncs.movePos(6); //Knight movement
@@ -374,10 +372,11 @@ exports.positionIsAttacked = (board, pos, player) => {
     for(var i = 0;i < movePos.length;i++) {
       var newSrc = pos.slice();
       if(
-        movePos[i][0] === 0 &&
-        movePos[i][1] === 0 &&
-        (movePos[i][2] !== 0 || movePos[i][3] !== 0)
+        (spatialOnly && movePos[i][0] === 0 && movePos[i][1] === 0) ||
+        !spatialOnly
       ) {
+        newSrc[0] += movePos[i][0];
+        newSrc[1] += movePos[i][1];
         newSrc[2] += movePos[i][2];
         newSrc[3] += movePos[i][3];
         if(this.positionExists(board, newSrc)) {
@@ -390,13 +389,14 @@ exports.positionIsAttacked = (board, pos, player) => {
     }
     for(var i = 0;i < moveVecs.length;i++) {
       if(
-        moveVecs[i][0] === 0 &&
-        moveVecs[i][1] === 0 &&
-        (moveVecs[i][2] !== 0 || moveVecs[i][3] !== 0)
+        (spatialOnly && moveVecs[i][0] === 0 && moveVecs[i][1] === 0) ||
+        !spatialOnly
       ) {
         var newSrc = pos.slice();
         var blocking = false;
         while(!blocking) {
+          newSrc[0] += moveVecs[i][0];
+          newSrc[1] += moveVecs[i][1];
           newSrc[2] += moveVecs[i][2];
           newSrc[3] += moveVecs[i][3];
           if(this.positionExists(board, newSrc)) {
@@ -416,7 +416,7 @@ exports.positionIsAttacked = (board, pos, player) => {
     }
     //Generate moves from toCheck Arr
     for(var i = 0;i < toCheck.length;i++) {
-      var moves = pieceFuncs.moves(board, toCheck[i], true);
+      var moves = pieceFuncs.moves(board, toCheck[i], spatialOnly, [9,10], true);
       for(var j = 0;j < moves.length;j++) {
         if(this.positionIsLatest(board, moves[j][0])) {
           if (
