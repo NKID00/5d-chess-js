@@ -773,6 +773,31 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCa
             res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
+        //Black en passant capture LT movement
+        else if(destPiece === 0) {
+          currMove[2] = currMove[1].slice();
+          currMove[2][0] = this.timelineMove(currMove[2][0], 1, isEvenTimeline);
+          currMove[2][1]--;
+          if(boardFuncs.positionExists(board, currMove[2])) {
+            destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
+            if(destPiece === -2 || destPiece === -16) {
+              currMove[2][0] = this.timelineMove(currMove[2][0], -2, isEvenTimeline);
+              if(boardFuncs.positionExists(board, currMove[2])) {
+                destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
+                if(destPiece === 0) {
+                  currMove[2][1]++;
+                  if(boardFuncs.positionExists(board, currMove[2])) {
+                    destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
+                    if(destPiece === 2 || destPiece === 16) {
+                      currMove[2] = currMove[0].slice();
+                      res.push([currMove[0].slice(), currMove[1].slice(), currMove[2].slice()]);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
     //White pawn/brawn moves
@@ -968,6 +993,31 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCa
           var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
           if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
             res.push([currMove[0].slice(), currMove[1].slice()]);
+          }
+          //White en passant capture LT movement
+          else if(destPiece === 0) {
+            currMove[2] = currMove[1].slice();
+            currMove[2][0] = this.timelineMove(currMove[2][0], -1, isEvenTimeline);
+            currMove[2][1]--;
+            if(boardFuncs.positionExists(board, currMove[2])) {
+              destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
+              if(destPiece === -1 || destPiece === -15) {
+                currMove[2][0] = this.timelineMove(currMove[2][0], 2, isEvenTimeline);
+                if(boardFuncs.positionExists(board, currMove[2])) {
+                  destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
+                  if(destPiece === 0) {
+                    currMove[2][1]++;
+                    if(boardFuncs.positionExists(board, currMove[2])) {
+                      destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
+                      if(destPiece === 1 || destPiece === 15) {
+                        currMove[2] = currMove[0].slice();
+                        res.push([currMove[0].slice(), currMove[1].slice(), currMove[2].slice()]);
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
