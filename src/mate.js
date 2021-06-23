@@ -3,6 +3,7 @@ const boardFuncs = require('@local/board');
 const turnFuncs = require('@local/turn');
 
 exports.blankAction = (board, actionNum) => {
+  //Pass on all present boards
   var presentTimelines = boardFuncs.present(board, actionNum);
   for(var i = 0;i < presentTimelines.length;i++) {
     if(board[presentTimelines[i]]) {
@@ -14,6 +15,27 @@ exports.blankAction = (board, actionNum) => {
       }
     }
   }
+}
+
+exports.findLegalAction = (board, actionNum, maxTime = 60000) => {
+  var startTime = present();
+  //Using penteract's hypercuboid search algorithm found here: https://github.com/penteract/cwmtt/blob/master/Game/Chess/TimeTravel/FastCheckmate.lhs
+  var tmpBoard = boardFuncs.copy(board);
+  /*
+    Possible hypercuboid data:
+     - Spatial only moves:
+        - type: 'spatial'
+        - move: move array
+     - Arriving:
+        - type: 'arrive'
+        - move: move array
+     - Leaving:
+        - type: 'leave'
+        - pos: [L,T,R,F]
+     - Pass:
+        - type: 'pass'
+        - pos: [L,T]
+  */
 }
 
 exports.checks = (board, actionNum, detectionOnly = false) => {
