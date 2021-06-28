@@ -42,11 +42,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/alexbay218/5d-chess-js.git"
+    "url": "git+https://gitlab.com/5d-chess/5d-chess-js.git"
   },
   "license": "AGPL-3.0-or-later",
   "bugs": {
-    "url": "https://gitlab.com/alexbay218/5d-chess-js/issues"
+    "url": "https://gitlab.com/5d-chess/5d-chess-js/issues"
   },
   "keywords": [
     "chess",
@@ -58,7 +58,7 @@
     "node",
     "browser"
   ],
-  "homepage": "https://gitlab.com/alexbay218/5d-chess-js#readme",
+  "homepage": "https://gitlab.com/5d-chess/5d-chess-js#readme",
   "dependencies": {
     "blueimp-md5": "^2.18.0",
     "module-alias": "^2.2.2",
