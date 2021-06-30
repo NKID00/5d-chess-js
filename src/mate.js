@@ -17,7 +17,7 @@ exports.blankAction = (board, actionNum) => {
   }
 }
 
-exports.findLegalAction = (board, actionNum, maxTime = 60000) => {
+exports.hasLegalAction = (board, actionNum, maxTime = 60000) => {
   var startTime = present();
   //Using penteract's hypercuboid search algorithm found here: https://github.com/penteract/cwmtt/blob/master/Game/Chess/TimeTravel/FastCheckmate.lhs
   var tmpBoard = boardFuncs.copy(board);

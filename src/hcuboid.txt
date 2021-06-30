@@ -18,6 +18,9 @@ We first build a structure containing all possibilities (and also compute some
 info about the state that doesn't change across possibilities), then search that
 structure for legal movesets.
 
+> fastLegalMoveSets :: State -> [MoveSet]
+> fastLegalMoveSets s = uncurry search (buildHC s)
+
 To search a space, we take a point from the space, then look for reasons that
 point might not be a legal moveset. If there aren't any points, we can stop.
 If we don't find any reasons it's illegal, it must be a legal moveset, so it
