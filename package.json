@@ -25,7 +25,8 @@
     "bench": "node --max_old_space_size=8192 ./src/bench.js",
     "profile": "clinic flame -- node --max_old_space_size=8192 ./src/bench.js",
     "prepare": "npm run-script build",
-    "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js"
+    "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js",
+    "docs-start": "docsify serve ./docs"
   },
   "aliasify": {
     "aliases": {
@@ -69,6 +70,7 @@
     "browserify": "^16.5.2",
     "clinic": "^7.0.0",
     "deep-equal": "^2.0.3",
+    "docsify-cli": "^4.4.3",
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
     "tinyify": "^3.0.0",
