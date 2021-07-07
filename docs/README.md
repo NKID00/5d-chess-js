@@ -1,6 +1,6 @@
 # Overview
 
-Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.
+Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in 5DPGN / 5DFEN support.
 
 # Demo
 

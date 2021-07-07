@@ -4,7 +4,7 @@
 [![NPM version](https://img.shields.io/npm/v/5d-chess-js.svg)](https://www.npmjs.com/package/5d-chess-js)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://gitlab.com/5d-chess/5d-chess-js)
 
-Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.
+Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in 5DPGN / 5DFEN support.
 
 ## Documentation
 
