@@ -346,7 +346,7 @@ Check if the current internal state allows undoing. Does not modify internal sta
 
 Passes the turn as the current player and submits. Will modify internal state and will throw errors.
 
-### Warning! This is primarily used for bot and engine purposes. In the regular game, you cannot pass turns!
+**Warning! This is primarily used for bot and engine purposes. In the regular game, you cannot pass turns!**
 
   - **Return** - Nothing.
 
@@ -480,19 +480,32 @@ This library had a previous first attempt. It had a more traditional object-base
 This version uses a 4D array to store the full board state, with numbers as the piece indicator.
 
 Here is the format: `board[timeline][turn][rank][file] = piece`
-  - Timeline: starts from 0 (0, +1, +2, +3 => 0, 2, 4, 6 and -1, -2, -3 => 1, 3, 5)
-  - Turn: starts from 0 (white player: 1, 2, 3 => 0, 2, 4 and black player: 1, 2, 3 => 1, 3, 5)
-  - Rank: starts from 0 (1, 2, 3 => 0, 1, 2)
-  - File: start from 0 (a, b, c => 0, 1, 2)
+  - Timeline: starts from 0 `(0, +1, +2, +3 => 0, 2, 4, 6 and -1, -2, -3 => 1, 3, 5)`
+  - Turn: starts from 0 `(white player: 1, 2, 3 => 0, 2, 4 and black player: 1, 2, 3 => 1, 3, 5)`
+  - Rank: starts from 0 `(1, 2, 3 => 0, 1, 2)`
+  - File: start from 0 `(a, b, c => 0, 1, 2)`
   - Piece (negative value indicates piece is unmoved):
-    - Pawn: (white player: 2 and black player: 1)
-    - Bishop: (white player: 4 and black player: 3)
-    - Knight: (white player: 6 and black player: 5)
-    - Rook: (white player: 8 and black player: 7)
-    - Queen: (white player: 10 and black player: 9)
-    - King: (white player: 12 and black player: 11)
-    - Princess: (white player: 14 and black player: 13)
-
+    - Pawn:
+      - Black player: 1
+      - White player: 2
+    - Bishop:
+      - Black player: 3
+      - White player: 4
+    - Knight:
+      - Black player: 5
+      - White player: 6
+    - Rook:
+      - Black player: 7
+      - White player: 8
+    - Queen:
+      - Black player: 9
+      - White player: 10
+    - King:
+      - Black player: 11
+      - White player: 12
+    - Princess:
+      - Black player: 13
+      - White player: 14
 
 # FAQ
 
