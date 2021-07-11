@@ -1,242 +1,247 @@
 const boardFuncs = require('@local/board');
 
 exports.toChar = (piece, displayPawn = false) => {
-  if(displayPawn && (Math.abs(piece) === 1 || Math.abs(piece) === 2)) {
-    return 'P';
+  const absPiece = Math.abs(piece);
+
+  if (displayPawn && (Math.abs(absPiece) === 1 || Math.abs(absPiece) === 2)) return 'P';
+
+  switch (absPiece) {
+    case 3:
+    case 4:
+      return 'B';
+    case 5:
+    case 6:
+      return 'N';
+    case 7:
+    case 8:
+      return 'R';
+    case 9:
+    case 10:
+      return 'Q';
+    case 11:
+    case 12:
+      return 'K';
+    case 13:
+    case 14:
+      return 'S';
+    case 15:
+    case 16:
+      return 'W';
+    case 17:
+    case 18:
+      return 'C';
+    case 19:
+    case 20:
+      return 'Y';
+    case 21:
+    case 22:
+      return 'U';
+    case 23:
+    case 24:
+      return 'D';
+    default:
+      return ''
   }
-  if(Math.abs(piece) === 3 || Math.abs(piece) === 4) {
-    return 'B';
-  }
-  if(Math.abs(piece) === 5 || Math.abs(piece) === 6) {
-    return 'N';
-  }
-  if(Math.abs(piece) === 7 || Math.abs(piece) === 8) {
-    return 'R';
-  }
-  if(Math.abs(piece) === 9 || Math.abs(piece) === 10) {
-    return 'Q';
-  }
-  if(Math.abs(piece) === 11 || Math.abs(piece) === 12) {
-    return 'K';
-  }
-  if(Math.abs(piece) === 13 || Math.abs(piece) === 14) {
-    return 'S';
-  }
-  if(Math.abs(piece) === 15 || Math.abs(piece) === 16) {
-    return 'W';
-  }
-  if(Math.abs(piece) === 17 || Math.abs(piece) === 18) {
-    return 'C';
-  }
-  if(Math.abs(piece) === 19 || Math.abs(piece) === 20) {
-    return 'Y';
-  }
-  if(Math.abs(piece) === 21 || Math.abs(piece) === 22) {
-    return 'U';
-  }
-  if(Math.abs(piece) === 23 || Math.abs(piece) === 24) {
-    return 'D';
-  }
-  return '';
 }
 
 exports.fromChar = (char, actionNum = 0) => {
-  if(char === 'P') {
-    return (actionNum % 2 === 0 ? 2 : 1);
+  switch (char) {
+    case 'P':
+      return actionNum % 2 === 0 ? 2 : 1;
+    case 'B':
+      return actionNum % 2 === 0 ? 4 : 3;
+    case 'N':
+      return actionNum % 2 === 0 ? 6 : 5;
+    case 'R':
+      return actionNum % 2 === 0 ? 8 : 7;
+    case 'Q':
+      return actionNum % 2 === 0 ? 10 : 9;
+    case 'K':
+      return actionNum % 2 === 0 ? 12 : 11;
+    case 'S':
+      return actionNum % 2 === 0 ? 14 : 13;
+    case 'W':
+    case 'BR':
+      return actionNum % 2 === 0 ? 16 : 15;
+    case 'C':
+    case 'CK':
+      return actionNum % 2 === 0 ? 18 : 17;
+    case 'Y':
+    case 'RQ':
+      return actionNum % 2 === 0 ? 20 : 19;
+    case 'U':
+      return actionNum % 2 === 0 ? 22 : 21;
+    case 'D':
+      return actionNum % 2 === 0 ? 24 : 23;
+    default:
+      return actionNum % 2 === 0 ? 2 : 1;
   }
-  if(char === 'B') {
-    return (actionNum % 2 === 0 ? 4 : 3);
-  }
-  if(char === 'N') {
-    return (actionNum % 2 === 0 ? 6 : 5);
-  }
-  if(char === 'R') {
-    return (actionNum % 2 === 0 ? 8 : 7);
-  }
-  if(char === 'Q') {
-    return (actionNum % 2 === 0 ? 10 : 9);
-  }
-  if(char === 'K') {
-    return (actionNum % 2 === 0 ? 12 : 11);
-  }
-  if(char === 'S') {
-    return (actionNum % 2 === 0 ? 14 : 13);
-  }
-  if(char === 'W' || char === 'BR') {
-    return (actionNum % 2 === 0 ? 16 : 15);
-  }
-  if(char === 'C' || char === 'CK') {
-    return (actionNum % 2 === 0 ? 18 : 17);
-  }
-  if(char === 'Y' || char === 'RQ') {
-    return (actionNum % 2 === 0 ? 20 : 19);
-  }
-  if(char === 'U') {
-    return (actionNum % 2 === 0 ? 22 : 21);
-  }
-  if(char === 'D') {
-    return (actionNum % 2 === 0 ? 24 : 23);
-  }
-  return (actionNum % 2 === 0 ? 2 : 1);
 }
 
 exports.movePos = (piece) => {
-  if(Math.abs(piece) === 5 || Math.abs(piece) === 6) {
-    return [
-      [ 0, 0, 1, 2],
-      [ 0, 0, 1,-2],
-      [ 0, 0,-1, 2],
-      [ 0, 0,-1,-2],
-      [ 0, 0, 2, 1],
-      [ 0, 0, 2,-1],
-      [ 0, 0,-2, 1],
-      [ 0, 0,-2,-1],
+  const absPiece = Math.abs(piece);
 
-      [ 0, 1, 0, 2],
-      [ 0, 1, 0,-2],
-      [ 0,-1, 0, 2],
-      [ 0,-1, 0,-2],
-      [ 0, 2, 0, 1],
-      [ 0, 2, 0,-1],
-      [ 0,-2, 0, 1],
-      [ 0,-2, 0,-1],
+  switch (absPiece) {
+    case 5:
+    case 6:
+      return [
+        [0, 0, 1, 2],
+        [0, 0, 1, -2],
+        [0, 0, -1, 2],
+        [0, 0, -1, -2],
+        [0, 0, 2, 1],
+        [0, 0, 2, -1],
+        [0, 0, -2, 1],
+        [0, 0, -2, -1],
 
-      [ 0, 1, 2, 0],
-      [ 0, 1,-2, 0],
-      [ 0,-1, 2, 0],
-      [ 0,-1,-2, 0],
-      [ 0, 2, 1, 0],
-      [ 0, 2,-1, 0],
-      [ 0,-2, 1, 0],
-      [ 0,-2,-1, 0],
+        [0, 1, 0, 2],
+        [0, 1, 0, -2],
+        [0, -1, 0, 2],
+        [0, -1, 0, -2],
+        [0, 2, 0, 1],
+        [0, 2, 0, -1],
+        [0, -2, 0, 1],
+        [0, -2, 0, -1],
 
-      [ 1, 0, 0, 2],
-      [ 1, 0, 0,-2],
-      [-1, 0, 0, 2],
-      [-1, 0, 0,-2],
-      [ 2, 0, 0, 1],
-      [ 2, 0, 0,-1],
-      [-2, 0, 0, 1],
-      [-2, 0, 0,-1],
+        [0, 1, 2, 0],
+        [0, 1, -2, 0],
+        [0, -1, 2, 0],
+        [0, -1, -2, 0],
+        [0, 2, 1, 0],
+        [0, 2, -1, 0],
+        [0, -2, 1, 0],
+        [0, -2, -1, 0],
 
-      [ 1, 0, 2, 0],
-      [ 1, 0,-2, 0],
-      [-1, 0, 2, 0],
-      [-1, 0,-2, 0],
-      [ 2, 0, 1, 0],
-      [ 2, 0,-1, 0],
-      [-2, 0, 1, 0],
-      [-2, 0,-1, 0],
+        [1, 0, 0, 2],
+        [1, 0, 0, -2],
+        [-1, 0, 0, 2],
+        [-1, 0, 0, -2],
+        [2, 0, 0, 1],
+        [2, 0, 0, -1],
+        [-2, 0, 0, 1],
+        [-2, 0, 0, -1],
 
-      [ 1, 2, 0, 0],
-      [ 1,-2, 0, 0],
-      [-1, 2, 0, 0],
-      [-1,-2, 0, 0],
-      [ 2, 1, 0, 0],
-      [ 2,-1, 0, 0],
-      [-2, 1, 0, 0],
-      [-2,-1, 0, 0]
-    ];
+        [1, 0, 2, 0],
+        [1, 0, -2, 0],
+        [-1, 0, 2, 0],
+        [-1, 0, -2, 0],
+        [2, 0, 1, 0],
+        [2, 0, -1, 0],
+        [-2, 0, 1, 0],
+        [-2, 0, -1, 0],
+
+        [1, 2, 0, 0],
+        [1, -2, 0, 0],
+        [-1, 2, 0, 0],
+        [-1, -2, 0, 0],
+        [2, 1, 0, 0],
+        [2, -1, 0, 0],
+        [-2, 1, 0, 0],
+        [-2, -1, 0, 0]
+      ];
+    case 11:
+    case 12:
+    case 17:
+    case 18:
+      return [
+        [0, 0, 0, 1],
+        [0, 0, 0, -1],
+
+        [0, 0, 1, 0],
+        [0, 0, -1, 0],
+
+        [0, 0, 1, 1],
+        [0, 0, 1, -1],
+        [0, 0, -1, 1],
+        [0, 0, -1, -1],
+
+        [0, 1, 0, 0],
+        [0, -1, 0, 0],
+
+        [0, 1, 0, 1],
+        [0, 1, 0, -1],
+        [0, -1, 0, 1],
+        [0, -1, 0, -1],
+
+        [0, 1, 1, 0],
+        [0, 1, -1, 0],
+        [0, -1, 1, 0],
+        [0, -1, -1, 0],
+
+        [0, 1, 1, 1],
+        [0, 1, 1, -1],
+        [0, 1, -1, 1],
+        [0, 1, -1, -1],
+        [0, -1, 1, 1],
+        [0, -1, 1, -1],
+        [0, -1, -1, 1],
+        [0, -1, -1, -1],
+
+        [1, 0, 0, 0],
+        [-1, 0, 0, 0],
+
+        [1, 0, 0, 1],
+        [1, 0, 0, -1],
+        [-1, 0, 0, 1],
+        [-1, 0, 0, -1],
+
+        [1, 0, 1, 0],
+        [1, 0, -1, 0],
+        [-1, 0, 1, 0],
+        [-1, 0, -1, 0],
+
+        [1, 0, 1, 1],
+        [1, 0, 1, -1],
+        [1, 0, -1, 1],
+        [1, 0, -1, -1],
+        [-1, 0, 1, 1],
+        [-1, 0, 1, -1],
+        [-1, 0, -1, 1],
+        [-1, 0, -1, -1],
+
+        [1, 1, 0, 0],
+        [1, -1, 0, 0],
+        [-1, 1, 0, 0],
+        [-1, -1, 0, 0],
+
+        [1, 1, 0, 1],
+        [1, 1, 0, -1],
+        [1, -1, 0, 1],
+        [1, -1, 0, -1],
+        [-1, 1, 0, 1],
+        [-1, 1, 0, -1],
+        [-1, -1, 0, 1],
+        [-1, -1, 0, -1],
+
+        [1, 1, 1, 0],
+        [1, 1, -1, 0],
+        [1, -1, 1, 0],
+        [1, -1, -1, 0],
+        [-1, 1, 1, 0],
+        [-1, 1, -1, 0],
+        [-1, -1, 1, 0],
+        [-1, -1, -1, 0],
+
+        [1, 1, 1, 1],
+        [1, 1, 1, -1],
+        [1, 1, -1, 1],
+        [1, 1, -1, -1],
+        [1, -1, 1, 1],
+        [1, -1, 1, -1],
+        [1, -1, -1, 1],
+        [1, -1, -1, -1],
+        [-1, 1, 1, 1],
+        [-1, 1, 1, -1],
+        [-1, 1, -1, 1],
+        [-1, 1, -1, -1],
+        [-1, -1, 1, 1],
+        [-1, -1, 1, -1],
+        [-1, -1, -1, 1],
+        [-1, -1, -1, -1]
+      ];
+    default:
+      return [];
   }
-  if(Math.abs(piece) === 11 || Math.abs(piece) === 12 || Math.abs(piece) === 17 || Math.abs(piece) === 18) {
-    return [
-      [ 0, 0, 0, 1],
-      [ 0, 0, 0,-1],
-
-      [ 0, 0, 1, 0],
-      [ 0, 0,-1, 0],
-
-      [ 0, 0, 1, 1],
-      [ 0, 0, 1,-1],
-      [ 0, 0,-1, 1],
-      [ 0, 0,-1,-1],
-
-      [ 0, 1, 0, 0],
-      [ 0,-1, 0, 0],
-
-      [ 0, 1, 0, 1],
-      [ 0, 1, 0,-1],
-      [ 0,-1, 0, 1],
-      [ 0,-1, 0,-1],
-
-      [ 0, 1, 1, 0],
-      [ 0, 1,-1, 0],
-      [ 0,-1, 1, 0],
-      [ 0,-1,-1, 0],
-
-      [ 0, 1, 1, 1],
-      [ 0, 1, 1,-1],
-      [ 0, 1,-1, 1],
-      [ 0, 1,-1,-1],
-      [ 0,-1, 1, 1],
-      [ 0,-1, 1,-1],
-      [ 0,-1,-1, 1],
-      [ 0,-1,-1,-1],
-
-      [ 1, 0, 0, 0],
-      [-1, 0, 0, 0],
-
-      [ 1, 0, 0, 1],
-      [ 1, 0, 0,-1],
-      [-1, 0, 0, 1],
-      [-1, 0, 0,-1],
-
-      [ 1, 0, 1, 0],
-      [ 1, 0,-1, 0],
-      [-1, 0, 1, 0],
-      [-1, 0,-1, 0],
-
-      [ 1, 0, 1, 1],
-      [ 1, 0, 1,-1],
-      [ 1, 0,-1, 1],
-      [ 1, 0,-1,-1],
-      [-1, 0, 1, 1],
-      [-1, 0, 1,-1],
-      [-1, 0,-1, 1],
-      [-1, 0,-1,-1],
-
-      [ 1, 1, 0, 0],
-      [ 1,-1, 0, 0],
-      [-1, 1, 0, 0],
-      [-1,-1, 0, 0],
-
-      [ 1, 1, 0, 1],
-      [ 1, 1, 0,-1],
-      [ 1,-1, 0, 1],
-      [ 1,-1, 0,-1],
-      [-1, 1, 0, 1],
-      [-1, 1, 0,-1],
-      [-1,-1, 0, 1],
-      [-1,-1, 0,-1],
-
-      [ 1, 1, 1, 0],
-      [ 1, 1,-1, 0],
-      [ 1,-1, 1, 0],
-      [ 1,-1,-1, 0],
-      [-1, 1, 1, 0],
-      [-1, 1,-1, 0],
-      [-1,-1, 1, 0],
-      [-1,-1,-1, 0],
-
-      [ 1, 1, 1, 1],
-      [ 1, 1, 1,-1],
-      [ 1, 1,-1, 1],
-      [ 1, 1,-1,-1],
-      [ 1,-1, 1, 1],
-      [ 1,-1, 1,-1],
-      [ 1,-1,-1, 1],
-      [ 1,-1,-1,-1],
-      [-1, 1, 1, 1],
-      [-1, 1, 1,-1],
-      [-1, 1,-1, 1],
-      [-1, 1,-1,-1],
-      [-1,-1, 1, 1],
-      [-1,-1, 1,-1],
-      [-1,-1,-1, 1],
-      [-1,-1,-1,-1]
-    ];
-  }
-  return [];
 }
 
 exports.moveVecs = (piece) => {
@@ -488,18 +493,17 @@ exports.moveVecs = (piece) => {
       [-1,-1,-1,-1]
     ];
   }
-  return [];
 }
 
 exports.availablePromotionPieces = (board) => {
-  var res = [];
-  for(var l = 0;board && l < board.length;l++) {
-    for(var t = 0;board[l] && t < board[l].length;t++) {
-      for(var r = 0;board[l][t] && r < board[l][t].length;r++) {
-        for(var f = 0;board[l][t][r] && f < board[l][t][r].length;f++) {
-          var piece = Math.abs(board[l][t][r][f]);
-          if(!res.includes(piece)) {
-            if(
+  let res = [];
+  for (let l = 0; board && l < board.length; l++) {
+    for (let t = 0; board[l] && t < board[l].length; t++) {
+      for (let r = 0; board[l][t] && r < board[l][t].length; r++) {
+        for (let f = 0; board[l][t][r] && f < board[l][t][r].length; f++) {
+          let piece = Math.abs(board[l][t][r][f]);
+          if (!res.includes(piece)) {
+            if (
               piece >= 3 && piece <= 10 ||
               piece >= 13 && piece <= 14 ||
               piece >= 17 && piece <= 18
@@ -517,20 +521,20 @@ exports.availablePromotionPieces = (board) => {
 }
 
 exports.timelineMove = (sourceTimelineIndex, timelineMoveVector, isEvenTimeline = false) => {
-  var ret = 0;
-  if(sourceTimelineIndex % 2 === 0) {
-    ret = sourceTimelineIndex + (timelineMoveVector * 2);
+  let res = 0;
+
+  if (sourceTimelineIndex % 2 === 0) {
+    res = sourceTimelineIndex + (timelineMoveVector * 2);
   }
   else {
-    ret = sourceTimelineIndex - (timelineMoveVector * 2);
+    res = sourceTimelineIndex - (timelineMoveVector * 2);
   }
-  if(!isEvenTimeline && ret < 0) {
-    ret = (ret * -1) - 1;
-  }
-  if(isEvenTimeline && ret <= 0) {
-    ret = (ret * -1) + 1;
-  }
-  return ret;
+
+  res = (!isEvenTimeline && res < 0) ? (res * -1) - 1 : res;
+
+  res = (isEvenTimeline && res <= 0) ? (res * -1) + 1 : res;
+
+  return res;
 }
 
 exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCastling = false) => {
@@ -748,8 +752,8 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCa
                 if(!promotionPieces || promotionPieces.length <= 0) {
                   promotionPieces = this.availablePromotionPieces(board);
                 }
-                for(var i = 0;i < promotionPieces.length;i++) {
-                  if(promotionPieces[i] % 2 === Math.abs(piece) % 2) {
+                for (let i = 0; i < promotionPieces.length; i++) {
+                  if (promotionPieces[i] % 2 === Math.abs(piece) % 2) {
                     currMove[1][4] = promotionPieces[i];
                     res.push([currMove[0].slice(), currMove[1].slice()]);
                   }
@@ -943,3 +947,47 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCa
   }
   return res;
 }
+exports.pendingName = (condition, currMove, promotionPieces, board, piece, res) => {
+  if (!condition) return res;
+  if (currMove[1][2] === 0) {
+
+    promotionPieces = (!promotionPieces || promotionPieces.length <= 0) ? this.availablePromotionPieces(board) : promotionPieces;
+
+    promotionPieces.forEach(pieces => {
+      if (pieces % 2 !== Math.abs(piece) % 2)
+        return;
+
+      currMove[1][4] = pieces;
+      res.push([currMove[0].slice(), currMove[1].slice()]);
+    });
+  }
+  else
+    res.push([currMove[0].slice(), currMove[1].slice()]);
+  return res;
+}
+
+exports.tempNamePassant = (board, currMove, res) => {
+  const pos = [currMove[1][0], currMove[1][1], currMove[1][2] + 1, currMove[1][3]]
+
+  if (boardFuncs.positionExists(board, pos)) {
+
+    const destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2] + 1][currMove[1][3]];
+
+    if (destPiece === 2 || destPiece === 16) {
+
+      const pos = [currMove[1][0], currMove[1][1] - 2, currMove[1][2] - 1, currMove[1][3]];
+
+      if (boardFuncs.positionExists(board, pos)) {
+
+        const destPiece = board[currMove[1][0]][currMove[1][1] - 2][currMove[1][2] - 1][currMove[1][3]];
+
+        const pos = [currMove[1][0], currMove[1][1], currMove[1][2] + 1, currMove[1][3]];
+
+        if (destPiece === -2 || destPiece === -16)
+          res.push([currMove[0].slice(), currMove[1].slice(), pos]);
+      }
+    }
+  }
+  return res;
+}
+
