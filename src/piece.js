@@ -1,9 +1,10 @@
 const boardFuncs = require('@local/board');
 
+// convert's all of the piece numbers to their characters 
 exports.toChar = (piece, displayPawn = false) => {
   const absPiece = Math.abs(piece);
 
-  if (displayPawn && (Math.abs(absPiece) === 1 || Math.abs(absPiece) === 2)) return 'P';
+  if (displayPawn && (absPiece === 1 || absPiece === 2)) return 'P';
 
   switch (absPiece) {
     case 3:
@@ -44,6 +45,7 @@ exports.toChar = (piece, displayPawn = false) => {
   }
 }
 
+// convert's all of the piece characters to their numbers
 exports.fromChar = (char, actionNum = 0) => {
   switch (char) {
     case 'P':
@@ -78,6 +80,7 @@ exports.fromChar = (char, actionNum = 0) => {
   }
 }
 
+// returns the movement positions of the given piece
 exports.movePos = (piece) => {
   const absPiece = Math.abs(piece);
 
@@ -244,273 +247,282 @@ exports.movePos = (piece) => {
   }
 }
 
+// returns the movement vectors of the given piece
 exports.moveVecs = (piece) => {
-  if(Math.abs(piece) === 3 || Math.abs(piece) === 4) {
-    return [
-      [ 0, 0, 1, 1],
-      [ 0, 0, 1,-1],
-      [ 0, 0,-1, 1],
-      [ 0, 0,-1,-1],
+  const absPiece = Math.abs(piece);
+  switch (absPiece) {
+    case 3:
+    case 4:
+      return [
+        [0, 0, 1, 1],
+        [0, 0, 1, -1],
+        [0, 0, -1, 1],
+        [0, 0, -1, -1],
 
-      [ 0, 1, 0, 1],
-      [ 0, 1, 0,-1],
-      [ 0,-1, 0, 1],
-      [ 0,-1, 0,-1],
+        [0, 1, 0, 1],
+        [0, 1, 0, -1],
+        [0, -1, 0, 1],
+        [0, -1, 0, -1],
 
-      [ 0, 1, 1, 0],
-      [ 0, 1,-1, 0],
-      [ 0,-1, 1, 0],
-      [ 0,-1,-1, 0],
+        [0, 1, 1, 0],
+        [0, 1, -1, 0],
+        [0, -1, 1, 0],
+        [0, -1, -1, 0],
 
-      [ 1, 0, 0, 1],
-      [ 1, 0, 0,-1],
-      [-1, 0, 0, 1],
-      [-1, 0, 0,-1],
+        [1, 0, 0, 1],
+        [1, 0, 0, -1],
+        [-1, 0, 0, 1],
+        [-1, 0, 0, -1],
 
-      [ 1, 0, 1, 0],
-      [ 1, 0,-1, 0],
-      [-1, 0, 1, 0],
-      [-1, 0,-1, 0],
+        [1, 0, 1, 0],
+        [1, 0, -1, 0],
+        [-1, 0, 1, 0],
+        [-1, 0, -1, 0],
 
-      [ 1, 1, 0, 0],
-      [ 1,-1, 0, 0],
-      [-1, 1, 0, 0],
-      [-1,-1, 0, 0]
-    ];
-  }
-  if(Math.abs(piece) === 7 || Math.abs(piece) === 8) {
-    return [
-      [ 0, 0, 0, 1],
-      [ 0, 0, 0,-1], 
-      [ 0, 0, 1, 0],
-      [ 0, 0,-1, 0],
+        [1, 1, 0, 0],
+        [1, -1, 0, 0],
+        [-1, 1, 0, 0],
+        [-1, -1, 0, 0]
+      ];
+    case 7:
+    case 8:
+      return [
+        [0, 0, 0, 1],
+        [0, 0, 0, -1],
+        [0, 0, 1, 0],
+        [0, 0, -1, 0],
 
-      [ 0, 1, 0, 0],
-      [ 0,-1, 0, 0],
-      [ 1, 0, 0, 0],
-      [-1, 0, 0, 0]
-    ];
-  }
-  if(Math.abs(piece) === 9 || Math.abs(piece) === 10 || Math.abs(piece) === 19 || Math.abs(piece) === 20) {
-    return [
-      [ 0, 0, 0, 1],
-      [ 0, 0, 0,-1],
+        [0, 1, 0, 0],
+        [0, -1, 0, 0],
+        [1, 0, 0, 0],
+        [-1, 0, 0, 0]
+      ];
+    case 9:
+    case 10:
+    case 19:
+    case 20:
+      return [
+        [0, 0, 0, 1],
+        [0, 0, 0, -1],
 
-      [ 0, 0, 1, 0],
-      [ 0, 0,-1, 0],
+        [0, 0, 1, 0],
+        [0, 0, -1, 0],
 
-      [ 0, 0, 1, 1],
-      [ 0, 0,-1, 1],
-      [ 0, 0, 1,-1],
-      [ 0, 0,-1,-1],
+        [0, 0, 1, 1],
+        [0, 0, -1, 1],
+        [0, 0, 1, -1],
+        [0, 0, -1, -1],
 
-      [ 0, 1, 0, 0],
-      [ 0,-1, 0, 0],
+        [0, 1, 0, 0],
+        [0, -1, 0, 0],
 
-      [ 0, 1, 0, 1],
-      [ 0, 1, 0,-1],
-      [ 0,-1, 0, 1],
-      [ 0,-1, 0,-1],
+        [0, 1, 0, 1],
+        [0, 1, 0, -1],
+        [0, -1, 0, 1],
+        [0, -1, 0, -1],
 
-      [ 0, 1, 1, 0],
-      [ 0, 1,-1, 0],
-      [ 0,-1, 1, 0],
-      [ 0,-1,-1, 0],
+        [0, 1, 1, 0],
+        [0, 1, -1, 0],
+        [0, -1, 1, 0],
+        [0, -1, -1, 0],
 
-      [ 0, 1, 1, 1],
-      [ 0, 1, 1,-1],
-      [ 0, 1,-1, 1],
-      [ 0, 1,-1,-1],
-      [ 0,-1, 1, 1],
-      [ 0,-1, 1,-1],
-      [ 0,-1,-1, 1],
-      [ 0,-1,-1,-1],
+        [0, 1, 1, 1],
+        [0, 1, 1, -1],
+        [0, 1, -1, 1],
+        [0, 1, -1, -1],
+        [0, -1, 1, 1],
+        [0, -1, 1, -1],
+        [0, -1, -1, 1],
+        [0, -1, -1, -1],
 
-      [ 1, 0, 0, 0],
-      [-1, 0, 0, 0],
+        [1, 0, 0, 0],
+        [-1, 0, 0, 0],
 
-      [ 1, 0, 0, 1],
-      [ 1, 0, 0,-1],
-      [-1, 0, 0, 1],
-      [-1, 0, 0,-1],
+        [1, 0, 0, 1],
+        [1, 0, 0, -1],
+        [-1, 0, 0, 1],
+        [-1, 0, 0, -1],
 
-      [ 1, 0, 1, 0],
-      [ 1, 0,-1, 0],
-      [-1, 0, 1, 0],
-      [-1, 0,-1, 0],
+        [1, 0, 1, 0],
+        [1, 0, -1, 0],
+        [-1, 0, 1, 0],
+        [-1, 0, -1, 0],
 
-      [ 1, 0, 1, 1],
-      [ 1, 0, 1,-1],
-      [ 1, 0,-1, 1],
-      [ 1, 0,-1,-1],
-      [-1, 0, 1, 1],
-      [-1, 0, 1,-1],
-      [-1, 0,-1, 1],
-      [-1, 0,-1,-1],
+        [1, 0, 1, 1],
+        [1, 0, 1, -1],
+        [1, 0, -1, 1],
+        [1, 0, -1, -1],
+        [-1, 0, 1, 1],
+        [-1, 0, 1, -1],
+        [-1, 0, -1, 1],
+        [-1, 0, -1, -1],
 
-      [ 1, 1, 0, 0],
-      [ 1,-1, 0, 0],
-      [-1, 1, 0, 0],
-      [-1,-1, 0, 0],
+        [1, 1, 0, 0],
+        [1, -1, 0, 0],
+        [-1, 1, 0, 0],
+        [-1, -1, 0, 0],
 
-      [ 1, 1, 0, 1],
-      [ 1, 1, 0,-1],
-      [ 1,-1, 0, 1],
-      [ 1,-1, 0,-1],
-      [-1, 1, 0, 1],
-      [-1, 1, 0,-1],
-      [-1,-1, 0, 1],
-      [-1,-1, 0,-1],
+        [1, 1, 0, 1],
+        [1, 1, 0, -1],
+        [1, -1, 0, 1],
+        [1, -1, 0, -1],
+        [-1, 1, 0, 1],
+        [-1, 1, 0, -1],
+        [-1, -1, 0, 1],
+        [-1, -1, 0, -1],
 
-      [ 1, 1, 1, 0],
-      [ 1, 1,-1, 0],
-      [ 1,-1, 1, 0],
-      [ 1,-1,-1, 0],
-      [-1, 1, 1, 0],
-      [-1, 1,-1, 0],
-      [-1,-1, 1, 0],
-      [-1,-1,-1, 0],
+        [1, 1, 1, 0],
+        [1, 1, -1, 0],
+        [1, -1, 1, 0],
+        [1, -1, -1, 0],
+        [-1, 1, 1, 0],
+        [-1, 1, -1, 0],
+        [-1, -1, 1, 0],
+        [-1, -1, -1, 0],
 
-      [ 1, 1, 1, 1],
-      [ 1, 1, 1,-1],
-      [ 1, 1,-1, 1],
-      [ 1, 1,-1,-1],
-      [ 1,-1, 1, 1],
-      [ 1,-1, 1,-1],
-      [ 1,-1,-1, 1],
-      [ 1,-1,-1,-1],
-      [-1, 1, 1, 1],
-      [-1, 1, 1,-1],
-      [-1, 1,-1, 1],
-      [-1, 1,-1,-1],
-      [-1,-1, 1, 1],
-      [-1,-1, 1,-1],
-      [-1,-1,-1, 1],
-      [-1,-1,-1,-1]
-    ];
-  }
-  if(Math.abs(piece) === 13 || Math.abs(piece) === 14) {
-    return [
-      [ 0, 0, 0, 1],
-      [ 0, 0, 0,-1],
+        [1, 1, 1, 1],
+        [1, 1, 1, -1],
+        [1, 1, -1, 1],
+        [1, 1, -1, -1],
+        [1, -1, 1, 1],
+        [1, -1, 1, -1],
+        [1, -1, -1, 1],
+        [1, -1, -1, -1],
+        [-1, 1, 1, 1],
+        [-1, 1, 1, -1],
+        [-1, 1, -1, 1],
+        [-1, 1, -1, -1],
+        [-1, -1, 1, 1],
+        [-1, -1, 1, -1],
+        [-1, -1, -1, 1],
+        [-1, -1, -1, -1]
+      ];
+    case 13:
+    case 14:
+      return [
+        [0, 0, 0, 1],
+        [0, 0, 0, -1],
 
-      [ 0, 0, 1, 0],
-      [ 0, 0,-1, 0],
+        [0, 0, 1, 0],
+        [0, 0, -1, 0],
 
-      [ 0, 0, 1, 1],
-      [ 0, 0, 1,-1],
-      [ 0, 0,-1, 1],
-      [ 0, 0,-1,-1],
+        [0, 0, 1, 1],
+        [0, 0, 1, -1],
+        [0, 0, -1, 1],
+        [0, 0, -1, -1],
 
-      [ 0, 1, 0, 0],
-      [ 0,-1, 0, 0],
+        [0, 1, 0, 0],
+        [0, -1, 0, 0],
 
-      [ 0, 1, 0, 1],
-      [ 0, 1, 0,-1],
-      [ 0,-1, 0, 1],
-      [ 0,-1, 0,-1],
+        [0, 1, 0, 1],
+        [0, 1, 0, -1],
+        [0, -1, 0, 1],
+        [0, -1, 0, -1],
 
-      [ 0, 1, 1, 0],
-      [ 0, 1,-1, 0],
-      [ 0,-1, 1, 0],
-      [ 0,-1,-1, 0],
+        [0, 1, 1, 0],
+        [0, 1, -1, 0],
+        [0, -1, 1, 0],
+        [0, -1, -1, 0],
 
-      [ 1, 0, 0, 0],
-      [-1, 0, 0, 0],
+        [1, 0, 0, 0],
+        [-1, 0, 0, 0],
 
-      [ 1, 0, 0, 1],
-      [ 1, 0, 0,-1],
-      [-1, 0, 0, 1],
-      [-1, 0, 0,-1],
+        [1, 0, 0, 1],
+        [1, 0, 0, -1],
+        [-1, 0, 0, 1],
+        [-1, 0, 0, -1],
 
-      [ 1, 0, 1, 0],
-      [ 1, 0,-1, 0],
-      [-1, 0, 1, 0],
-      [-1, 0,-1, 0],
+        [1, 0, 1, 0],
+        [1, 0, -1, 0],
+        [-1, 0, 1, 0],
+        [-1, 0, -1, 0],
 
-      [ 1, 1, 0, 0],
-      [ 1,-1, 0, 0],
-      [-1, 1, 0, 0],
-      [-1,-1, 0, 0]
-    ];
-  }
-  if(Math.abs(piece) === 21 || Math.abs(piece) === 22) {
-    return [
-      [ 0, 1, 1, 1],
-      [ 0, 1, 1,-1],
-      [ 0, 1,-1, 1],
-      [ 0, 1,-1,-1],
-      [ 0,-1, 1, 1],
-      [ 0,-1, 1,-1],
-      [ 0,-1,-1, 1],
-      [ 0,-1,-1,-1],
+        [1, 1, 0, 0],
+        [1, -1, 0, 0],
+        [-1, 1, 0, 0],
+        [-1, -1, 0, 0]
+      ];
+    case 21:
+    case 22:
+      return [
+        [0, 1, 1, 1],
+        [0, 1, 1, -1],
+        [0, 1, -1, 1],
+        [0, 1, -1, -1],
+        [0, -1, 1, 1],
+        [0, -1, 1, -1],
+        [0, -1, -1, 1],
+        [0, -1, -1, -1],
 
-      [ 1, 0, 1, 1],
-      [ 1, 0, 1,-1],
-      [ 1, 0,-1, 1],
-      [ 1, 0,-1,-1],
-      [-1, 0, 1, 1],
-      [-1, 0, 1,-1],
-      [-1, 0,-1, 1],
-      [-1, 0,-1,-1],
+        [1, 0, 1, 1],
+        [1, 0, 1, -1],
+        [1, 0, -1, 1],
+        [1, 0, -1, -1],
+        [-1, 0, 1, 1],
+        [-1, 0, 1, -1],
+        [-1, 0, -1, 1],
+        [-1, 0, -1, -1],
 
-      [ 1, 1, 0, 1],
-      [ 1, 1, 0,-1],
-      [ 1,-1, 0, 1],
-      [ 1,-1, 0,-1],
-      [-1, 1, 0, 1],
-      [-1, 1, 0,-1],
-      [-1,-1, 0, 1],
-      [-1,-1, 0,-1],
+        [1, 1, 0, 1],
+        [1, 1, 0, -1],
+        [1, -1, 0, 1],
+        [1, -1, 0, -1],
+        [-1, 1, 0, 1],
+        [-1, 1, 0, -1],
+        [-1, -1, 0, 1],
+        [-1, -1, 0, -1],
 
-      [ 1, 1, 1, 0],
-      [ 1, 1,-1, 0],
-      [ 1,-1, 1, 0],
-      [ 1,-1,-1, 0],
-      [-1, 1, 1, 0],
-      [-1, 1,-1, 0],
-      [-1,-1, 1, 0],
-      [-1,-1,-1, 0],
-    ];
-  }
-  if(Math.abs(piece) === 23 || Math.abs(piece) === 24) {
-    return [
-      [ 1, 1, 1, 1],
-      [ 1, 1, 1,-1],
-      [ 1, 1,-1, 1],
-      [ 1, 1,-1,-1],
-      [ 1,-1, 1, 1],
-      [ 1,-1, 1,-1],
-      [ 1,-1,-1, 1],
-      [ 1,-1,-1,-1],
-      [-1, 1, 1, 1],
-      [-1, 1, 1,-1],
-      [-1, 1,-1, 1],
-      [-1, 1,-1,-1],
-      [-1,-1, 1, 1],
-      [-1,-1, 1,-1],
-      [-1,-1,-1, 1],
-      [-1,-1,-1,-1]
-    ];
+        [1, 1, 1, 0],
+        [1, 1, -1, 0],
+        [1, -1, 1, 0],
+        [1, -1, -1, 0],
+        [-1, 1, 1, 0],
+        [-1, 1, -1, 0],
+        [-1, -1, 1, 0],
+        [-1, -1, -1, 0],
+      ];
+    case 23:
+    case 24:
+      return [
+        [1, 1, 1, 1],
+        [1, 1, 1, -1],
+        [1, 1, -1, 1],
+        [1, 1, -1, -1],
+        [1, -1, 1, 1],
+        [1, -1, 1, -1],
+        [1, -1, -1, 1],
+        [1, -1, -1, -1],
+        [-1, 1, 1, 1],
+        [-1, 1, 1, -1],
+        [-1, 1, -1, 1],
+        [-1, 1, -1, -1],
+        [-1, -1, 1, 1],
+        [-1, -1, 1, -1],
+        [-1, -1, -1, 1],
+        [-1, -1, -1, -1]
+      ];
+    default:
+      return []
   }
 }
 
-exports.availablePromotionPieces = (board) => {
+exports.availablePromotionPieces = (fullBoard) => {
+
   let res = [];
-  for (let l = 0; board && l < board.length; l++) {
-    for (let t = 0; board[l] && t < board[l].length; t++) {
-      for (let r = 0; board[l][t] && r < board[l][t].length; r++) {
-        for (let f = 0; board[l][t][r] && f < board[l][t][r].length; f++) {
-          let piece = Math.abs(board[l][t][r][f]);
-          if (!res.includes(piece)) {
-            if (
-              piece >= 3 && piece <= 10 ||
-              piece >= 13 && piece <= 14 ||
-              piece >= 17 && piece <= 18
-            ) {
-              res.push(piece);
-            }
-          }
+
+  // go through the full board down to every file
+  for (let l = 0; fullBoard && l < fullBoard.length; l++) {
+    for (let t = 0; fullBoard[l] && t < fullBoard[l].length; t++) {
+      for (let r = 0; fullBoard[l][t] && r < fullBoard[l][t].length; r++) {
+        for (let f = 0; fullBoard[l][t][r] && f < fullBoard[l][t][r].length; f++) {
+          // get that piece
+          const piece = Math.abs(fullBoard[l][t][r][f]);
+          // check if that piece is a royalty piece
+          const isRoyalty = piece >= 3 && piece <= 10 || piece == 13 || piece == 14 || piece == 17 || piece == 18
+          // check if that piece is counted
+          if (res.includes(piece)) continue;
+          // count it
+          if (isRoyalty) res.push(piece);
         }
       }
     }
@@ -521,14 +533,8 @@ exports.availablePromotionPieces = (board) => {
 }
 
 exports.timelineMove = (sourceTimelineIndex, timelineMoveVector, isEvenTimeline = false) => {
-  let res = 0;
 
-  if (sourceTimelineIndex % 2 === 0) {
-    res = sourceTimelineIndex + (timelineMoveVector * 2);
-  }
-  else {
-    res = sourceTimelineIndex - (timelineMoveVector * 2);
-  }
+  let res = (sourceTimelineIndex % 2 == 0) ? sourceTimelineIndex + (timelineMoveVector * 2) : sourceTimelineIndex - (timelineMoveVector * 2)
 
   res = (!isEvenTimeline && res < 0) ? (res * -1) - 1 : res;
 
@@ -537,66 +543,52 @@ exports.timelineMove = (sourceTimelineIndex, timelineMoveVector, isEvenTimeline 
   return res;
 }
 
-exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCastling = false) => {
-  var res = [];
+exports.moves = (fullBoard, givenPiece, spatialOnly = false, promotionPieces = null, skipCastling = false) => {
+  let res = [];
 
-  if(!boardFuncs.positionExists(board, src)) { return res; }
-  var src0 = src[0];
-  var src1 = src[1];
-  var src2 = src[2];
-  var src3 = src[3];
-  var piece = board[src0][src1][src2][src3];
-  if(piece === 0) { return res; }
-  var absPiece = Math.abs(piece);
-  var pieceColor = absPiece % 2;
-  var isEvenTimeline = boardFuncs.isEvenTimeline(board);
+  // if the position doesn't exist return
+  if (!boardFuncs.positionExists(fullBoard, givenPiece)) return res;
+
+  const givenPieceTimeline = givenPiece[0];
+  const givenPieceTurn = givenPiece[1];
+  const givenPieceRank = givenPiece[2];
+  const givenPieceFile = givenPiece[3];
+  const piece = fullBoard[givenPieceTimeline][givenPieceTurn][givenPieceRank][givenPieceFile];
+
+  // if the spot is empty return
+  if (piece === 0) return res;
+
+  const absPiece = Math.abs(piece);
+  const pieceColor = absPiece % 2;
+  const isEvenTimeline = boardFuncs.isEvenTimeline(fullBoard);
 
   // Pawn/Brawn movement
   if (absPiece === 1 || absPiece === 2 || absPiece === 15 || absPiece === 16) {
 
-    var curBoard = board[src0][src1];
-    if (pieceColor === 1) {
-      forward = -1;
-      promotionRank = 0;
-    } else {
-      forward = 1;
-      promotionRank = curBoard.length - 1;
-    }
+    const curBoard = fullBoard[givenPieceTimeline][givenPieceTurn];
+    const forward = (pieceColor === 1) ? -1 : 1;
+    const promotionRank = (pieceColor === 1) ? 0 : curBoard.length - 1;
+    const rPos = givenPieceRank + forward;
 
     //Forward single/double square RF movement
-    var rPos = src2 + forward;
-    if(rPos >= 0 && rPos < curBoard.length && src3 >= 0 && src3 < curBoard[rPos].length) {
-      var destPiece = curBoard[rPos][src3];
-      if(destPiece === 0) {
-        if(rPos === promotionRank) {
-          if(!promotionPieces || promotionPieces.length <= 0) {
-            promotionPieces = this.availablePromotionPieces(board);
-          }
-          for(var i = 0; i < promotionPieces.length; i++) {
-            if(promotionPieces[i] % 2 === pieceColor) {
-              res.push([src, [src0, src1, rPos, src3, promotionPieces[i]]]);
-            }
-          }
-        } else {
-          res.push([src, [src0, src1, rPos, src3]]);
-        }
+    if (rPos >= 0 && rPos < curBoard.length && givenPieceFile >= 0 && givenPieceFile < curBoard[rPos].length) {
+      const destPiece = curBoard[rPos][givenPieceFile];
+      // promotionPiece
+      if (destPiece === 0) {
+        // get promotion pieces
+        res = this.promotionPiece(givenPiece, fullBoard, rPos, givenPieceFile, promotionPieces, promotionRank, pieceColor, res);
+
         if (piece < 0) {
-          var rPosDouble = rPos + forward;
-          if (rPosDouble >= 0 && rPosDouble < curBoard.length && src3 >= 0 && src3 < curBoard[rPos].length) {
-            var destPiece = curBoard[rPosDouble][src3];
+          const rPosDouble = rPos + forward;
+          // if rPosDouble's position exists
+          if (rPosDouble >= 0 && rPosDouble < curBoard.length && givenPieceFile >= 0 && givenPieceFile < curBoard[rPos].length) {
+            const destPiece = curBoard[rPosDouble][givenPieceFile];
+
+            // promotionPiece
             if (destPiece === 0) {
-              if (rPos === promotionRank) {
-                if(!promotionPieces || promotionPieces.length <= 0) {
-                  promotionPieces = this.availablePromotionPieces(board);
-                }
-                for (var i = 0; i < promotionPieces.length; i++) {
-                  if (promotionPieces[i] % 2 === pieceColor) {
-                    res.push([src, [src0, src1, rPosDouble, src3, promotionPieces[i]]]);
-                  }
-                }
-              } else {
-                res.push([src, [src0, src1, rPosDouble, src3]]);
-              }
+
+              res = this.promotionPiece(givenPiece, fullBoard, rPosDouble, givenPieceFile, promotionPieces, promotionRank, pieceColor, res);
+
             }
           }
         }
@@ -604,255 +596,199 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCa
     }
 
     //Forward single/en passant square capture RF movement
-    var fPos = src3 + 1;
-    if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
-      var destPiece = curBoard[rPos][fPos];
-      if (destPiece !== 0 && Math.abs(destPiece) % 2 !== pieceColor) {
-        if(rPos === promotionRank) {
-          if(!promotionPieces || promotionPieces.length <= 0) {
-            promotionPieces = this.availablePromotionPieces(board);
-          }
-          for(var i = 0; i < promotionPieces.length; i++) {
-            if(promotionPieces[i] % 2 === pieceColor) {
-              res.push([src, [src0, src1, rPos, fPos, promotionPieces[i]]]);
-            }
-          }
-        } else {
-          res.push([src, [src0, src1, rPos, fPos]]);
-        }
-      }
-      if (fPos >= 0 && fPos < curBoard[src2].length) {
-        var destPiece = curBoard[src2][fPos] - pieceColor;
-        if (destPiece === 1 || destPiece === 15) {
-          var rPosEn = rPos + forward;
-          if(rPosEn >= 0 && rPosEn < curBoard.length && fPos >= 0 && fPos < curBoard[rPosEn].length) {
-            var destPiece = curBoard[rPosEn][fPos];
-            if (destPiece === 0) {
-              if (boardFuncs.positionExists(board, [src0, src1 - 2, rPosEn, fPos])) {
-                var destPiece = board[src0][src1 - 2][rPosEn][fPos] + pieceColor;
-                if (destPiece === -1 || destPiece === -15) {
-                  res.push([src, [src0, src1, rPos, fPos], [src0, src1, src2, fPos]]);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    var fPos = src3 - 1;
-    if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
-      var destPiece = curBoard[rPos][fPos];
-      if (destPiece !== 0 && Math.abs(destPiece) % 2 !== pieceColor) {
-        if(rPos === promotionRank) {
-          if(!promotionPieces || promotionPieces.length <= 0) {
-            promotionPieces = this.availablePromotionPieces(board);
-          }
-          for(var i = 0; i < promotionPieces.length; i++) {
-            if(promotionPieces[i] % 2 === pieceColor) {
-              res.push([src, [src0, src1, rPos, fPos, promotionPieces[i]]]);
-            }
-          }
-        } else {
-          res.push([src, [src0, src1, rPos, fPos]]);
-        }
-      }
-      if (fPos >= 0 && fPos < curBoard[src2].length) {
-        var destPiece = curBoard[src2][fPos] - pieceColor;
-        if (destPiece === 1 || destPiece === 15) {
-          var rPosEn = rPos + forward;
-          if(rPosEn >= 0 && rPosEn < curBoard.length && fPos >= 0 && fPos < curBoard[rPosEn].length) {
-            var destPiece = curBoard[rPosEn][fPos];
-            if (destPiece === 0) {
-              if (boardFuncs.positionExists(board, [src0, src1 - 2, rPosEn, fPos])) {
-                var destPiece = board[src0][src1 - 2][rPosEn][fPos] + pieceColor;
-                if (destPiece === -1 || destPiece === -15) {
-                  res.push([src, [src0, src1, rPos, fPos], [src0, src1, src2, fPos]]);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    res = this.enPassantMovement(fullBoard, givenPiece, promotionRank, promotionPieces, forward, curBoard, pieceColor, rPos, givenPieceFile + 1, res);
 
-    if(!spatialOnly) {
+    res = this.enPassantMovement(fullBoard, givenPiece, promotionRank, promotionPieces, forward, curBoard, pieceColor, rPos, givenPieceFile - 1, res);
+
+    if (!spatialOnly) {
       //Forward single square LT movement
-      var curMove = [this.timelineMove(src0, -forward, isEvenTimeline), src1, src2, src3];
-      if(boardFuncs.positionExists(board, curMove)) {
-        var destPiece = board[curMove[0]][src1][src2][src3];
+      let curMove = [this.timelineMove(givenPieceTimeline, -forward, isEvenTimeline), givenPieceTurn, givenPieceRank, givenPieceFile];
+
+      if (boardFuncs.positionExists(fullBoard, curMove)) {
+        const destPiece = fullBoard[curMove[0]][givenPieceTurn][givenPieceRank][givenPieceFile];
+
         if (destPiece === 0) {
-          res.push([src, curMove]);
+
+          res.push([givenPiece, curMove]);
           //Forward double square LT movement
-          if(piece < 0) {
-            var curMove = [this.timelineMove(src0, -forward * 2, isEvenTimeline), src1, src2, src3];
-            if (boardFuncs.positionExists(board, curMove)) {
-              var destPiece = board[curMove[0]][src1][src2][src3];
-              if (destPiece === 0) {
-                res.push([src, curMove]);
-              }
+          if (piece < 0) {
+            const curMove = [this.timelineMove(givenPieceTimeline, -forward * 2, isEvenTimeline), givenPieceTurn, givenPieceRank, givenPieceFile];
+
+            if (boardFuncs.positionExists(fullBoard, curMove)) {
+              const destPiece = fullBoard[curMove[0]][givenPieceTurn][givenPieceRank][givenPieceFile];
+
+              if (destPiece === 0) res.push([givenPiece, curMove]);
             }
           }
         }
       }
 
       //Forward single square capture LT movement
-      var curMove = [this.timelineMove(src0, -forward, isEvenTimeline), src1 + 2, src2, src3];
-      if (boardFuncs.positionExists(board, curMove)) {
-        var destPiece = board[curMove[0]][curMove[1]][src2][src3];
-        if (destPiece !== 0 && Math.abs(destPiece) % 2 !== pieceColor) {
-          res.push([src, curMove]);
-        }
-      }
-      var curMove = [this.timelineMove(src0, -forward, isEvenTimeline), src1 - 2, src2, src3];
-      if (boardFuncs.positionExists(board, curMove)) {
-        var destPiece = board[curMove[0]][curMove[1]][src2][src3];
-        if (destPiece !== 0 && Math.abs(destPiece) % 2 !== pieceColor) {
-          res.push([src, curMove]);
-        }
-      }
+      curMove = [this.timelineMove(givenPieceTimeline, -forward, isEvenTimeline), givenPieceTurn + 2, givenPieceRank, givenPieceFile];
+      // opponentTimelineCapture
+      res = this.opponentTimelineCapture(fullBoard, givenPiece, curMove, pieceColor, res);
+
+      curMove = [this.timelineMove(givenPieceTimeline, -forward, isEvenTimeline), givenPieceTurn - 2, givenPieceRank, givenPieceFile];
+      // opponentTimelineCapture
+      res = this.opponentTimelineCapture(fullBoard, givenPiece, curMove, pieceColor, res);
 
       // Brawn-specific captures
       if (absPiece === 15 || absPiece === 16) {
         // ⟨l, t, y, x⟩
-        let cardinalities = [
+        const cardinalities = [
           [-forward, 0, 0, 1],
           [-forward, 0, 0, -1],
           [-forward, 0, forward, 0],
           [0, -1, forward, 0],
         ];
-      
+
         for (let [dl, dt, dy, dx] of cardinalities) {
-          if (src[0] % 2 === 0) {
+
+          if (pieceColor) {
             // White's timelines
-            currMove = [src.slice(), [
-              src[0],
-              src[1] + 2 * dt,
-              src[2] + dy,
-              src[3] + dx
+            currMove = [givenPiece.slice(), [
+              givenPieceTimeline,
+              givenPieceTurn + 2 * dt,
+              givenPieceRank + dy,
+              givenPieceFile + dx
             ]];
+
             currMove[1][0] = this.timelineMove(currMove[1][0], dl, isEvenTimeline);
           } else {
             // Black's timelines
-            currMove = [src.slice(), [
-              src[0],
-              src[1] + 2 * dt,
-              src[2] + dy,
-              src[3] + dx
+            currMove = [givenPiece.slice(), [
+              givenPiece[0],
+              givenPiece[1] + 2 * dt,
+              givenPiece[2] + dy,
+              givenPiece[3] + dx
             ]];
+
             currMove[1][0] = this.timelineMove(currMove[1][0], dl, isEvenTimeline);
           }
-      
+
           // Verify the capture and yield the move
-          if(boardFuncs.positionExists(board, currMove[1])) {
-            var destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
-            if(destPiece !== 0 && (Math.abs(destPiece) % 2 !== Math.abs(piece) % 2)) {
-  
-              if(currMove[1][2] === promotionRank) {
-                // Must promote
-                if(!promotionPieces || promotionPieces.length <= 0) {
-                  promotionPieces = this.availablePromotionPieces(board);
-                }
-                for (let i = 0; i < promotionPieces.length; i++) {
-                  if (promotionPieces[i] % 2 === Math.abs(piece) % 2) {
-                    currMove[1][4] = promotionPieces[i];
-                    res.push([currMove[0].slice(), currMove[1].slice()]);
-                  }
-                }
-              } else {
-                // Can't promote
-                res.push([currMove[0].slice(), currMove[1].slice()]);
-              }
+          if (!boardFuncs.positionExists(fullBoard, currMove[1])) continue;
+
+          const destPiece = fullBoard[currMove[1][0]][currMove[1][1]][currMove[1][2]][currMove[1][3]];
+
+          if (destPiece === 0 || (Math.abs(destPiece) % 2 === pieceColor)) continue;
+
+          if (currMove[1][2] === promotionRank) {
+            // Must promote
+            promotionPieces = (!promotionPieces || promotionPieces.length <= 0) ? this.availablePromotionPieces(fullBoard) : promotionPieces
+
+            for (let piece of promotionPieces) {
+              if (piece % 2 !== pieceColor) continue;
+
+              currMove[1][4] = piece;
+
+              res.push([currMove[0].slice(), currMove[1].slice()]);
             }
+          } else {
+            // Can't promote
+            res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
       }
     }
   } else {
 
+    const curBoard = fullBoard[givenPieceTimeline][givenPieceTurn];
     // All non-pawn/brawn pieces
-    var spatialLength = [
+    const spatialLength = [
       0, 0, 4, 4, 8, 8, 4, 4,
       8, 8, 8, 8, 8, 8, 0, 0,
       8, 8, 8, 8, 0, 0, 0, 0
     ];
 
     //Single square moves
-    var movePos = this.movePos(piece);
+    const movePos = this.movePos(piece);
+
     if (movePos.length !== 0) {
-      var spatial = spatialLength[Math.abs(piece) - 1];
-      var curBoard = board[src0][src1];
-      for (var i = 0; i < spatial; i++) {
-        var rPos = src2 + movePos[i][2];
-        var fPos = src3 + movePos[i][3];
-        if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
-          var destPiece = curBoard[rPos][fPos];
-          if (destPiece === 0 || Math.abs(destPiece) % 2 !== pieceColor) {
-            res.push([src, [src0, src1, rPos, fPos]]);
-          }
-        }
+      const spatial = spatialLength[Math.abs(piece) - 1];
+
+      for (let i = 0; i < spatial; i++) {
+        const rPos = givenPieceRank + movePos[i][2];
+        const fPos = givenPieceFile + movePos[i][3];
+
+        if (rPos < 0 || rPos >= curBoard.length || fPos < 0 || fPos >= curBoard[rPos].length) continue;
+
+        const destPiece = curBoard[rPos][fPos];
+
+        if (destPiece === 0 || Math.abs(destPiece) % 2 !== pieceColor) res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos]]);
       }
-      if(!spatialOnly) {
-        for(var i = spatial; i < movePos.length; i++) {
-          var curMove = [
-            this.timelineMove(src0, movePos[i][0], isEvenTimeline), 
-            src1 + movePos[i][1] * 2, 
-            src2 + movePos[i][2], 
-            src3 + movePos[i][3]
+
+      if (!spatialOnly) {
+        for (let i = spatial; i < movePos.length; i++) {
+          const curMove = [
+            this.timelineMove(givenPieceTimeline, movePos[i][0], isEvenTimeline),
+            givenPieceTurn + movePos[i][1] * 2,
+            givenPieceRank + movePos[i][2],
+            givenPieceFile + movePos[i][3]
           ];
-          if(boardFuncs.positionExists(board, curMove)) {
-            var destPiece = board[curMove[0]][curMove[1]][curMove[2]][curMove[3]];
-            if(destPiece === 0 || Math.abs(destPiece) % 2 !== pieceColor) {
-              res.push([src, curMove]);
-            }
-          }
+
+          if (!boardFuncs.positionExists(fullBoard, curMove)) continue;
+
+          const destPiece = fullBoard[curMove[0]][curMove[1]][curMove[2]][curMove[3]];
+
+          if (destPiece === 0 || Math.abs(destPiece) % 2 !== pieceColor) res.push([givenPiece, curMove]);
         }
       }
     }
 
     //Vector moves
-    var moveVecs = this.moveVecs(piece);
+    const moveVecs = this.moveVecs(piece);
     if (moveVecs.length !== 0) {
-      var spatial = spatialLength[absPiece - 1];
-      var curBoard = board[src0][src1];
-      for (var i = 0; i < spatial; i++) {
-        var rMove = moveVecs[i][2];
-        var fMove = moveVecs[i][3];
-        var rPos = src2 + rMove;
-        var fPos = src3 + fMove;
-        while(rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
-          var destPiece = curBoard[rPos][fPos];
+      const spatial = spatialLength[absPiece - 1];
+
+      for (let i = 0; i < spatial; i++) {
+        const rMove = moveVecs[i][2];
+        const fMove = moveVecs[i][3];
+        let rPos = givenPieceRank + rMove;
+        let fPos = givenPieceFile + fMove;
+
+        while (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
+          const destPiece = curBoard[rPos][fPos];
+
           if (destPiece !== 0) {
-            if (Math.abs(destPiece) % 2 !== pieceColor) {
-              res.push([src, [src0, src1, rPos, fPos]]);
-            }
+
+            if (Math.abs(destPiece) % 2 !== pieceColor) res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos]]);
+
             break;
           }
-          res.push([src, [src0, src1, rPos, fPos]]);
+
+          res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos]]);
+
           rPos += rMove;
           fPos += fMove;
         }
       }
+
       if (!spatialOnly) {
-        for(var i = spatial; i < moveVecs.length; i++) {
-          var lMove = moveVecs[i][0];
-          var tMove = moveVecs[i][1] * 2;
-          var rMove = moveVecs[i][2];
-          var fMove = moveVecs[i][3];
-          var curMove = [
-            this.timelineMove(src0, lMove, isEvenTimeline), 
-            src1 + tMove, 
-            src2 + rMove, 
-            src3 + fMove
+
+        for (let i = spatial; i < moveVecs.length; i++) {
+          const lMove = moveVecs[i][0];
+          const tMove = moveVecs[i][1] * 2;
+          const rMove = moveVecs[i][2];
+          const fMove = moveVecs[i][3];
+          let curMove = [
+            this.timelineMove(givenPieceTimeline, lMove, isEvenTimeline),
+            givenPieceTurn + tMove,
+            givenPieceRank + rMove,
+            givenPieceFile + fMove
           ];
-          while(boardFuncs.positionExists(board, curMove)) {
-            var destPiece = board[curMove[0]][curMove[1]][curMove[2]][curMove[3]];
+
+          while (boardFuncs.positionExists(fullBoard, curMove)) {
+            const destPiece = fullBoard[curMove[0]][curMove[1]][curMove[2]][curMove[3]];
+
             if (destPiece !== 0) {
-              if (Math.abs(destPiece) % 2 !== pieceColor) {
-                res.push([src, curMove]);
-              }
+              if (Math.abs(destPiece) % 2 !== pieceColor) res.push([givenPiece, curMove]);
+
               break;
             }
-            res.push([src, curMove.slice()]);
+
+            res.push([givenPiece, curMove.slice()]);
+
             curMove[0] = this.timelineMove(curMove[0], lMove, isEvenTimeline);
             curMove[1] += tMove;
             curMove[2] += rMove;
@@ -862,31 +798,37 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCa
       }
     }
 
-    if(piece === -11 || piece === -12) {
-      var curRank = curBoard[src2];
-      var notInCheck = undefined;
+    if (piece === -11 || piece === -12) {
+      const curRank = curBoard[givenPieceRank];
+      let notInCheck = undefined;
 
       // Kingside Castling Movement
-      var fPos = src3 + 1;
+      let fPos = givenPieceFile + 1;
+
       if (fPos >= 0 && fPos < curRank.length && curRank[fPos] === 0) {
+
         fPos++;
         if (fPos >= 0 && fPos < curRank.length && curRank[fPos] === 0) {
+
           fPos++;
           while (fPos >= 0 && fPos < curRank.length) {
-            var curPiece = curRank[fPos];
+            const curPiece = curRank[fPos];
+
             if (curPiece !== 0) {
+
               if (curPiece - pieceColor === -8) {
-                var rightOnePos = [src0, src1, src2, src3 + 1];
-                var rightTwoPos = [src0, src1, src2, src3 + 2];
-                var notInCheck = !boardFuncs.positionIsAttacked(board, src, pieceColor);
-                if (notInCheck && 
-                  !boardFuncs.positionIsAttacked(board, rightOnePos, pieceColor) &&
-                  !boardFuncs.positionIsAttacked(board, rightTwoPos, pieceColor)
-                  ) {
+                const rightOnePos = [givenPieceTimeline, givenPieceTurn, givenPieceRank, givenPieceFile + 1];
+                const rightTwoPos = [givenPieceTimeline, givenPieceTurn, givenPieceRank, givenPieceFile + 2];
+
+                notInCheck = !boardFuncs.positionIsAttacked(fullBoard, givenPiece, pieceColor);
+
+                const condition = notInCheck && !boardFuncs.positionIsAttacked(fullBoard, rightOnePos, pieceColor) && !boardFuncs.positionIsAttacked(fullBoard, rightTwoPos, pieceColor);
+
+                if (condition) {
                   res.push([
-                    src,
+                    givenPiece,
                     rightTwoPos,
-                    [src0, src1, src2, fPos],
+                    [givenPieceTimeline, givenPieceTurn, givenPieceRank, fPos],
                     rightOnePos
                   ]);
                 }
@@ -899,38 +841,45 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCa
       }
 
       // Queenside Castling Movement
-      var fPos = src3 - 1;
+      fPos = givenPieceFile - 1;
+
       if (fPos >= 0 && fPos < curRank.length && curRank[fPos] === 0) {
+
         fPos--;
         if (fPos >= 0 && fPos < curRank.length && curRank[fPos] === 0) {
+
           fPos--;
           while (fPos >= 0 && fPos < curRank.length) {
-            var curPiece = curRank[fPos];
+            const curPiece = curRank[fPos];
+
             if (curPiece !== 0) {
+
               if (curPiece - pieceColor === -8) {
-                var leftOnePos = [src0, src1, src2, src3 - 1];
-                var leftTwoPos = [src0, src1, src2, src3 - 2];
+                const leftOnePos = [givenPieceTimeline, givenPieceTurn, givenPieceRank, givenPieceFile - 1];
+                const leftTwoPos = [givenPieceTimeline, givenPieceTurn, givenPieceRank, givenPieceFile - 2];
+                const isPositionAttacked =
+                  !boardFuncs.positionIsAttacked(fullBoard, leftOnePos, pieceColor) &&
+                  !boardFuncs.positionIsAttacked(fullBoard, leftTwoPos, pieceColor);
+
                 if (notInCheck !== undefined) {
-                  if (notInCheck && 
-                    !boardFuncs.positionIsAttacked(board, leftOnePos, pieceColor) &&
-                    !boardFuncs.positionIsAttacked(board, leftTwoPos, pieceColor)
-                    ) {
+
+                  if (notInCheck && isPositionAttacked) {
+
                     res.push([
-                      src,
+                      givenPiece,
                       leftTwoPos,
-                      [src0, src1, src2, fPos],
+                      [givenPieceTimeline, givenPieceTurn, givenPieceRank, fPos],
                       leftOnePos
                     ]);
                   }
                 } else {
-                  if (!boardFuncs.positionIsAttacked(board, src, pieceColor) && 
-                  !boardFuncs.positionIsAttacked(board, leftOnePos, pieceColor) &&
-                  !boardFuncs.positionIsAttacked(board, leftTwoPos, pieceColor)
-                  ) {
+
+                  if (!boardFuncs.positionIsAttacked(fullBoard, givenPiece, pieceColor) && isPositionAttacked) {
+
                     res.push([
-                      src,
+                      givenPiece,
                       leftTwoPos,
-                      [src0, src1, src2, fPos],
+                      [givenPieceTimeline, givenPieceTurn, givenPieceRank, fPos],
                       leftOnePos
                     ]);
                   }
@@ -947,47 +896,78 @@ exports.moves = (board, src, spatialOnly = false, promotionPieces = null, skipCa
   }
   return res;
 }
-exports.pendingName = (condition, currMove, promotionPieces, board, piece, res) => {
-  if (!condition) return res;
-  if (currMove[1][2] === 0) {
 
-    promotionPieces = (!promotionPieces || promotionPieces.length <= 0) ? this.availablePromotionPieces(board) : promotionPieces;
+exports.promotionPiece = (givenPiece, fullBoard, rPos, fPos, promotionPieces, promotionRank, pieceColor, res) => {
+  const givenPieceTimeline = givenPiece[0];
+  const givenPieceTurn = givenPiece[1];
 
-    promotionPieces.forEach(pieces => {
-      if (pieces % 2 !== Math.abs(piece) % 2)
-        return;
-
-      currMove[1][4] = pieces;
-      res.push([currMove[0].slice(), currMove[1].slice()]);
-    });
+  // if the given rank is the promotionRank 
+  if (rPos === promotionRank) {
+    // get all of the promotion pieces if they aren't already defined
+    if (!promotionPieces || promotionPieces.length <= 0) promotionPieces = this.availablePromotionPieces(fullBoard);
+    // go through all promotion pieces
+    for (let i = 0; i < promotionPieces.length; i++) {
+      // if the piece isn't yours go to the next one
+      if (promotionPieces[i] % 2 !== pieceColor) continue;
+      // add it to the result
+      res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos, promotionPieces[i]]]);
+    }
+  } else {
+    // add it to the result
+    res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos]]);
   }
-  else
-    res.push([currMove[0].slice(), currMove[1].slice()]);
-  return res;
+  return res
 }
 
-exports.tempNamePassant = (board, currMove, res) => {
-  const pos = [currMove[1][0], currMove[1][1], currMove[1][2] + 1, currMove[1][3]]
+exports.enPassant = (fullBoard, givenPiece, curBoard, pieceColor, forward, rPos, fPos, res) => {
+  const givenPieceTimeline = givenPiece[0];
+  const givenPieceTurn = givenPiece[1];
+  const givenPieceRank = givenPiece[2];
 
-  if (boardFuncs.positionExists(board, pos)) {
+  if (fPos < 0 || fPos >= curBoard[givenPieceRank].length) return res;
+  // get the destination piece
+  const destPiece = curBoard[givenPieceRank][fPos] - pieceColor;
 
-    const destPiece = board[currMove[1][0]][currMove[1][1]][currMove[1][2] + 1][currMove[1][3]];
+  if (destPiece !== 1 && destPiece !== 15) return res;
 
-    if (destPiece === 2 || destPiece === 16) {
+  const rPosEn = rPos + forward;
 
-      const pos = [currMove[1][0], currMove[1][1] - 2, currMove[1][2] - 1, currMove[1][3]];
+  if (rPosEn >= 0 && rPosEn < curBoard.length && fPos >= 0 && fPos < curBoard[rPosEn].length) {
+    const destPiece = curBoard[rPosEn][fPos];
 
-      if (boardFuncs.positionExists(board, pos)) {
+    if (destPiece !== 0) return res;
 
-        const destPiece = board[currMove[1][0]][currMove[1][1] - 2][currMove[1][2] - 1][currMove[1][3]];
+    if (boardFuncs.positionExists(fullBoard, [givenPieceTimeline, givenPieceTurn - 2, rPosEn, fPos])) {
+      const destPiece = fullBoard[givenPieceTimeline][givenPieceTurn - 2][rPosEn][fPos] + pieceColor;
 
-        const pos = [currMove[1][0], currMove[1][1], currMove[1][2] + 1, currMove[1][3]];
-
-        if (destPiece === -2 || destPiece === -16)
-          res.push([currMove[0].slice(), currMove[1].slice(), pos]);
-      }
+      if (destPiece === -1 || destPiece === -15) res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos], [givenPieceTimeline, givenPieceTurn, givenPieceRank, fPos]]);
     }
   }
   return res;
 }
 
+exports.enPassantMovement = (fullBoard, givenPiece, promotionRank, promotionPieces, forward, curBoard, pieceColor, rPos, fPos, res) => {
+  if (rPos < 0 && rPos >= curBoard.length || fPos < 0 || fPos >= curBoard[rPos].length) return res;
+
+  const destPiece = curBoard[rPos][fPos];
+  // promotionPiece
+  if (destPiece !== 0 && Math.abs(destPiece) % 2 !== pieceColor) {
+    res = this.promotionPiece(givenPiece, fullBoard, rPos, fPos, promotionPieces, promotionRank, pieceColor, res);
+  }
+
+  res = this.enPassant(fullBoard, givenPiece, curBoard, pieceColor, forward, rPos, fPos, res)
+  return res;
+}
+
+exports.opponentTimelineCapture = (fullBoard, givenPiece, curMove, pieceColor, res) => {
+  const givenPieceRank = givenPiece[2];
+  const givenPieceFile = givenPiece[3];
+
+  if (boardFuncs.positionExists(fullBoard, curMove)) {
+    const destPiece = fullBoard[curMove[0]][curMove[1]][givenPieceRank][givenPieceFile];
+
+    if (destPiece !== 0 && Math.abs(destPiece) % 2 !== pieceColor)
+      res.push([givenPiece, curMove]);
+  }
+  return res;
+}
