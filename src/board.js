@@ -235,12 +235,10 @@ exports.move = (board, move) => {
 
 exports.positionExists = (board, pos) => {
   return Boolean(
-    board !== undefined &&
-    board !== null &&
-    board[pos[0]] &&
-    board[pos[0]][pos[1]] &&
-    board[pos[0]][pos[1]][pos[2]] &&
-    Number.isInteger(board[pos[0]][pos[1]][pos[2]][pos[3]])
+    board[pos[0]] !== undefined && board[pos[0]] !== null &&
+    board[pos[0]][pos[1]] !== undefined  && board[pos[0]][pos[1]] !== null &&
+    pos[2] >= 0 && pos[2] < board[pos[0]][pos[1]].length &&
+    pos[3] >= 0 && pos[3] < board[pos[0]][pos[1]][pos[2]].length
   );
 }
 
@@ -387,84 +385,105 @@ exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, spatia
 }
 
 exports.positionIsAttacked = (board, pos, player, spatialOnly = false) => {
-  let toCheck = [];
+  var pos2 = pos[2];
+  var pos3 = pos[3];
+  var curBoard = board[pos[0]][pos[1]];
+  var movePos = pieceFuncs.movePos(6); // Knight movement
+  var moveVecs = pieceFuncs.moveVecs(10); // Queen movement
 
-  if (this.positionExists(board, pos)) {
-    const movePos = pieceFuncs.movePos(6); //Knight movement
-    const moveVecs = pieceFuncs.moveVecs(10); //Queen movement
-
-    // go through all knight moves
-    for (let i = 0; i < movePos.length; i++) {
-      let newSrc = pos.slice();
-
-      if ((spatialOnly && movePos[i][0] === 0 && movePos[i][1] === 0) || !spatialOnly) {
-
-        for (let j = 0; j < 4; j++) {
-          newSrc[j] += movePos[i][j];
-        }
-
-        if (this.positionExists(board, newSrc)) {
-          let destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
-          if (destPiece !== 0 && Math.abs(destPiece) % 2 !== player) {
-            toCheck.push(newSrc.slice());
-          }
-        }
-      }
-    }
-    for (let i = 0; i < moveVecs.length; i++) {
-      if (
-        (spatialOnly && moveVecs[i][0] === 0 && moveVecs[i][1] === 0) ||
-        !spatialOnly
-      ) {
-        let newSrc = pos.slice();
-        let blocking = false;
-        while (!blocking) {
-          newSrc[0] += moveVecs[i][0];
-          newSrc[1] += moveVecs[i][1];
-          newSrc[2] += moveVecs[i][2];
-          newSrc[3] += moveVecs[i][3];
-          if (this.positionExists(board, newSrc)) {
-            let destPiece = board[newSrc[0]][newSrc[1]][newSrc[2]][newSrc[3]];
-            if (destPiece !== 0) {
-              blocking = true;
-              if (Math.abs(destPiece) % 2 !== player) {
-                toCheck.push(newSrc.slice());
-              }
-            }
-          }
-          else {
-            blocking = true;
-          }
-        }
-      }
-    }
-    //Generate moves from toCheck Arr
-    for (var i = 0; i < toCheck.length; i++) {
-      var moves = pieceFuncs.moves(board, toCheck[i], spatialOnly, [9, 10], true);
-      for (var j = 0; j < moves.length; j++) {
-        if (this.positionIsLatest(board, moves[j][0])) {
-          if (
-            moves[j].length === 2 &&
-            moves[j][1][0] === pos[0] &&
-            moves[j][1][1] === pos[1] &&
-            moves[j][1][2] === pos[2] &&
-            moves[j][1][3] === pos[3]
-          ) {
-            return true;
-          }
-          if (
-            moves[j].length === 3 &&
-            moves[j][2][0] === pos[0] &&
-            moves[j][2][1] === pos[1] &&
-            moves[j][2][2] === pos[2] &&
-            moves[j][2][3] === pos[3]
-          ) {
-            return true;
-          }
-        }
+  // Knight
+  for (var i = 0; i < 8; i++) {
+    var rPos = pos2 + movePos[i][2];
+    var fPos = pos3 + movePos[i][3];
+    
+    if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
+      var curPiece = Math.abs(curBoard[rPos][fPos]);
+      if (curPiece !== 0 && curPiece - player === 5) {
+        return true;
       }
     }
   }
+
+  // RF
+  for (var i = 0; i < 4; i++) {
+    var rMove = moveVecs[i][2];
+    var fMove = moveVecs[i][3];
+    var rPos = pos2 + rMove;
+    var fPos = pos3 + fMove;
+
+    if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
+      var curPiece = Math.abs(curBoard[rPos][fPos]);
+      if (curPiece !== 0) {
+        if (curPiece % 2 !== player) {
+          var compPiece = curPiece - player;
+          if ((compPiece >= 7 && compPiece <= 13) || compPiece === 17 || compPiece === 19) {
+            return true;
+          }
+        }
+        continue;
+      }
+      rPos += rMove;
+      fPos += fMove;
+
+      while (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
+        curPiece = Math.abs(curBoard[rPos][fPos]);
+        if (curPiece !== 0) {
+          if (curPiece % 2 !== player) {
+            var compPiece = curPiece - player;
+            if (compPiece === 7 || compPiece === 9 || compPiece === 13 || compPiece === 19) {
+              return true;
+            }
+          }
+          break;
+        }
+        rPos += rMove;
+        fPos += fMove;
+      }
+    }
+  }
+
+  // Diagonal
+  for (var i = 4; i < 8; i++) {
+    var rMove = moveVecs[i][2];
+    var fMove = moveVecs[i][3];
+    var rPos = pos2 + rMove;
+    var fPos = pos3 + fMove;
+
+    if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
+      var curPiece = Math.abs(curBoard[rPos][fPos]);
+      if (curPiece !== 0) {
+        if (curPiece % 2 !== player) {
+          var compPiece = curPiece - player;
+          if (compPiece === 5 || compPiece === 7 || compPiece === 21 || compPiece === 23) {
+            continue;
+          } else if ((compPiece === 1 || compPiece === 15) && i % 2 === player) {
+            return true;
+          } else {
+            return true;
+          }
+        }
+        continue;
+      }
+      rPos += rMove;
+      fPos += fMove;
+
+      while (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
+        curPiece = Math.abs(curBoard[rPos][fPos]);
+        if (curPiece !== 0) {
+          if (curPiece % 2 !== player) {
+            var compPiece = curPiece - player;
+            if (compPiece === 3 || compPiece === 9 || compPiece === 13 || compPiece === 19) {
+              return true;
+            }
+          }
+          break;
+        }
+        rPos += rMove;
+        fPos += fMove;
+      }
+    }
+  } 
+
   return false;
 }
 
