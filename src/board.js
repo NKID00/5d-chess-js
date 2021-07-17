@@ -2,8 +2,8 @@ const pieceFuncs = require('@local/piece');
 const turnFuncs = require('@local/turn');
 const parseFuncs = require('@local/parse');
 
-exports.init = (variant) => {
-  switch (variant) {
+exports.init = (letiant) => {
+  switch (letiant) {
     case 'defended_pawn':
       return [[[
         [-8, -10, -4, -6, -12, -4, -6, -8],
@@ -98,8 +98,8 @@ exports.init = (variant) => {
       ];
     case 'custom':
       return [];
-    case typeof variant === 'object':
-      return parseFuncs.toBoard(variant);
+    case typeof letiant === 'object':
+      return parseFuncs.toBoard(letiant);
     default:
       return [[[
         [-8, -6, -4, -10, -12, -4, -6, -8],
@@ -115,176 +115,198 @@ exports.init = (variant) => {
   }
 }
 
-exports.copy = (board) => {
+exports.copy = (fullBoard) => {
 
   let res = [];
 
   //go trough the timelines of the game
-  for (let l = 0; board && l < board.length; l++) {
+  for (let l = 0; fullBoard && l < fullBoard.length; l++) {
 
     // make result the same size as board with no values
-    if (board[l]) {
-      res[l] = [];
-    }
+    if (fullBoard[l]) res[l] = [];
 
     // go through each board in the current timeline
-    for (let t = 0; board[l] && t < board[l].length; t++) {
+    for (let t = 0; fullBoard[l] && t < fullBoard[l].length; t++) {
 
       // make result the same size as board with no values
-      if (board[l][t]) {
-        res[l][t] = [];
-      }
+      if (fullBoard[l][t]) res[l][t] = [];
 
       // create a copy of the current turn
-      const newTurn = turnFuncs.copy(board, l, t);
+      const newTurn = turnFuncs.copy(fullBoard, l, t);
 
-      // go to the next turn
+      // add the copied turn
       this.setTurn(res, l, t, newTurn);
     }
   }
   return res;
 }
 
-exports.setTurn = (board, timeline, time, turn) => {
+// I hate this function because it literally uses the one thing you shouldn't to work (using an object pointer and mutating the data from a different place instead of returning the changed data and assigning the object to it)
+// But I can't think of a better way to make a deep copy of the data without doing this :(
+exports.setTurn = (fullBoard, givenTimelineIndex, givenTurnIndex, turnMade) => {
   //Function to set small board/turn for full board. Used to avoid PACKED -> HOLEY element transition on v8 engine.
-  if (!Array.isArray(board)) {
-    board = [];
-  }
+  fullBoard = !Array.isArray(fullBoard) ? [] : fullBoard
 
   // go through every timeline
-  for (let l = 0; l <= timeline; l++) {
+  for (let l = 0; l <= givenTimelineIndex; l++) {
 
-    // if the timeline we are on is the last timeline
-    if (l === timeline) {
+    // if the timeline we are on is the given timeline
+    if (l == givenTimelineIndex) {
 
-      if (!Array.isArray(board[l])) {
-        board[l] = [];
-      }
+      fullBoard[l] = !Array.isArray(fullBoard[l]) ? [] : fullBoard[l]
 
-      // go through all of the boards in the current timeline
-      for (let t = 0; t <= time; t++) {
+      // go through all of the turns in the current timeline
+      for (let t = 0; t <= givenTurnIndex; t++) {
 
-        // if the board we are on is the last board
-        if (t === time) {
-          board[l][t] = turn;
-        }
-        else if (t >= board[l].length || typeof board[l][t] === 'undefined') {
-          board[l][t] = null;
-        }
+        // if the turn we are on is the given turn
+        if (t == givenTurnIndex) fullBoard[l][t] = turnMade;
+
+        // if the turn we are on is not a turn
+        if (t < fullBoard[l].length && typeof t != 'undefined') continue;
+
+        fullBoard[l][t] = null;
+
       }
     }
-    else if (l >= board.length || typeof board[l] === 'undefined') {
-      board[l] = null;
-    }
+
+    // if the timeline we are on is not a timeline
+    if (l < fullBoard.length && typeof fullBoard[l] != 'undefined') continue;
+
+    fullBoard[l] = null;
   }
 }
 
-exports.move = (board, move) => {
+// I hate this function because it literally uses the one thing you shouldn't to work (using an object pointer and mutating the data from a different place instead of returning the changed data and assigning the object to it)
+// But I can't think of a better way to make a deep copy of the data in a way that it doesn't happen :(
+exports.move = (fullBoard, moves) => {
   // position validation 
-  if (this.positionExists(board, move[0]) && this.positionIsLatest(board, move[0])) {
-    const src = move[0];
-    const dest = move[1];
-    let newTurn = turnFuncs.copy(board, src[0], src[1]);
-    const destPiece = dest[4] ? dest[4] : Math.abs(newTurn[src[2]][src[3]]);
+  if (this.positionExists(fullBoard, moves[0]) && this.positionIsLatest(fullBoard, moves[0])) {
+    const start = moves[0];
+    const dest = moves[1];
+
+    let newTurn = turnFuncs.copy(fullBoard, start[0], start[1]);
+
+    const destPiece = dest[4] ? dest[4] : Math.abs(newTurn[start[2]][start[3]]);
 
     if (destPiece !== undefined && destPiece !== 0) {
-      newTurn[src[2]][src[3]] = 0;
-      if (dest !== undefined) {
-        if (dest[0] === src[0] && dest[1] === src[1]) {
+
+      newTurn[start[2]][start[3]] = 0;
+
+      if (dest != undefined) {
+
+        if (dest[0] === start[0] && dest[1] === start[1]) {
+
           newTurn[dest[2]][dest[3]] = destPiece;
-        }
-        else {
-          let secondNewTurn = turnFuncs.copy(board, dest[0], dest[1]);
+        } else {
+
+          let secondNewTurn = turnFuncs.copy(fullBoard, dest[0], dest[1]);
+
           secondNewTurn[dest[2]][dest[3]] = destPiece;
-          if ((board[dest[0]].length - 1) === dest[1]) {
-            this.setTurn(board, dest[0], dest[1] + 1, secondNewTurn);
-          }
-          else {
+
+          if ((fullBoard[dest[0]].length - 1) === dest[1]) {
+
+            this.setTurn(fullBoard, dest[0], dest[1] + 1, secondNewTurn);
+          } else {
             let newTimeline = 0;
-            for (let i = 1; i < board.length; i++) {
-              if (!(typeof board[i] === 'undefined' || board[i] === null) && (i % 2) === (dest[1] % 2)) {
-                if (newTimeline < i) { newTimeline = i; }
-              }
+
+            for (let i = 1; i < fullBoard.length; i++) {
+
+              if ((typeof fullBoard[i] === 'undefined' || fullBoard[i] === null) || (i % 2) != (dest[1] % 2)) continue;
+
+              newTimeline = (newTimeline < i) ? i : newTimeline
             }
+
             if (newTimeline === 0) {
-              board[(dest[1] % 2) === 0 ? 2 : 1] = [];
-              this.setTurn(board, (dest[1] % 2) === 0 ? 2 : 1, dest[1] + 1, secondNewTurn);
+
+              fullBoard[(dest[1] % 2) === 0 ? 2 : 1] = [];
+
+              this.setTurn(fullBoard, (dest[1] % 2) === 0 ? 2 : 1, dest[1] + 1, secondNewTurn);
             }
             else {
-              board[newTimeline + 2] = [];
-              this.setTurn(board, newTimeline + 2, dest[1] + 1, secondNewTurn);
+
+              fullBoard[newTimeline + 2] = [];
+
+              this.setTurn(fullBoard, newTimeline + 2, dest[1] + 1, secondNewTurn);
             }
           }
         }
       }
-      this.setTurn(board, src[0], src[1] + 1, newTurn);
+
+      this.setTurn(fullBoard, start[0], start[1] + 1, newTurn);
     }
-    if (move[2] !== undefined) {
-      var src2 = move[2];
-      if (move[3] !== undefined) {
-        var dest2 = move[3];
-        var destPiece2 = dest2[4] ? dest2[4] : Math.abs(board[src2[0]][src2[1]][src2[2]][src2[3]]);
-        if (dest2 !== undefined) {
-          board[dest2[0]][dest2[1] + 1][dest2[2]][dest2[3]] = destPiece2;
+
+    if (moves[2] != undefined) {
+
+      const src2 = moves[2];
+
+      if (moves[3] != undefined) {
+
+        const dest2 = moves[3];
+
+        const destPiece2 = dest2[4] ? dest2[4] : Math.abs(fullBoard[src2[0]][src2[1]][src2[2]][src2[3]]);
+
+        if (dest2 != undefined) {
+
+          fullBoard[dest2[0]][dest2[1] + 1][dest2[2]][dest2[3]] = destPiece2;
+
         }
       }
-      board[src2[0]][src2[1] + 1][src2[2]][src2[3]] = 0;
+
+      fullBoard[src2[0]][src2[1] + 1][src2[2]][src2[3]] = 0;
     }
   }
 }
 
-exports.positionExists = (board, pos) => {
-  return Boolean(
-    board[pos[0]] !== undefined && board[pos[0]] !== null &&
-    board[pos[0]][pos[1]] !== undefined  && board[pos[0]][pos[1]] !== null &&
-    pos[2] >= 0 && pos[2] < board[pos[0]][pos[1]].length &&
-    pos[3] >= 0 && pos[3] < board[pos[0]][pos[1]][pos[2]].length
-  );
-}
-
-exports.positionIsLatest = (board, pos) => {
-
-  return this.positionExists(board, pos) && (board[pos[0]].length - 1) === pos[1]
+exports.positionExists = (fullBoard, pos) => {
+  return fullBoard[pos[0]] && fullBoard[pos[0]][pos[1]] && pos[2] >= 0 &&
+    pos[2] < fullBoard[pos[0]][pos[1]].length &&
+    pos[3] >= 0 && pos[3] < fullBoard[pos[0]][pos[1]][pos[2]].length
 
 }
 
-exports.active = (board) => {
+exports.positionIsLatest = (fullBoard, pos) => {
+
+  return this.positionExists(fullBoard, pos) && (fullBoard[pos[0]].length - 1) === pos[1]
+
+}
+
+exports.active = (fullBoard) => {
   let res = [];
   let minTimeline = 0;
   let maxTimeline = 0;
 
-  // go trough all timelines that have happened
-  for (let l = 0; l < board.length; l++) {
+  // go trough all timelines
+  for (let l = 0; l < fullBoard.length; l++) {
 
-    // if a timeline has a board at the current index
-    if (!board[l]) continue;
+    // if the timeline exists
+    if (!fullBoard[l]) continue;
 
-    //get the earliest timeline that isn't null?
-    minTimeline = (minTimeline < l && l % 2 !== 0) ? l : minTimeline
+    //get the earliest timeline that isn't null
+    minTimeline = (minTimeline < l && l % 2 != 0) ? l : minTimeline
 
-    //get the latest timeline that isn't null?
-    maxTimeline = (maxTimeline < l && l % 2 === 0) ? l : maxTimeline
+    //get the latest timeline that isn't null
+    maxTimeline = (maxTimeline < l && l % 2 == 0) ? l : maxTimeline
 
   }
 
   // go trough all timelines
-  for (let l = 0; l < board.length; l++) {
+  for (let l = 0; l < fullBoard.length; l++) {
 
-    // if a timeline has a board at the current index
-    if (!board[l]) continue;
+    // if the timeline exists
+    if (!fullBoard[l]) continue;
 
-    if (maxTimeline + 1 >= l && l % 2 !== 0) res.push(l);
+    if (maxTimeline + 1 >= l && l % 2 != 0) res.push(l);
 
-    if (minTimeline + 3 >= l && l % 2 === 0) res.push(l);
+    if (minTimeline + 3 >= l && l % 2 == 0) res.push(l);
 
   }
 
   return res;
 }
 
-exports.present = (board, actionNum) => {
+exports.present = (fullBoard, actionNum) => {
+  const activeTimelines = this.active(fullBoard);
   let res = [];
-  let activeTimelines = this.active(board);
   let lowestTurn = -1;
 
   // go through all active timelines
@@ -292,18 +314,14 @@ exports.present = (board, actionNum) => {
     let currMax = -1;
 
     // go trough the boards on each active timeline
-    for (let t = 0; t < board[activeTimelines[i]].length; t++) {
+    for (let t = 0; t < fullBoard[activeTimelines[i]].length; t++) {
 
       // set the currMax to the maximum board id in each timeline
-      currMax = (board[activeTimelines[i]][t] && currMax < t && actionNum % 2 === t % 2) ? t : currMax;
+      currMax = (fullBoard[activeTimelines[i]][t] && currMax < t && actionNum % 2 === t % 2) ? t : currMax;
 
     }
 
-    if (currMax !== -1) {
-
-      lowestTurn = (lowestTurn === -1 || lowestTurn > currMax) ? currMax : lowestTurn
-
-    }
+    lowestTurn = (currMax != -1 && (lowestTurn === -1 || lowestTurn > currMax)) ? currMax : lowestTurn
   }
 
   if (lowestTurn >= 0) {
@@ -313,69 +331,63 @@ exports.present = (board, actionNum) => {
       let currMax = 0;
 
       // go trough the boards on each active timeline
-      for (let t = 0; t < board[activeTimelines[i]].length; t++) {
+      for (let t = 0; t < fullBoard[activeTimelines[i]].length; t++) {
 
         // set currMax equal to the minimum board index
-        if (board[activeTimelines[i]][t] && currMax < t) {
-          currMax = t;
-        }
+        currMax = (fullBoard[activeTimelines[i]][t] && currMax < t) ? t : currMax;
+
       }
 
-      if (lowestTurn === currMax) {
-        res.push(activeTimelines[i]);
-      }
-      else if (lowestTurn > currMax) {
-        return [];
-      }
+      if (lowestTurn === currMax) res.push(activeTimelines[i]);
+
+      if (lowestTurn > currMax) return [];
     }
   }
 
   return res;
 }
 
-exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, spatialOnly = false, promotionPieces = null) => {
+exports.moves = (fullBoard, actionNum, activeOnly = true, presentOnly = true, spatialOnly = false, promotionPieces = null) => {
 
   let res = [];
 
   //if all moves come from only present timelines
   if (presentOnly) {
     // get all of the present timelines
-    const presentTimelines = this.present(board, actionNum);
-    res = this.getMovesFromTimelines(board, presentTimelines, actionNum, spatialOnly, promotionPieces, res);
+    const presentTimelines = this.present(fullBoard, actionNum);
+    return res = this.getMovesFromTimelines(fullBoard, presentTimelines, actionNum, spatialOnly, promotionPieces, res);
+
   }
   // if the moves come from only active timelines
-  else if (activeOnly) {
-
+  if (activeOnly) {
     // get all active timelines
-    const activeTimelines = this.active(board);
-    res = this.getMovesFromTimelines(board, activeTimelines, actionNum, spatialOnly, promotionPieces, res);
+    const activeTimelines = this.active(fullBoard);
+    return res = this.getMovesFromTimelines(fullBoard, activeTimelines, actionNum, spatialOnly, promotionPieces, res);
 
   }
-  else {
-    // same thing as the getMoveFromTimelines function but you have to validate timelines before getting the latestTurn
-    for (let l = 0; l < board.length; l++) {
 
-      const currTimeline = board[l];
-      if (!currTimeline) continue;
+  // same thing as the getMoveFromTimelines function but you have to validate timelines before getting the latestTurn
+  for (let l = 0; l < fullBoard.length; l++) {
 
-      const latestTurn = currTimeline[currTimeline.length - 1];
+    const currTimeline = fullBoard[l];
+    if (!currTimeline) continue;
 
-      if ((currTimeline.length - 1) % 2 === actionNum % 2) {
+    const latestTurn = currTimeline[currTimeline.length - 1];
 
-        for (let r = 0; latestTurn && r < latestTurn.length; r++) {
+    if ((currTimeline.length - 1) % 2 !== actionNum % 2) continue;
 
-          for (let f = 0; latestTurn[r] && f < latestTurn[r].length; f++) {
+    for (let r = 0; latestTurn && r < latestTurn.length; r++) {
 
-            const piece = Math.abs(latestTurn[r][f]);
+      for (let f = 0; latestTurn[r] && f < latestTurn[r].length; f++) {
 
-            if (piece !== 0 && piece % 2 === actionNum % 2) {
-              const moves = pieceFuncs.moves(board, [l, currTimeline.length - 1, r, f], spatialOnly, promotionPieces);
+        const piece = Math.abs(latestTurn[r][f]);
 
-              for (let j = 0; j < moves.length; j++) {
-                res.push(moves[j]);
-              }
-            }
-          }
+        if (piece === 0 || piece % 2 !== actionNum % 2) continue;
+
+        const moves = pieceFuncs.moves(fullBoard, [l, currTimeline.length - 1, r, f], spatialOnly, promotionPieces);
+
+        for (let j = 0; j < moves.length; j++) {
+          res.push(moves[j]);
         }
       }
     }
@@ -384,58 +396,60 @@ exports.moves = (board, actionNum, activeOnly = true, presentOnly = true, spatia
   return res;
 }
 
-exports.positionIsAttacked = (board, pos, player, spatialOnly = false) => {
-  var pos2 = pos[2];
-  var pos3 = pos[3];
-  var curBoard = board[pos[0]][pos[1]];
-  var movePos = pieceFuncs.movePos(6); // Knight movement
-  var moveVecs = pieceFuncs.moveVecs(10); // Queen movement
+exports.positionIsAttacked = (fullBoard, pos, player) => {
+  const pos2 = pos[2];
+  const pos3 = pos[3];
+  const curBoard = fullBoard[pos[0]][pos[1]];
+  const movePos = pieceFuncs.movePos(6); // Knight movement
+  const moveVecs = pieceFuncs.moveVecs(10); // Queen movement
 
   // Knight
-  for (var i = 0; i < 8; i++) {
-    var rPos = pos2 + movePos[i][2];
-    var fPos = pos3 + movePos[i][3];
-    
-    if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
-      var curPiece = Math.abs(curBoard[rPos][fPos]);
-      if (curPiece !== 0 && curPiece - player === 5) {
-        return true;
-      }
-    }
+  for (let i = 0; i < 8; i++) {
+    const rPos = pos2 + movePos[i][2];
+    const fPos = pos3 + movePos[i][3];
+
+    if (rPos < 0 || rPos >= curBoard.length || fPos < 0 || fPos >= curBoard[rPos].length) continue;
+
+    let curPiece = Math.abs(curBoard[rPos][fPos]);
+
+    if (curPiece !== 0 && curPiece - player === 5) return true;
+
   }
 
   // RF
-  for (var i = 0; i < 4; i++) {
-    var rMove = moveVecs[i][2];
-    var fMove = moveVecs[i][3];
-    var rPos = pos2 + rMove;
-    var fPos = pos3 + fMove;
+  for (let i = 0; i < 4; i++) {
+    const rMove = moveVecs[i][2];
+    const fMove = moveVecs[i][3];
+    let rPos = pos2 + rMove;
+    let fPos = pos3 + fMove;
 
     if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
-      var curPiece = Math.abs(curBoard[rPos][fPos]);
+      let curPiece = Math.abs(curBoard[rPos][fPos]);
+
       if (curPiece !== 0) {
-        if (curPiece % 2 !== player) {
-          var compPiece = curPiece - player;
-          if ((compPiece >= 7 && compPiece <= 13) || compPiece === 17 || compPiece === 19) {
-            return true;
-          }
-        }
-        continue;
+        const compPiece = curPiece - player;
+
+        if (curPiece % 2 === player) continue;
+
+        if ((compPiece >= 7 && compPiece <= 13) || compPiece === 17 || compPiece === 19) return true;
       }
+
       rPos += rMove;
       fPos += fMove;
 
       while (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
         curPiece = Math.abs(curBoard[rPos][fPos]);
+
         if (curPiece !== 0) {
+
           if (curPiece % 2 !== player) {
-            var compPiece = curPiece - player;
-            if (compPiece === 7 || compPiece === 9 || compPiece === 13 || compPiece === 19) {
-              return true;
-            }
+            const compPiece = curPiece - player;
+
+            if (compPiece === 7 || compPiece === 9 || compPiece === 13 || compPiece === 19) return true;
           }
           break;
         }
+
         rPos += rMove;
         fPos += fMove;
       }
@@ -443,223 +457,173 @@ exports.positionIsAttacked = (board, pos, player, spatialOnly = false) => {
   }
 
   // Diagonal
-  for (var i = 4; i < 8; i++) {
-    var rMove = moveVecs[i][2];
-    var fMove = moveVecs[i][3];
-    var rPos = pos2 + rMove;
-    var fPos = pos3 + fMove;
+  for (let i = 4; i < 8; i++) {
+    const rMove = moveVecs[i][2];
+    const fMove = moveVecs[i][3];
+    let rPos = pos2 + rMove;
+    let fPos = pos3 + fMove;
 
     if (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
-      var curPiece = Math.abs(curBoard[rPos][fPos]);
+      let curPiece = Math.abs(curBoard[rPos][fPos]);
+
       if (curPiece !== 0) {
-        if (curPiece % 2 !== player) {
-          var compPiece = curPiece - player;
-          if (compPiece === 5 || compPiece === 7 || compPiece === 21 || compPiece === 23) {
-            continue;
-          } else if ((compPiece === 1 || compPiece === 15) && i % 2 === player) {
-            return true;
-          } else {
-            return true;
-          }
-        }
-        continue;
+        const compPiece = curPiece - player;
+
+        if (curPiece % 2 == player) continue;
+
+        if (compPiece === 5 || compPiece === 7 || compPiece === 21 || compPiece === 23) continue;
+
+        return true;
       }
+
       rPos += rMove;
       fPos += fMove;
 
       while (rPos >= 0 && rPos < curBoard.length && fPos >= 0 && fPos < curBoard[rPos].length) {
         curPiece = Math.abs(curBoard[rPos][fPos]);
+
         if (curPiece !== 0) {
+
           if (curPiece % 2 !== player) {
-            var compPiece = curPiece - player;
-            if (compPiece === 3 || compPiece === 9 || compPiece === 13 || compPiece === 19) {
-              return true;
-            }
+            const compPiece = curPiece - player;
+
+            if (compPiece === 3 || compPiece === 9 || compPiece === 13 || compPiece === 19) return true;
           }
           break;
         }
+
         rPos += rMove;
         fPos += fMove;
       }
     }
-  } 
+  }
 
   return false;
 }
 
-exports.isTurnZero = (board) => {
+exports.isTurnZero = (fullBoard) => {
   //Checking if turn exists at the zero index
   let hasZeroIndex = false;
 
-  if (!Array.isArray(board) || !board.length > 0) return false;
+  if (!Array.isArray(fullBoard) || !fullBoard.length > 0) return false;
 
-  for (let l = 0; l < board.length; l++) {
+  for (const timeline of fullBoard) {
 
-    if (Array.isArray(board[l]) && board[l].length > 0) {
+    if (!Array.isArray(timeline) || timeline.length < + 0) continue;
 
-      if (Array.isArray(board[l][0])) {
-        hasZeroIndex = true;
-      }
-    }
+    if (Array.isArray(timeline[0])) hasZeroIndex = true;
+
   }
   //Inverted, since turn zero is the lack of a zero index turn (i.e. first turn starts from the index of 1)
   return !hasZeroIndex;
 
 }
 
-exports.isEvenTimeline = (board) => {
+exports.isEvenTimeline = (fullBoard) => {
 
-  return (!Array.isArray(board) || !board.length > 0) || !Array.isArray(board[0])
+  return (!Array.isArray(fullBoard) || !fullBoard.length > 0) || !Array.isArray(fullBoard[0])
 
 }
 
-exports.isNormalCastling = (board) => {
+exports.isNormalCastling = (fullBoard) => {
   //Check if initial boards (not full board) can use O-O notation format
+  const isTurnZero = this.isTurnZero(fullBoard);
   let hasNonNormalCastling = false;
-  const isTurnZero = this.isTurnZero(board);
 
-  if (Array.isArray(board) && board.length > 0) return false;
+  if (Array.isArray(fullBoard) && fullBoard.length > 0) return false;
 
-  for (let l = 0; l < board.length; l++) {
+  for (const timeline of fullBoard) {
 
-    if (Array.isArray(board[l]) && board[l].length > 0) continue;
+    if (Array.isArray(timeline) && timeline.length > 0) continue;
 
-    const currTurn = board[l][0];
+    const currTurn = timeline[0];
 
-    if (isTurnZero) currTurn = board[l][2];
+    currTurn = (isTurnZero) ? timeline[2] : currTurn;
 
-    if (Array.isArray(currTurn)) {
-      if (currTurn[0][4] !== -12 || currTurn[7][4] !== -11) {
-        hasNonNormalCastling = true;
-      }
-    }
+    if (!Array.isArray(currTurn)) continue;
+
+    if (currTurn[0][4] !== -12 || currTurn[7][4] !== -11) hasNonNormalCastling = true;
   }
   //Inverted, since normal castling means no initial board contains non-normal castling
   return !hasNonNormalCastling;
 
 }
 
-exports.compare = (board1, board2) => {
-  //Note: accidentally used t instead of l for timeline and l instead of t for turn
-  if (Array.isArray(board1)) {
+exports.compare = (firstFullBoard, secondFullBoard) => {
 
-    if (Array.isArray(board2) && board1.length === board2.length) {
+  if (Array.isArray(firstFullBoard)) {
 
-      for (var t = 0; t < board1.length; t++) {
+    if (Array.isArray(secondFullBoard) && firstFullBoard.length === secondFullBoard.length) return -1;
 
-        if (Array.isArray(board1[t])) {
+    for (let l = 0; l < fullBoard.length; l++) {
 
-          if (Array.isArray(board2[t]) && board1[t].length === board2[t].length) {
+      if (Array.isArray(firstFullBoard[l])) {
 
-            for (var l = 0; l < board1[t].length; l++) {
+        if (!Array.isArray(secondFullBoard[l]) || firstFullBoard[l].length != secondFullBoard[l].length) return -1;
 
-              if (Array.isArray(board1[t][l])) {
+        for (let t = 0; t < firstFullBoard[l].length; t++) {
 
-                if (Array.isArray(board2[t][l]) && board1[t][l].length === board2[t][l].length) {
+          if (Array.isArray(firstFullBoard[l][t])) {
 
-                  for (var r = 0; r < board1[t][l].length; r++) {
+            if (!Array.isArray(secondFullBoard[l][t]) || firstFullBoard[l][t].length != secondFullBoard[l][t].length) return -1;
 
-                    if (Array.isArray(board1[t][l][r])) {
+            for (let r = 0; r < firstFullBoard[l][t].length; r++) {
+              if (Array.isArray(firstFullBoard[l][t][r])) {
 
-                      if (Array.isArray(board2[t][l][r]) && board1[t][l][r].length === board2[t][l][r].length) {
+                if (Array.isArray(secondFullBoard[l][t][r]) || firstFullBoard[l][t][r].length != secondFullBoard[l][t][r].length) return -1;
 
-                        for (var f = 0; f < board1[t][l][r].length; f++) {
+                for (let f = 0; f < firstFullBoard[l][t][r]; f++) {
 
-                          if (board1[t][l][r][f] !== undefined) {
+                  if (firstFullBoard[l][t][r][f] != undefined && secondFullBoard[l][t][r][f] != undefined) return 1;
 
-                            if (board2[t][l][r][f] !== undefined) {
+                  if (secondFullBoard[l][t][r][f] != undefined) return -1;
 
-                              if (board1[t][l][r][f] !== board2[t][l][r][f]) return board1[t][l][r][f] - board2[t][l][r][f];
-
-                            }
-                            else {
-                              return -1;
-                            }
-                          }
-                          else {
-                            if (board2[t][l][r][f] !== undefined) {
-                              return 1;
-                            }
-                          }
-                        }
-                      }
-                      else {
-                        return -1;
-                      }
-                    }
-                    else {
-                      if (Array.isArray(board2[t][l][r])) {
-                        return 1;
-                      }
-                    }
-                  }
-                }
-                else {
-                  return -1;
+                  if (firstFullBoard[l][t][r][f] != secondFullBoard[l][t][r][f]) return firstFullBoard[l][t][r][f] - secondFullBoard[l][t][r][f];
                 }
               }
-              else {
-                if (Array.isArray(board2[t][l])) {
-                  return 1;
-                }
-              }
+
+              if (Array.isArray(secondFullBoard[l][t][r])) return 1;
             }
           }
-          else {
-            return -1;
-          }
-        }
-        else {
-          if (Array.isArray(board2[t])) {
-            return 1;
-          }
+
+          if (Array.isArray(secondFullBoard[l][t])) return 1;
         }
       }
-    }
-    else {
-      return -1;
-    }
-  }
-  else {
-    if (Array.isArray(board2)) {
-      return 1;
-    }
-    else {
-      return 0;
+
+      if (Array.isArray(secondFullBoard[l])) return 1;
     }
   }
+
+  if (Array.isArray(secondFullBoard)) return 1;
+
   return 0;
 }
 
-exports.getMovesFromTimelines = (board, Timelines, actionNum, spatialOnly, promotionPieces, res) => {
-  for (let i = 0; i < Timelines.length; i++) {
+exports.getMovesFromTimelines = (fullBoard, timelines, actionNum, spatialOnly, promotionPieces, res) => {
+  for (const timeline of timelines) {
 
     //if a board exists in this timeline
-    if (board[Timelines[i]]) {
-      const currTimeline = board[Timelines[i]];
+    if (!fullBoard[timeline]) continue;
 
-      const latestTurn = currTimeline[currTimeline.length - 1];
+    const currTimeline = fullBoard[timeline];
 
-      // if the previous players move is the current players move
-      if ((currTimeline.length - 1) % 2 === actionNum % 2) {
+    const latestTurn = currTimeline[currTimeline.length - 1];
 
-        // go through all files on the latestTurn
-        for (let r = 0; r < latestTurn.length; r++) {
-          // go through all squares in every file
-          for (let f = 0; f < latestTurn[r].length; f++) {
-            const piece = Math.abs(latestTurn[r][f]);
+    // if the previous players move is the current players move
+    if ((currTimeline.length - 1) % 2 != actionNum % 2) continue;
 
-            // if there is a piece on the current square and currentPiece is the current player's piece
-            if (piece !== 0 && piece % 2 === actionNum % 2) {
-              const moves = pieceFuncs.moves(board, [Timelines[i], currTimeline.length - 1, r, f], spatialOnly, promotionPieces);
+    // go through all files on the latestTurn
+    for (let r = 0; r < latestTurn.length; r++) {
+      // go through all squares in every file
+      for (let f = 0; f < latestTurn[r].length; f++) {
+        const piece = Math.abs(latestTurn[r][f]);
+        const moves = pieceFuncs.moves(fullBoard, [timeline, currTimeline.length - 1, r, f], spatialOnly, promotionPieces);
 
-              // add all possible moves the the results array
-              for (let j = 0; j < moves.length; j++) {
-                res.push(moves[j]);
-              }
-            }
-          }
-        }
+        // if there is a piece on the current square and currentPiece is the current player's piece
+        if (piece == 0 || piece % 2 != actionNum % 2) continue;
+
+        // add all possible moves the the results array
+        for (const move of moves) res.push(move);
       }
     }
   }
