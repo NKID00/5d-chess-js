@@ -20,12 +20,14 @@
     "dist"
   ],
   "scripts": {
+    "start": "npm run build-dev",
     "cli": "nodemon ./src/cli.js",
     "test": "jest",
     "bench": "node --max_old_space_size=8192 ./src/bench.js",
     "profile": "clinic flame -- node --max_old_space_size=8192 ./src/bench.js",
     "prepare": "npm run-script build",
     "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js",
+    "build-dev": "watchify ./src/index.js -d -v -t aliasify -s Chess -o ./dist/5d-chess.js",
     "docs-start": "docsify serve ./docs"
   },
   "aliasify": {
@@ -74,6 +76,7 @@
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
     "tinyify": "^3.0.0",
-    "uglify-js": "^3.10.4"
+    "uglify-js": "^3.10.4",
+    "watchify": "^4.0.0"
   }
 }
