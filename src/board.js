@@ -2,8 +2,8 @@ const pieceFuncs = require('@local/piece');
 const turnFuncs = require('@local/turn');
 const parseFuncs = require('@local/parse');
 
-exports.init = (letiant) => {
-  switch (letiant) {
+exports.init = (variant) => {
+  switch (variant) {
     case 'defended_pawn':
       return [[[
         [-8, -10, -4, -6, -12, -4, -6, -8],
@@ -98,8 +98,8 @@ exports.init = (letiant) => {
       ];
     case 'custom':
       return [];
-    case typeof letiant === 'object':
-      return parseFuncs.toBoard(letiant);
+    case typeof variant === 'object':
+      return parseFuncs.toBoard(variant);
     default:
       return [[[
         [-8, -6, -4, -10, -12, -4, -6, -8],
