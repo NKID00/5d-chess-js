@@ -689,31 +689,6 @@ exports.moves = (fullBoard, givenPiece, spatialOnly = false, promotionPieces = n
             res.push([currMove[0].slice(), currMove[1].slice()]);
           }
         }
-        //Black en passant capture LT movement
-        else if(destPiece === 0) {
-          currMove[2] = currMove[1].slice();
-          currMove[2][0] = this.timelineMove(currMove[2][0], 1, isEvenTimeline);
-          currMove[2][1]--;
-          if(boardFuncs.positionExists(board, currMove[2])) {
-            destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
-            if(destPiece === -2 || destPiece === -16) {
-              currMove[2][0] = this.timelineMove(currMove[2][0], -2, isEvenTimeline);
-              if(boardFuncs.positionExists(board, currMove[2])) {
-                destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
-                if(destPiece === 0) {
-                  currMove[2][1]++;
-                  if(boardFuncs.positionExists(board, currMove[2])) {
-                    destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
-                    if(destPiece === 2 || destPiece === 16) {
-                      currMove[2] = currMove[0].slice();
-                      res.push([currMove[0].slice(), currMove[1].slice(), currMove[2].slice()]);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
       }
     }
   } else {
@@ -818,31 +793,6 @@ exports.moves = (fullBoard, givenPiece, spatialOnly = false, promotionPieces = n
             curMove[1] += tMove;
             curMove[2] += rMove;
             curMove[3] += fMove;
-          }
-          //White en passant capture LT movement
-          else if(destPiece === 0) {
-            currMove[2] = currMove[1].slice();
-            currMove[2][0] = this.timelineMove(currMove[2][0], -1, isEvenTimeline);
-            currMove[2][1]--;
-            if(boardFuncs.positionExists(board, currMove[2])) {
-              destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
-              if(destPiece === -1 || destPiece === -15) {
-                currMove[2][0] = this.timelineMove(currMove[2][0], 2, isEvenTimeline);
-                if(boardFuncs.positionExists(board, currMove[2])) {
-                  destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
-                  if(destPiece === 0) {
-                    currMove[2][1]++;
-                    if(boardFuncs.positionExists(board, currMove[2])) {
-                      destPiece = board[currMove[2][0]][currMove[2][1]][currMove[2][2]][currMove[2][3]];
-                      if(destPiece === 1 || destPiece === 15) {
-                        currMove[2] = currMove[0].slice();
-                        res.push([currMove[0].slice(), currMove[1].slice(), currMove[2].slice()]);
-                      }
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       }
