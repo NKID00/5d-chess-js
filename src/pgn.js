@@ -300,7 +300,7 @@ exports.toMove = (moveStr, fullBoard = [], actionNum = 0, moveGen = [], promotio
 
       if (isTurnZero) res[0][1] += 2;
 
-    } catch (err) { throw 'Source super-physical coordinates missing or incorrect!'; }
+    } catch (err) { throw new Error('Source super-physical coordinates missing or incorrect!'); }
 
     const pieceChar = moveStr.match(/^[A-Z]+/);
 
@@ -353,7 +353,7 @@ exports.toMove = (moveStr, fullBoard = [], actionNum = 0, moveGen = [], promotio
       res[1][1] = (destT - 1) * 2 + (actionNum % 2 == 0 ? 0 : 1);
 
       if (isTurnZero) res[1][1] += 2;
-    } catch (err) { throw 'Destination super-physical coordinates missing or incorrect!'; }
+    } catch (err) { throw new Error('Destination super-physical coordinates missing or incorrect!'); }
 
     const destP = this.fromSanCoord(moveStr.match(/^[a-h]\d/)[0]);
 
@@ -491,9 +491,7 @@ exports.toMove = (moveStr, fullBoard = [], actionNum = 0, moveGen = [], promotio
   }
 
   if (moves.length > 0) {
-    console.error('Error occurred with this move: ' + orgMoveStr);
-    console.error(res);
-    throw 'No valid move found';
+    throw new Error('No valid move found! Error occurred with this move: ' + orgMoveStr);
   }
 
   if (sameRank) res[0][2] = 0;

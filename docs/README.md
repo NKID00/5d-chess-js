@@ -89,13 +89,16 @@ Terms used in the notation of 5D Chess JS:
 
 # PGN
 
-5D Chess JS uses the `5dpgn` standard as defined [here](https://github.com/adri326/5dchess-notation). Previous versions (v0.3.6 and below) used an older custom notation system.
-This library still maintains backwards compatibility, but `5dpgn` is the preferred standard moving forward.
+5D Chess JS uses the `5dpgn` standard as defined [here](https://github.com/adri326/5dchess-notation/tree/92c68f0c19183b4ff4459b4a32107b0bf6e069a2).
+
+Previous versions (v0.3.6 and below) used an older custom notation system which is no longer supported (v1.2.0 and above).
+
+*Note: This library has not been updated to the latest `5dpgn` standard yet. Currently this library uses `5dpgn` as described by commit `92c68f0`*
 
 # FEN
 
-5D Chess JS uses the `5dfen` standard as defined [here](https://github.com/adri326/5dchess-notation#5dfen-and-custom-variants).
-Its grammar can be found at [fen.ebnf](https://github.com/adri326/5dchess-notation/blob/master/fen.ebnf).
+5D Chess JS uses the `5dfen` standard as defined [here](https://github.com/adri326/5dchess-notation/tree/92c68f0c19183b4ff4459b4a32107b0bf6e069a2#5dfen-and-custom-variants).
+Its grammar can be found at [fen.ebnf](https://github.com/adri326/5dchess-notation/tree/92c68f0c19183b4ff4459b4a32107b0bf6e069a2/blob/master/fen.ebnf).
 
 # API
 
