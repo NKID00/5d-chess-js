@@ -1,6 +1,6 @@
 const boardFuncs = require('@local/board');
 
-// convert's all of the piece numbers to their characters 
+// Converts all of the piece numbers to their characters 
 exports.toChar = (piece, displayPawn = false) => {
   const absPiece = Math.abs(piece);
 
@@ -45,7 +45,7 @@ exports.toChar = (piece, displayPawn = false) => {
   }
 }
 
-// convert's all of the piece characters to their numbers
+// Converts all of the piece characters to their numbers
 exports.fromChar = (char, actionNum = 0) => {
   switch (char) {
     case 'P':
@@ -925,20 +925,34 @@ exports.enPassant = (fullBoard, givenPiece, curBoard, pieceColor, forward, rPos,
   const givenPieceRank = givenPiece[2];
 
   if (fPos < 0 || fPos >= curBoard[givenPieceRank].length) return res;
-  // get the destination piece
-  const destPiece = curBoard[givenPieceRank][fPos] - pieceColor;
+  // Check the opponent piece exists at correct square
+  let destPiece = curBoard[givenPieceRank][fPos] - pieceColor;
 
   if (destPiece !== 1 && destPiece !== 15) return res;
 
   const rPosEn = rPos + forward;
 
-  if (rPosEn >= 0 && rPosEn < curBoard.length && fPos >= 0 && fPos < curBoard[rPosEn].length) {
-    const destPiece = curBoard[rPosEn][fPos];
+  if (
+    rPosEn >= 0 &&
+    rPosEn < curBoard.length &&
+    fPos >= 0 &&
+    fPos < curBoard[rPosEn].length
+  ) {
+    // Check the opponent piece's source square is blank
+    destPiece = curBoard[rPosEn][fPos];
 
     if (destPiece !== 0) return res;
 
-    if (boardFuncs.positionExists(fullBoard, [givenPieceTimeline, givenPieceTurn - 2, rPosEn, fPos])) {
-      const destPiece = fullBoard[givenPieceTimeline][givenPieceTurn - 2][rPosEn][fPos] + pieceColor;
+    if (
+      boardFuncs.positionExists(fullBoard, [givenPieceTimeline, givenPieceTurn - 2, rPosEn, fPos]) &&
+      boardFuncs.positionExists(fullBoard, [givenPieceTimeline, givenPieceTurn - 2, givenPieceRank, fPos])
+    ) {
+      // Check the opponent piece square 1 turn in the past is blank
+      destPiece = fullBoard[givenPieceTimeline][givenPieceTurn - 2][givenPieceRank][fPos];
+    
+      if (destPiece !== 0) return res;
+
+      destPiece = fullBoard[givenPieceTimeline][givenPieceTurn - 2][rPosEn][fPos] + pieceColor;
 
       if (destPiece === -1 || destPiece === -15) res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos], [givenPieceTimeline, givenPieceTurn, givenPieceRank, fPos]]);
     }
@@ -955,7 +969,7 @@ exports.enPassantMovement = (fullBoard, givenPiece, promotionRank, promotionPiec
     res = this.promotionPiece(givenPiece, fullBoard, rPos, fPos, promotionPieces, promotionRank, pieceColor, res);
   }
 
-  res = this.enPassant(fullBoard, givenPiece, curBoard, pieceColor, forward, rPos, fPos, res)
+  res = this.enPassant(fullBoard, givenPiece, curBoard, pieceColor, forward, rPos, fPos, res);
   return res;
 }
 
