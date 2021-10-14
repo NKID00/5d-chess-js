@@ -1,179 +1,204 @@
 const boardFuncs = require('@local/board');
-const copyFuncs = require('@local/copy');
 const parseFuncs = require('@local/parse');
 const pieceFuncs = require('@local/piece');
 const validateFuncs = require('@local/validate');
-const { action } = require('./convert');
+// const copyFuncs = require('@local/copy');
+// const { action } = require('./convert');
 
 exports.toSanCoord = (point) => {
+
   return String.fromCharCode(point[1] + 97) + (point[0] + 1);
 }
 
 exports.fromSanCoord = (str) => {
-  var match = str.match(/^([a-h]?)(\d?)/);
+
+  const match = str.match(/^([a-h]?)(\d?)/);
+
   return [
-    match[2].length > 0 ?
-      Number(match[2]) - 1
-    :
-      -1,
-    match[1].length > 0 ?
-      match[1].charCodeAt(0) - 97
-    :
-      -1
+    match[2].length > 0 ? Number(match[2]) - 1 : -1,
+    match[1].length > 0 ? match[1].charCodeAt(0) - 97 : -1
   ];
 }
 
-exports.ambiguousSan = (move, board, actionNum = 0, moveGen = [], promotionPieces = null) => {
-  //moveGen here is for pregenerated moves (skipping generating moves again)
-  var res = '';
-  var moves = moveGen;
-  if(moves.length <= 0) {
-    moves = boardFuncs.moves(board, actionNum, false, false, promotionPieces);
-  }
-  var src = move[0];
-  var dest = move[1];
-  var piece = Math.abs(board[src[0]][src[1]][src[2]][src[3]]);
-  var destPiece = board[dest[0]][dest[1]][dest[2]][dest[3]];
-  var conflict = false;
-  var sameRank = false;
-  var sameFile = false;
-  for(var i = 0;i < moves.length;i++) {
-    if(validateFuncs.compareMove(move, moves[i]) !== 0) {
-      if(moves[i].length <= 3) {
-        var currSrc = moves[i][0];
-        var currDest = moves[i][1];
-        var currPiece = Math.abs(board[currSrc[0]][currSrc[1]][currSrc[2]][currSrc[3]]);
-        if(piece === currPiece) {
-          if(
-            src[0] === currSrc[0] &&
-            src[1] === currSrc[1] &&
-            dest[0] === currDest[0] &&
-            dest[1] === currDest[1] &&
-            dest[2] === currDest[2] &&
-            dest[3] === currDest[3]
-          ) {
-            if(src[2] === currSrc[2]) {
-              sameRank = true;
-            }
-            if(src[3] === currSrc[3]) {
-              sameFile = true;
-            }
-            conflict = true;
-          }
-        }
-      }
+exports.ambiguousSan = (move, fullBoard, actionNum = 0, moveGen = [], promotionPieces = null) => {
+
+  //moveGen here is for pre-generated moves (skipping generating moves again)
+  const src = move[0];
+  const dest = move[1];
+  const piece = Math.abs(fullBoard[src[0]][src[1]][src[2]][src[3]]);
+  const destPiece = fullBoard[dest[0]][dest[1]][dest[2]][dest[3]];
+
+  let moves = (moveGen.length <= 0) ? boardFuncs.moves(fullBoard, actionNum, false, false, promotionPieces) : moveGen
+
+  let conflict = false;
+  let sameRank = false;
+  let sameFile = false;
+  let res = '';
+
+  for (const possibleMove of moves) {
+    if (validateFuncs.compareMove(move, possibleMove) == 0 || possibleMove.length > 3) continue;
+
+    let currSrc = possibleMove[0];
+    let currDest = possibleMove[1];
+    let currPiece = Math.abs(fullBoard[currSrc[0]][currSrc[1]][currSrc[2]][currSrc[3]]);
+
+    if (piece != currPiece) continue;
+
+    if (
+      src[0] == currSrc[0] &&
+      src[1] == currSrc[1] &&
+      dest[0] == currDest[0] &&
+      dest[1] == currDest[1] &&
+      dest[2] == currDest[2] &&
+      dest[3] == currDest[3]
+    ) {
+
+      if (src[2] == currSrc[2]) sameRank = true;
+
+      if (src[3] == currSrc[3]) sameFile = true;
+
+      conflict = true;
     }
   }
-  if(conflict) {
-    if(!sameFile) {
+
+  if (conflict) {
+    if (!sameFile) {
+
       res += this.toSanCoord([src[2], src[3]])[0];
-    }
-    else if(sameFile && !sameRank) {
+
+    } else if (sameFile && !sameRank) {
+
       res += this.toSanCoord([src[2], src[3]])[1];
-    }
-    else if(sameFile && sameRank) {
+
+    } else if (sameFile && sameRank) {
+
       res += this.toSanCoord([src[2], src[3]]);
     }
   }
-  if(Math.abs(destPiece) !== 0 || move.length === 3) {
-    if(Math.abs(piece) === 1 || Math.abs(piece) === 2) {
-      if(!conflict) {
-        res += this.toSanCoord([src[2], src[3]])[0];
-      }
+
+  if (Math.abs(destPiece) != 0 || move.length == 3) {
+    if (Math.abs(piece) == 1 || Math.abs(piece) == 2 && !conflict) {
+
+      res += this.toSanCoord([src[2], src[3]])[0];
+
     }
+
     res += 'x';
   }
+
   res += this.toSanCoord([dest[2], dest[3]]);
+
   return res;
 }
 
-exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActivationToken = true, newTimelineToken = true, superPhysicalToken = false) => {
-  var res = '';
-  var src = move[0];
-  var dest = move[1];
-  var isTurnZero = boardFuncs.isTurnZero(board);
-  var isEvenTimeline = boardFuncs.isEvenTimeline(board);
-  var moveObj = parseFuncs.fromMove(board, move, isTurnZero);
-  var isSingleTimeline = board.length <= 1;
-  var isTimelineTravel = src[0] !== dest[0];
-  var isTimeTravel = src[1] !== dest[1];
+exports.fromMove = (move, fullBoard = [], actionNum = 0, suffix = '', timelineActivationToken = true, newTimelineToken = true, superPhysicalToken = false) => {
+  const src = move[0];
+  const dest = move[1];
+  const isTurnZero = boardFuncs.isTurnZero(fullBoard);
+  const isEvenTimeline = boardFuncs.isEvenTimeline(fullBoard);
+  const moveObj = parseFuncs.fromMove(fullBoard, move, isTurnZero);
+  const isSingleTimeline = fullBoard.length <= 1;
+  const isTimelineTravel = src[0] !== dest[0];
+  const isTimeTravel = src[1] !== dest[1];
+  let res = '';
+
   //Checking if castling needs to be in O-O format
-  var isNormalCastling = move.length === 4 && boardFuncs.isNormalCastling(board);
-  var isEnPassant = move.length === 3;
-  var isPromotion = dest.length >= 5;
-  var isJump = (isTimelineTravel || isTimeTravel);
-  var isBranching = false;
-  var isPresentMoving = false;
-  var newActivePresent = null;
-  var newTimeline = null;
-  if(isJump) {
-    var tmpBoard = boardFuncs.copy(board);
-    var excludeActive = null;
-    var newActive = null;
+  const isNormalCastling = move.length === 4 && boardFuncs.isNormalCastling(fullBoard);
+  // let isEnPassant = move.length === 3;
+  const isPromotion = dest.length >= 5;
+  const isJump = (isTimelineTravel || isTimeTravel);
+  let isPresentMoving = false;
+  let isBranching = false;
+  let newActivePresent = null;
+  let newTimeline = null;
+
+  if (isJump) {
+    const tmpBoard = boardFuncs.copy(fullBoard);
+    let excludeActive = null;
+    let newActive = null;
+
     boardFuncs.move(tmpBoard, move);
-    for(var i = 0;i < tmpBoard.length;i++) {
-      if(Array.isArray(tmpBoard[i]) && !Array.isArray(board[i])) {
-        isBranching = true;
-        newTimeline = i % 2 === 0 ? Math.ceil(i/2) : -Math.ceil(i/2);
-        excludeActive = i;
-      }
+
+    for (let i = 0; i < tmpBoard.length; i++) {
+      if (!Array.isArray(tmpBoard[i]) || Array.isArray(fullBoard[i])) continue;
+
+      isBranching = true;
+      newTimeline = i % 2 == 0 ? Math.ceil(i / 2) : -Math.ceil(i / 2);
+      excludeActive = i;
     }
-    var actives = boardFuncs.active(board);
-    var tmpActives = boardFuncs.active(tmpBoard);
-    for(var i = 0;i < tmpActives.length;i++) {
-      if(!actives.includes(tmpActives[i]) && tmpActives[i] !== excludeActive) {
-        newActive = tmpActives[i];
-      }
+
+    const actives = boardFuncs.active(fullBoard);
+    const tmpActives = boardFuncs.active(tmpBoard);
+
+    for (let i = 0; i < tmpActives.length; i++) {
+
+      if (!actives.includes(tmpActives[i]) && tmpActives[i] != excludeActive) newActive = tmpActives[i];
     }
-    if(newActive !== null && tmpBoard[newActive].length + 1 < tmpBoard[excludeActive].length) {
+
+    if (newActive != null && tmpBoard[newActive].length + 1 < tmpBoard[excludeActive].length) {
+
       newActivePresent = Math.floor((tmpBoard[newActive].length + 1) / 2);
     }
-    if(tmpActives.includes(excludeActive)) {
-      isPresentMoving = true;
-    }
+
+    if (tmpActives.includes(excludeActive)) isPresentMoving = true;
+
   }
-  var srcSP = `(${moveObj.start.timeline}T${moveObj.start.turn})`;
+
+  let srcSP = `(${moveObj.start.timeline}T${moveObj.start.turn})`;
   //Adjust the timeline field for even timelines
-  if(isEvenTimeline) {
-    if(moveObj.start.timeline < -1) {
+  if (isEvenTimeline) {
+
+    if (moveObj.start.timeline < -1) {
+
       srcSP = `(${moveObj.start.timeline + 1}T${moveObj.start.turn})`;
-    }
-    else if(moveObj.start.timeline === -1) {
+
+    } else if (moveObj.start.timeline == -1) {
+
       srcSP = `(-0T${moveObj.start.turn})`;
-    }
-    else if(moveObj.start.timeline === 1) {
+
+    } else if (moveObj.start.timeline == 1) {
+
       srcSP = `(+0T${moveObj.start.turn})`;
-    }
-    else {
+
+    } else {
+
       srcSP = `(${moveObj.start.timeline - 1}T${moveObj.start.turn})`;
     }
   }
-  var destSP = `(${moveObj.end.timeline}T${moveObj.end.turn})`;
+
+  let destSP = `(${moveObj.end.timeline}T${moveObj.end.turn})`;
   //Adjust the timeline field for even timelines
-  if(isEvenTimeline) {
-    if(moveObj.end.timeline < -1) {
+  if (isEvenTimeline) {
+
+    if (moveObj.end.timeline < -1) {
+
       destSP = `(${moveObj.end.timeline + 1}T${moveObj.end.turn})`;
-    }
-    else if(moveObj.end.timeline === -1) {
+
+    } else if (moveObj.end.timeline === -1) {
+
       destSP = `(-0T${moveObj.end.turn})`;
-    }
-    else if(moveObj.end.timeline === 1) {
+
+    } else if (moveObj.end.timeline === 1) {
+
       destSP = `(+0T${moveObj.end.turn})`;
-    }
-    else {
+
+    } else {
+
       destSP = `(${moveObj.end.timeline - 1}T${moveObj.end.turn})`;
     }
   }
-  var srcPiece = board[src[0]][src[1]][src[2]][src[3]];
-  var destPiece = board[dest[0]][dest[1]][dest[2]][dest[3]];
-  var isCapturing = Math.abs(destPiece) !== 0;
-  var pieceChar = pieceFuncs.toChar(srcPiece, isJump);
-  var promotionPieceChar = '';
-  if(isPromotion) {
-    promotionPieceChar = pieceFuncs.toChar(dest[4]);
-  }
+
+  const srcPiece = fullBoard[src[0]][src[1]][src[2]][src[3]];
+  const destPiece = fullBoard[dest[0]][dest[1]][dest[2]][dest[3]];
+  const isCapturing = Math.abs(destPiece) !== 0;
+  const pieceChar = pieceFuncs.toChar(srcPiece, isJump);
+  let promotionPieceChar = '';
+
+  if (isPromotion) promotionPieceChar = pieceFuncs.toChar(dest[4]);
+
   //Notation construction
-  if(isJump) {
+  if (isJump) {
+
     res += srcSP;
     res += pieceChar;
     res += this.toSanCoord([src[2], src[3]]);
@@ -181,192 +206,236 @@ exports.fromMove = (move, board = [], actionNum = 0, suffix = '', timelineActiva
     res += isCapturing ? 'x' : '';
     res += destSP;
     res += this.toSanCoord([dest[2], dest[3]]);
-  }
-  else {
-    if(superPhysicalToken || !isSingleTimeline) {
-      res += srcSP;
-    }
-    if(isNormalCastling) {
+
+  } else {
+
+    if (superPhysicalToken || !isSingleTimeline) res += srcSP;
+
+    if (isNormalCastling) {
+
       res += 'O-O';
-      if(Math.abs(move[2][3] - move[3][3]) > 2) {
+
+      if (Math.abs(move[2][3] - move[3][3]) > 2) {
         //Queenside
         res += '-O';
       }
-    }
-    else {
+
+    } else {
+
       res += pieceChar;
-      res += this.ambiguousSan(move, board, actionNum, [], null);
+      res += this.ambiguousSan(move, fullBoard, actionNum, [], null);
     }
   }
-  if(isPromotion) {
-    res += `=${promotionPieceChar}`;
-  }
+
+  if (isPromotion) res += `=${promotionPieceChar}`;
+
   res += suffix;
   res += isPresentMoving ? '~' : '';
-  if(timelineActivationToken && newActivePresent !== null) {
-    res += ` (~T${newActivePresent})`;
-  }
-  if(newTimelineToken && newTimeline !== null) {
-    res += ` (>L${newTimeline})`;
-  }
+
+  if (timelineActivationToken && newActivePresent !== null) res += ` (~T${newActivePresent})`;
+
+  if (newTimelineToken && newTimeline != null) res += ` (>L${newTimeline})`;
+
   return res;
 }
 
-exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPieces = null) => {
-  //moveGen here is for pregenerated moves (skipping generating moves again)
-  var res = [[0,0,-1,-1],[0,0,-1,-1]];
+exports.toMove = (moveStr, fullBoard = [], actionNum = 0, moveGen = [], promotionPieces = null) => {
+  //moveGen here is for pre-generated moves (skipping generating moves again)
+  let res = [[0, 0, -1, -1], [0, 0, -1, -1]];
+
   //Remove tokens
-  var orgMoveStr = moveStr;
+  const orgMoveStr = moveStr;
+
   moveStr = moveStr.replace(/\r\n/g, '\n');
   moveStr = moveStr.replace(/\{[^\{\}]*\}/g, '');
   moveStr = moveStr.replace(/;[^;\n]*\n/g, '\n');
   moveStr = moveStr.replace(/\s/g, '');
   moveStr = moveStr.replace(/\(~T\-?\d*\)/g, '');
   moveStr = moveStr.replace(/\(>L\-?\d*\)/g, '');
+
   //Start move reconstruction
-  var isJump = moveStr.includes('>');
-  var isTurnZero = boardFuncs.isTurnZero(board);
-  var isEvenTimeline = boardFuncs.isEvenTimeline(board);
-  var piece = actionNum % 2 === 0 ? 2 : 1;
-  if(isJump) {
+  const isJump = moveStr.includes('>');
+  const isTurnZero = boardFuncs.isTurnZero(fullBoard);
+  const isEvenTimeline = boardFuncs.isEvenTimeline(fullBoard);
+  let piece = actionNum % 2 == 0 ? 2 : 1;
+
+  if (isJump) {
     try {
-      var srcSP = moveStr.match(/^\(L?\-?\+?\d+T\-?\+?\d+\)/)[0];
+      let srcSP = moveStr.match(/^\(L?\-?\+?\d+T\-?\+?\d+\)/)[0];
+
       moveStr = moveStr.replace(/^\(L?\-?\+?\d+T\-?\+?\d+\)/, '');
-      srcSP = srcSP.replace(/L/g,'');
-      var srcSPArr = srcSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
-      var srcL = Number(srcSPArr[1]);
+
+      srcSP = srcSP.replace(/L/g, '');
+
+      let srcSPArr = srcSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
+
+      let srcL = Number(srcSPArr[1]);
+
       //Adjust extracted timeline if in even timeline mode
-      if(isEvenTimeline) {
-        if(srcSPArr[1] === '-0') {
+      if (isEvenTimeline) {
+
+        if (srcSPArr[1] == '-0') {
+
           srcL = -1;
-        }
-        else if(srcSPArr[1] === '+0') {
+
+        } else if (srcSPArr[1] == '+0') {
+
           srcL = 1;
-        }
-        else if(srcL < 0) {
+
+        } else if (srcL < 0) {
+
           srcL--;
-        }
-        else if(srcL > 0) {
+
+        } else if (srcL > 0) {
+
           srcL++;
         }
       }
-      var srcT = Number(srcSPArr[2]);
+
+      const srcT = Number(srcSPArr[2]);
+
       res[0][0] = Math.abs(srcL) * 2 + (srcL < 0 ? -1 : 0);
+
       res[0][1] = (srcT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
-      if(isTurnZero) {
-        res[0][1] += 2;
-      }
-    }
-    catch(err) { throw 'Source super-physical coordinates missing or incorrect!'; }
-    var pieceChar = moveStr.match(/^[A-Z]+/);
-    if(pieceChar !== null) {
+
+      if (isTurnZero) res[0][1] += 2;
+
+    } catch (err) { throw 'Source super-physical coordinates missing or incorrect!'; }
+
+    const pieceChar = moveStr.match(/^[A-Z]+/);
+
+    if (pieceChar != null) {
+
       piece = pieceFuncs.fromChar(pieceChar[0], actionNum);
     }
-    moveStr = moveStr.replace(/^[A-Z]+/,'');
-    var srcP = this.fromSanCoord(moveStr.match(/^[a-h]\d/)[0]);
-    moveStr = moveStr.replace(/^[a-h]\d/,'');
+
+    moveStr = moveStr.replace(/^[A-Z]+/, '');
+
+    const srcP = this.fromSanCoord(moveStr.match(/^[a-h]\d/)[0]);
+
+    moveStr = moveStr.replace(/^[a-h]\d/, '');
+
     res[0][2] = srcP[0];
     res[0][3] = srcP[1];
-    moveStr = moveStr.replace(/>/g,'');
-    moveStr = moveStr.replace(/^x/,'');
+
+    moveStr = moveStr.replace(/>/g, '');
+    moveStr = moveStr.replace(/^x/, '');
+
     try {
-      var destSP = moveStr.match(/^\(L?\-?\+?\d+T\-?\+?\d+\)/)[0];
+      let destSP = moveStr.match(/^\(L?\-?\+?\d+T\-?\+?\d+\)/)[0];
+
       moveStr = moveStr.replace(/^\(L?\-?\+?\d+T\-?\+?\d+\)/, '');
-      destSP = destSP.replace(/L/g,'');
-      var destSPArr = destSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
-      var destL = Number(destSPArr[1]);
+
+      destSP = destSP.replace(/L/g, '');
+
+      const destSPArr = destSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
+      let destL = Number(destSPArr[1]);
+
       //Adjust extracted timeline if in even timeline mode
-      if(isEvenTimeline) {
-        if(destSPArr[1] === '-0') {
+      if (isEvenTimeline) {
+        if (destSPArr[1] == '-0') {
           destL = -1;
         }
-        else if(destSPArr[1] === '+0') {
+        else if (destSPArr[1] == '+0') {
           destL = 1;
         }
-        else if(destL < 0) {
+        else if (destL < 0) {
           destL--;
         }
-        else if(destL > 0) {
+        else if (destL > 0) {
           destL++;
         }
       }
-      var destT = Number(destSPArr[2]);
+
+      const destT = Number(destSPArr[2]);
+
       res[1][0] = Math.abs(destL) * 2 + (destL < 0 ? -1 : 0);
-      res[1][1] = (destT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
-      if(isTurnZero) {
-        res[1][1] += 2;
-      }
-    }
-    catch(err) { throw 'Destination super-physical coordinates missing or incorrect!'; }
-    var destP = this.fromSanCoord(moveStr.match(/^[a-h]\d/)[0]);
+      res[1][1] = (destT - 1) * 2 + (actionNum % 2 == 0 ? 0 : 1);
+
+      if (isTurnZero) res[1][1] += 2;
+    } catch (err) { throw 'Destination super-physical coordinates missing or incorrect!'; }
+
+    const destP = this.fromSanCoord(moveStr.match(/^[a-h]\d/)[0]);
+
     res[1][2] = destP[0];
     res[1][3] = destP[1];
-  }
-  else {
+  } else {
     try {
-      var srcSP = moveStr.match(/^\(L?\-?\+?\d+T\-?\+?\d+\)/)[0];
+
+      const srcSP = moveStr.match(/^\(L?\-?\+?\d+T\-?\+?\d+\)/)[0].replace(/L/g, '');;
+      const srcSPArr = srcSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
+
       moveStr = moveStr.replace(/^\(L?\-?\+?\d+T\-?\+?\d+\)/, '');
-      srcSP = srcSP.replace(/L/g,'');
-      var srcSPArr = srcSP.match(/\((\-?\+?\d*)T(\-?\+?\d*)\)/);
-      var srcL = Number(srcSPArr[1]);
+
+      let srcL = Number(srcSPArr[1]);
+
       //Adjust extracted timeline if in even timeline mode
-      if(isEvenTimeline) {
-        if(srcSPArr[1] === '-0') {
+      if (isEvenTimeline) {
+
+        if (srcSPArr[1] == '-0') {
+
           srcL = -1;
-        }
-        else if(srcSPArr[1] === '+0') {
+
+        } else if (srcSPArr[1] == '+0') {
+
           srcL = 1;
-        }
-        else if(srcL < 0) {
+
+        } else if (srcL < 0) {
+
           srcL--;
-        }
-        else if(srcL > 0) {
+
+        } else if (srcL > 0) {
+
           srcL++;
         }
       }
-      var srcT = Number(srcSPArr[2]);
+
+      const srcT = Number(srcSPArr[2]);
+
       res[0][0] = Math.abs(srcL) * 2 + (srcL < 0 ? -1 : 0);
       res[0][1] = (srcT - 1) * 2 + (actionNum % 2 === 0 ? 0 : 1);
-      if(isTurnZero) {
-        res[0][1] += 2;
+
+      if (isTurnZero) res[0][1] += 2;
+
+    } catch (err) {
+      if (fullBoard.length >= 1 && fullBoard[0].length > 0) {
+        res[0][1] = (fullBoard[0].length - 1);
       }
     }
-    catch(err) {
-      if(board.length >= 1) {
-        if(board[0].length > 0) {
-          res[0][1] = (board[0].length - 1);
-        }
-      }
-    }
+
     res[1][0] = res[0][0];
     res[1][1] = res[0][1];
-    if(moveStr.includes('O-O')) {
-      if(actionNum % 2 !== 0) {
+
+    if (moveStr.includes('O-O')) {
+      if (actionNum % 2 !== 0) {
         res[0][2] = 7;
         res[1][2] = 7;
-      }
-      else {
+      } else {
         res[0][2] = 0;
         res[1][2] = 0;
       }
+
       res[0][3] = 4;
-      if(moveStr.includes('O-O-O')) {
+
+      if (moveStr.includes('O-O-O')) {
+
         res[1][3] = 2;
-      }
-      else {
+
+      } else {
+
         res[1][3] = 6;
       }
-    }
-    else {
-      var pieceChar = moveStr.match(/^[A-Z]+/);
-      if(pieceChar !== null) {
+    } else {
+
+      let pieceChar = moveStr.match(/^[A-Z]+/);
+      if (pieceChar !== null) {
         piece = pieceFuncs.fromChar(pieceChar[0], actionNum);
       }
-      moveStr = moveStr.replace(/^[A-Z]+/,'');
-      var coordArr = moveStr.match(/^([a-h]?\d?)x?([a-h]\d)/);
-      var srcP = this.fromSanCoord(coordArr[1]);
-      var destP = this.fromSanCoord(coordArr[2]);
-      moveStr = moveStr.replace(/^[a-h]?\d?x?[a-h]\d/,'');
+      moveStr = moveStr.replace(/^[A-Z]+/, '');
+      let coordArr = moveStr.match(/^([a-h]?\d?)x?([a-h]\d)/);
+      let srcP = this.fromSanCoord(coordArr[1]);
+      let destP = this.fromSanCoord(coordArr[2]);
+      moveStr = moveStr.replace(/^[a-h]?\d?x?[a-h]\d/, '');
       res[0][2] = srcP[0];
       res[0][3] = srcP[1];
       res[1][2] = destP[0];
@@ -374,164 +443,195 @@ exports.toMove = (moveStr, board = [], actionNum = 0, moveGen = [], promotionPie
     }
   }
 
-  var promotionChar = moveStr.match(/^=([A-Z])+/);
+  const promotionChar = moveStr.match(/^=([A-Z])+/);
+
   if (promotionChar != null) {
+
     moveStr = moveStr.slice(promotionChar[0].length);
     res[1][4] = pieceFuncs.fromChar(promotionChar[1], actionNum);
   }
 
-  var moves = moveGen;
-  if(moves.length <= 0) {
-    moves = boardFuncs.moves(board, actionNum, false, false, false, promotionPieces);
+  let moves = moveGen;
+
+  if (moves.length <= 0) {
+    moves = boardFuncs.moves(fullBoard, actionNum, false, false, false, promotionPieces);
   }
-  var conflictMoves = [];
-  for(var i = 0;i < moves.length;i++) {
-    if(
-      res[0][0] === moves[i][0][0] &&
-      res[0][1] === moves[i][0][1] &&
-      res[1][0] === moves[i][1][0] &&
-      res[1][1] === moves[i][1][1] &&
-      res[1][2] === moves[i][1][2] &&
-      res[1][3] === moves[i][1][3] &&
-      (res[1][4] === undefined || Math.abs(res[1][4]) === Math.abs(moves[i][1][4]))
-    ) {
-      if(
-        res[0][2] === moves[i][0][2] &&
-        res[0][3] === moves[i][0][3]
-      ) {
-        return moves[i];
-      }
-      if(piece === Math.abs(board[moves[i][0][0]][moves[i][0][1]][moves[i][0][2]][moves[i][0][3]])) {
-        conflictMoves.push(moves[i]);
-      }
-    }
-  }
-  var sameRank = res[0][2] < 0;
-  var sameFile = res[0][3] < 0;
-  for(var i = 0;i < conflictMoves.length;i++) {
-    if(sameRank && sameFile) {
-      //No ambiguity
-      return conflictMoves[i];
-    }
-    else if(!sameRank && sameFile) {
-      if(conflictMoves[i][0][2] === res[0][2]) {
-        return conflictMoves[i];
-      }
-    }
-    else if(sameRank && !sameFile) {
-      if(conflictMoves[i][0][3] === res[0][3]) {
-        return conflictMoves[i];
-      }
+
+  let conflictMoves = [];
+
+  for (let i = 0; i < moves.length; i++) {
+    if (
+      res[0][0] != moves[i][0][0] ||
+      res[0][1] != moves[i][0][1] ||
+      res[1][0] != moves[i][1][0] ||
+      res[1][1] != moves[i][1][1] ||
+      res[1][2] != moves[i][1][2] ||
+      res[1][3] != moves[i][1][3] ||
+      (res[1][4] != undefined && Math.abs(res[1][4]) != Math.abs(moves[i][1][4]))
+    ) continue;
+
+    if (res[0][2] == moves[i][0][2] && res[0][3] == moves[i][0][3]) return moves[i];
+
+    if (piece == Math.abs(fullBoard[moves[i][0][0]][moves[i][0][1]][moves[i][0][2]][moves[i][0][3]])) {
+      conflictMoves.push(moves[i]);
     }
   }
-  if(moves.length > 0) {
+
+  const sameRank = res[0][2] < 0;
+  const sameFile = res[0][3] < 0;
+
+  for (let i = 0; i < conflictMoves.length; i++) {
+
+    //no ambiguity
+    if (sameRank && sameFile) return conflictMoves[i];
+
+    if (!sameRank && sameFile && conflictMoves[i][0][2] == res[0][2]) return conflictMoves[i];
+
+    if (sameRank && !sameFile && conflictMoves[i][0][3] == res[0][3]) return conflictMoves[i];
+  }
+
+  if (moves.length > 0) {
     console.error('Error occurred with this move: ' + orgMoveStr);
     console.error(res);
     throw 'No valid move found';
   }
-  if(sameRank) {
-    res[0][2] = 0;
-  }
-  if(sameFile) {
-    res[0][3] = 0;
-  }
+
+  if (sameRank) res[0][2] = 0;
+
+  if (sameFile) res[0][3] = 0;
+
   return res;
 }
 
 exports.fromAction = (action, board = [], actionNum = 0, suffix = '', timelineActivationToken = true, newTimelineToken = true, superPhysicalToken = false) => {
-  var res = '';
-  var tmpBoard = boardFuncs.copy(board);
-  for(var i = 0;i < action.length;i++) {
+  let res = '';
+  const tmpBoard = boardFuncs.copy(board);
+
+  for (let i = 0; i < action.length; i++) {
     res += this.fromMove(action[i], tmpBoard, actionNum, i + 1 === action.length ? suffix : '', timelineActivationToken, newTimelineToken, superPhysicalToken);
-    if(i + 1 < action.length) {
-      res += ' ';
-    }
+
+    if (i + 1 < action.length) res += ' ';
+
     boardFuncs.move(tmpBoard, action[i]);
   }
+
   return res;
 }
 
 exports.toAction = (actionStr, board = [], actionNum = 0, promotionPieces = null) => {
-  var tmpStr = '' + actionStr;
+  let tmpStr = '' + actionStr;
+
   tmpStr = tmpStr.replace(/\r\n/g, '\n');
   tmpStr = tmpStr.replace(/\{[^\{\}]*\}/g, '');
   tmpStr = tmpStr.replace(/;[^;\n]*\n/g, '\n');
   tmpStr = tmpStr.replace(/\(~T\-?\d*\)/g, '');
   tmpStr = tmpStr.replace(/\(>L\-?\d*\)/g, '');
   tmpStr = tmpStr.replace(/\s+/g, ' ');
-  var splitArr = tmpStr.split(' ');
-  var res = [];
-  var tmpBoard = boardFuncs.copy(board);
-  for(var i = 0;i < splitArr.length;i++) {
-    if(splitArr[i].length > 0) {
-      var currMove = this.toMove(splitArr[i], tmpBoard, actionNum, [], promotionPieces);
-      res.push(currMove);
-      boardFuncs.move(tmpBoard, currMove);
-    }
+
+  const splitArr = tmpStr.split(' ');
+
+  let res = [];
+  const tmpBoard = boardFuncs.copy(board);
+
+  for (let i = 0; i < splitArr.length; i++) {
+    if (splitArr[i].length <= 0) continue;
+
+    const currMove = this.toMove(splitArr[i], tmpBoard, actionNum, [], promotionPieces);
+
+    res.push(currMove);
+
+    boardFuncs.move(tmpBoard, currMove);
+
   }
+
   return res;
 }
 
 exports.fromActionHistory = (actionHistory, startingBoard = [], startingActionNum = 0, delimiter = '\n', suffixArr = [], timelineActivationToken = true, newTimelineToken = true, superPhysicalToken = false) => {
-  var tmpBoard = boardFuncs.copy(startingBoard);
-  var tmpActionNum = startingActionNum;
-  var res = '';
-  for(var i = 0;i < actionHistory.length;i++) {
-    if(tmpActionNum % 2 === 0) {
-      res += (Math.floor(tmpActionNum/2) + 1) + '. ';
-    }
-    else {
+  const tmpBoard = boardFuncs.copy(startingBoard);
+  let tmpActionNum = startingActionNum;
+  let res = '';
+
+  for (let i = 0; i < actionHistory.length; i++) {
+
+    if (tmpActionNum % 2 == 0) {
+
+      res += (Math.floor(tmpActionNum / 2) + 1) + '. ';
+
+    } else {
       res += ' / ';
     }
-    var currAction = this.fromAction(actionHistory[i], tmpBoard, tmpActionNum, suffixArr[i] ? suffixArr[i] : '', timelineActivationToken, newTimelineToken, superPhysicalToken);
+
+    const currAction = this.fromAction(actionHistory[i], tmpBoard, tmpActionNum, suffixArr[i] ? suffixArr[i] : '', timelineActivationToken, newTimelineToken, superPhysicalToken);
+
     res += currAction;
-    if(tmpActionNum % 2 !== 0 && i + 1 < actionHistory.length) {
+
+    if (tmpActionNum % 2 !== 0 && i + 1 < actionHistory.length) {
       res += delimiter;
     }
-    for(var j = 0;j < actionHistory[i].length;j++) {
+
+    for (let j = 0; j < actionHistory[i].length; j++) {
       boardFuncs.move(tmpBoard, actionHistory[i][j]);
     }
+
     tmpActionNum++;
   }
+
   return res;
 }
 
 exports.toActionHistory = (actionHistoryStr, startingBoard = [], startingActionNum = 0, promotionPieces = null) => {
-  var tmpBoard = boardFuncs.copy(startingBoard);
-  var tmpActionNum = startingActionNum;
-  var tmpStr = '' + actionHistoryStr;
+  const tmpBoard = boardFuncs.copy(startingBoard);
+  let tmpActionNum = startingActionNum;
+  let tmpStr = '' + actionHistoryStr;
+
   tmpStr = tmpStr.replace(/\r\n/g, '\n');
   tmpStr = tmpStr.replace(/\[[^\[\]]*\]/g, '');
   tmpStr = tmpStr.replace(/\{[^\{\}]*\}/g, '');
   tmpStr = tmpStr.replace(/;[^;\n]*\n/g, '\n');
-  var splitArr = [];
-  var res = [];
-  var done = false;
-  while(!done) {
-    var match1 = tmpStr.match(/\d+\.\s*/i);
-    if(match1 === null) {
-      return '';
-    }
+
+  let splitArr = [];
+  let res = [];
+  let done = false;
+
+  while (!done) {
+
+    const match1 = tmpStr.match(/\d+\.\s*/i);
+
+    if (match1 == null) return '';
+
     tmpStr = tmpStr.substring(match1.index + match1[0].length);
-    var match2 = tmpStr.match(/\d+\.\s*/i);
-    if(match2 !== null) {
+
+    const match2 = tmpStr.match(/\d+\.\s*/i);
+
+    if (match2 != null) {
+
       splitArr.push(tmpStr.substring(0, match2.index - 1).split('/'));
+
       tmpStr = tmpStr.substring(match2.index);
-    }
-    else {
+
+    } else {
       splitArr.push(tmpStr.split('/'));
+
       done = true;
     }
   }
+
   splitArr = splitArr.flat(1);
-  for(var i = 0;i < splitArr.length;i++) {
+
+  for (let i = 0; i < splitArr.length; i++) {
     if (!splitArr[i].trim()) continue;
-    var currAction = this.toAction(splitArr[i], tmpBoard, tmpActionNum, promotionPieces);
+
+    let currAction = this.toAction(splitArr[i], tmpBoard, tmpActionNum, promotionPieces);
+
     res.push(currAction);
-    for(var j = 0;j < currAction.length;j++) {
+
+    for (let j = 0; j < currAction.length; j++) {
       boardFuncs.move(tmpBoard, currAction[j]);
     }
+
     tmpActionNum++;
   }
+
   return res;
 }
