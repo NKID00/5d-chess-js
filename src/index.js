@@ -13,7 +13,6 @@ const pieceFuncs = require('@local/piece');
 const printFuncs = require('@local/print');
 const mateFuncs = require('@local/mate');
 const metadataFuncs = require('@local/metadata');
-const notationFuncs = require('@local/notation');
 const turnFuncs = require('@local/turn');
 const validateFuncs = require('@local/validate');
 
@@ -27,7 +26,6 @@ class Chess {
       hashFuncs: hashFuncs,
       mateFuncs: mateFuncs,
       metadataFuncs: metadataFuncs,
-      notationFuncs: notationFuncs,
       parseFuncs: parseFuncs,
       pgnFuncs: pgnFuncs,
       pieceFuncs: pieceFuncs,
@@ -38,6 +36,7 @@ class Chess {
 
     this.checkmateTimeout = 60000;
     this.skipDetection = false;
+    this.enableConsole = false;
     this.checkmateCache = [];
     this.metadata = {
       board: 'standard',
@@ -79,6 +78,7 @@ class Chess {
 
       res.checkmateTimeout = this.checkmateTimeout;
       res.skipDetection = this.skipDetection;
+      res.enableConsole = this.enableConsole;
       res.checkmateCache = this.checkmateCache.slice();
       res.metadata = Object.assign({}, this.metadata);
       res.rawAction = this.rawAction;
@@ -96,6 +96,7 @@ class Chess {
     else {
       this.checkmateTimeout = state.checkmateTimeout;
       this.skipDetection = state.skipDetection;
+      this.enableConsole = state.enableConsole;
       this.checkmateCache = state.checkmateCache.slice();
       this.metadata = Object.assign({}, state.metadata);
       this.rawAction = state.rawAction;
@@ -125,7 +126,7 @@ class Chess {
         return mateFuncs.moveCompare(move1, move2);
 
       default:
-        throw 'Type not supported, valid types are \'board\' and \'move\'.';
+        throw new Error('Type not supported, valid types are \'board\' and \'move\'.');
     }
   }
 
@@ -217,15 +218,19 @@ class Chess {
 
           } catch (err) {
 
-            console.error(err);
-            console.log('Last action is not complete, importing as move buffer.');
+            if(this.enableConsole) {
+              console.error(err);
+              console.log('Last action is not complete, importing as move buffer.');
+            }
           }
         }
       }
     } catch (err) {
 
-      console.error(err);
-      console.log('Error importing actions, skipping.');
+      if(this.enableConsole) {
+        console.error(err);
+        console.log('Error importing actions, skipping.');
+      }
     }
   }
 
@@ -331,9 +336,9 @@ class Chess {
   pass() {
     if (!this.skipDetection) {
 
-      if (this.inCheckmate) throw 'Cannot submit, currently in checkmate.';
+      if (this.inCheckmate) throw new Error('Cannot submit, currently in checkmate.');
 
-      if (this.inStalemate) throw 'Cannot submit, currently in stalemate.';
+      if (this.inStalemate) throw new Error('Cannot submit, currently in stalemate.');
 
     }
 
@@ -369,21 +374,7 @@ class Chess {
 
     if (format === 'raw') return actions;
 
-    if (format.includes('notation')) {
-      let res = '';
-
-      for (let i = 0; i < actions.length; i++) {
-        if (!this.skipDetection && !this.actionable(actions[i])) continue;
-
-        for (let j = 0; j < actions[i].length; j++) {
-          res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, actions[i][j], format.includes('short')).str + '\n';
-        }
-
-      }
-      return res;
-    }
-
-    if (format.includes('5dpgn')) {
+    if (format.includes('notation') || format.includes('5dpgn')) {
       let res = '';
 
       for (let i = 0; i < actions.length; i++) {
@@ -434,9 +425,11 @@ class Chess {
 
       const pgnStr = 'Move is invalid and an error has occurred with this move: ' + move;
 
-      console.error(pgnStr);
+      if(this.enableConsole) {
+        console.error(pgnStr);
+      }
 
-      throw pgnStr;
+      throw new Error(pgnStr);
 
     }
 
@@ -456,17 +449,7 @@ class Chess {
 
     if (format == 'raw') return moves;
 
-    if (format.includes('notation')) {
-      let res = '';
-
-      for (const move of moves) {
-        res += notationFuncs.moveNotation(this.rawBoard, this.rawAction, move, format.includes('short')).str + '\n';
-      }
-
-      return res;
-    }
-
-    if (format.includes('5dpgn')) {
+    if (format.includes('notation') || format.includes('5dpgn')) {
       let res = '';
 
       for (const move of moves) {
@@ -511,15 +494,15 @@ class Chess {
   submit() {
     if (!this.skipDetection) {
 
-      if (this.inCheckmate) throw 'Cannot submit, currently in checkmate.';
+      if (this.inCheckmate) throw new Error('Cannot submit, currently in checkmate.');
 
-      if (this.inStalemate) throw 'Cannot submit, currently in stalemate.';
+      if (this.inStalemate) throw new Error('Cannot submit, currently in stalemate.');
 
-      if (this.inCheck) throw 'Cannot submit, currently in check.';
+      if (this.inCheck) throw new Error('Cannot submit, currently in check.');
 
     }
 
-    if (!this.submittable()) throw 'Action is not complete, more moves are needed';
+    if (!this.submittable()) throw new Error('Action is not complete, more moves are needed');
 
     this.rawBoardHistory.push(boardFuncs.copy(this.rawBoard));
     this.rawActionHistory.push(copyFuncs.action(this.rawMoveBuffer));
@@ -553,9 +536,11 @@ class Chess {
           if (!validateFuncs.move(tmpBoard, this.rawAction, tmpBuffer[i], [], this.rawPromotionPieces)) {
             const pgnStr = 'Undo buffer is corrupted and an error has occurred with this move: ' + pgnFuncs.fromMove(tmpBuffer[i], tmpBoard, this.rawAction);
 
-            console.error(pgnStr);
+            if(this.enableConsole) {
+              console.error(pgnStr);
+            }
 
-            throw pgnStr;
+            throw new Error(pgnStr);
           }
         }
 
@@ -565,7 +550,7 @@ class Chess {
       this.rawBoard = boardFuncs.copy(tmpBoard);
       this.rawMoveBuffer = copyFuncs.action(tmpBuffer);
     } else {
-      throw 'No moves to undo.';
+      throw new Error('No moves to undo.');
     }
   }
 
@@ -587,17 +572,7 @@ class Chess {
 
     if (format == 'raw') return checks;
 
-    if (format.includes('notation')) {
-      let res = '';
-
-      for (const check of checks) {
-        res += notationFuncs.moveNotation(tmpBoard, this.rawAction, check, format.includes('short')).str + '\n';
-      }
-
-      return res;
-    }
-
-    if (format.includes('5dpgn')) {
+    if (format.includes('notation') || format.includes('5dpgn')) {
       let res = '';
 
       for (const check of checks) {
@@ -688,21 +663,7 @@ class Chess {
 
     let res = '' + metadataFuncs.objToStr(this.metadata);
 
-    if (format.includes('notation')) {
-      const tmpBoard = boardFuncs.copy(boardFuncs.init(this.metadata.board));
-
-      for (let i = 0; i < this.rawActionHistory.length; i++) {
-        for (let j = 0; j < this.rawActionHistory[i].length; j++) {
-          const currMove = this.rawActionHistory[i][j];
-
-          res += notationFuncs.moveNotation(tmpBoard, i, currMove, format.includes('short')).str + '\n';
-
-          boardFuncs.move(tmpBoard, currMove);
-        }
-      }
-    }
-
-    if (format.includes('5dpgn')) {
+    if (format.includes('notation') || format.includes('5dpgn')) {
       if (this.metadata.board == 'custom') res += this.fen();
 
       const suffixArr = []; //TODO implement check, checkmate, softmate
@@ -723,6 +684,28 @@ class Chess {
   }
 
   print() {
+    let res = ''
+    res += 'Current Player: ' + (this.rawAction % 2 === 0 ? 'White' : 'Black') + '\n';
+    res += 'Action Number: ' + (Math.ceil(this.rawAction / 2) + 1) + '\n';
+
+    if (this.rawMoveBuffer.length > 0) res += 'Move Stack:\n';
+
+    for (const rawMove of this.rawMoveBuffer) {
+
+      res += '  ' + pgnFuncs.fromMove(rawMove, this.rawBoard, this.rawAction) + '\n';
+
+    }
+
+    res += printFuncs.printBoard(this.rawBoard);
+
+    if(this.enableConsole) {
+      console.log(res);
+    }
+
+    return res;
+  }
+
+  print2() {
     console.log('Current Player: ' + (this.rawAction % 2 === 0 ? 'White' : 'Black'));
     console.log('Action Number: ' + (Math.ceil(this.rawAction / 2) + 1));
 
