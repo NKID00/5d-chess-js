@@ -19,7 +19,13 @@ test('Position Parsing', () => {
 
 test('Action Parsing', () => {
   var chess = new Chess();
-  var actions = chess.raw.convertFuncs.actions('1w. 1:e2:e3\n1b. 1:f7:f6\r\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\r\n3w. 3:Qe2:h5');
+  var actions = [
+    [[[0,0,1,4],[0,0,2,4]]],
+    [[[0,1,6,5],[0,1,5,5]]],
+    [[[0,2,0,3],[0,2,1,4]]],
+    [[[0,3,7,1],[0,3,5,2]]],
+    [[[0,4,1,4],[0,4,4,7]]]
+  ];
   var action1 = actions[0];
   var action2 = chess.raw.parseFuncs.toAction(chess.raw.parseFuncs.fromAction(null, 0, action1));
   expect(deepequal(action1,action2)).toBe(true);
@@ -39,15 +45,20 @@ test('Action Parsing', () => {
 
 test('Board Parsing', () => {
   var chess = new Chess();
-  chess.import('1w. 1:e2:e3\n1b. 1:f7:f6\n2w. 2:Qd1<>2:e2');
+  chess.import('[Board "Standard"]\n[Mode "5D"]\n1. e3 / f6\n2. Qe2');
   var board1 = chess.rawBoard;
   var board2 = chess.raw.parseFuncs.toBoard(chess.raw.parseFuncs.fromBoard(board1));
   expect(deepequal(board1,board2)).toBe(true);
-  chess.import('1w. 1:e2:e3\n1b. 1:f7:f6\n2w. 2:Qd1<>2:e2\n2b. 2:Nb8:c6\n3w. 3:Qe2:h5');
+  chess.import('[Board "Standard"]\n[Mode "5D"]\n1. e3 / f6\n2. Qe2 / Nc6\n3. Qh5');
   var board1 = chess.rawBoard;
   var board2 = chess.raw.parseFuncs.toBoard(chess.raw.parseFuncs.fromBoard(board1));
   expect(deepequal(board1,board2)).toBe(true);
-  chess.import('1w. 1:e2:e3\n1b. 1:f7:f6\n2w. 2:Nb1<>1:b3\n2b. 1+1:a7:a6\n3w. 2+1:c2:c3\n3b. 2:Nb8:c6\n3b. 2+1:Nb8:c6\n4w. 3:d1:h5\n4w. 3+1:d1:c2#');
+  chess.import(`[Board "Standard"]
+[Mode "5D"]
+1. e3 / f6
+2. (0T2)Nb1>>(0T1)b3~ / (1T1)a6
+3. (1T2)c3 / (0T2)Nc6 (1T2)Nc6
+4. (0T3)Qh5 (1T3)Qc2`);
   var board1 = chess.rawBoard;
   var board2 = chess.raw.parseFuncs.toBoard(chess.raw.parseFuncs.fromBoard(board1));
   expect(deepequal(board1,board2)).toBe(true);
