@@ -6,7 +6,6 @@ r.context.actionFuncs = require('@local/action');
 r.context.boardFuncs = require('@local/board');
 r.context.mateFuncs = require('@local/mate');
 //r.context.mateGpuFuncs = require('@local/mate.gpu');
-r.context.notationFuncs = require('@local/notation');
 r.context.pgnFuncs = require('@local/pgn');
 r.context.parseFuncs = require('@local/parse');
 r.context.pieceFuncs = require('@local/piece');

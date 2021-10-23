@@ -14,4 +14,10 @@ test('En Passant and Castling', () => {
     chess.import('1. e4 / a6 2. e5 / d5 3. e6 / d4 4. c4');
     chess.move('dxc3');
   }).not.toThrow();
+  expect(() => {
+    chess.import('1. e4 / a6 2. e5 / d5 3. e6 / d4 4. c4');
+    chess.rawBoard[0][5][3][2] = 2;
+    chess.rawBoard[0][6][3][2] = 2;
+    chess.move('dxc3');
+  }).toThrow();
 });
