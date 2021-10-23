@@ -168,6 +168,10 @@ These fields are implemented as a getter function. If getter functions are unsup
 
   - **Return** - Boolean indicating whether to skip validation and checkmate detection, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false. Primarily used for engine purposes (to reduce CPU usage).
 
+### .enableConsole
+
+  - **Return** - Boolean indicating whether to use console to output debug information, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false.
+
 ## Functions
 
 ### .import(import, [variant])
