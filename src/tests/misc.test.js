@@ -11,3 +11,18 @@ test('Misc 1', () => {
     chess.move('(0T4)Re3>(-1T4)e3');
   }).not.toThrow();
 });
+
+
+test('Double RF move promotion', () => {
+  var chess = new Chess();
+  expect(() => {
+    chess.import(`[Size "3x3"]
+[Board "custom"]
+[Mode "5D"]
+[k*1p*/3/K*R*1:0:1:w]`);
+    chess.move('Rb2');
+    chess.submit();
+    chess.move('c1=R');
+    chess.submit();
+  }).not.toThrow();
+});

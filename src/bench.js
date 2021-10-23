@@ -1,27 +1,34 @@
 require('module-alias/register');
 
 const { performance } = require('perf_hooks');
-
 const Chess = require('@local/index');
-var chess = new Chess();
 
-var benchResults = {};
+const chess = new Chess();
 
-var benchCurrMoves = () => {
-  var movesGenerated = 0;
-  var maxTimelines = chess.board.timelines.length;
-  var maxTurns = 0;
-  for(var i = 0;i < chess.board.timelines.length;i++) {
-    if(chess.board.timelines[i].turns.length > maxTurns) {
-      maxTurns = chess.board.timelines[i].turns.length;
-    }
+let benchResults = {};
+
+const benchCurrMoves = () => {
+  const maxTimelines = chess.board.timelines.length;
+  let movesGenerated = 0;
+  let maxTurns = 0;
+
+  for (const timeline of chess.board.timelines) {
+
+    if (timeline.turns.length > maxTurns) maxTurns = timeline.turns.length;
+
   }
+
   console.log('' + maxTimelines + ' Timeline(s), ' + maxTurns + ' Turn(s) Benchmark (x10000 Samples)');
-  var startM = performance.now();
-  for(var i = 0;i < 10000;i++) {
+
+  const startM = performance.now();
+
+  for (let i = 0; i < 10000; i++) {
+
     movesGenerated += chess.moves('object', false, false, false, true).length;
   }
-  var endM = performance.now();
+
+  const endM = performance.now();
+
   benchResults[Date.now() + ' ' + maxTimelines + ' Timelines, ' + maxTurns + ' Turns'] = {
     'Moves Generated': movesGenerated,
     'Time Taken (secs)': ((endM - startM) / 1000),
@@ -29,22 +36,29 @@ var benchCurrMoves = () => {
   }
 }
 
-var benchCurrActions = () => {
-  var actionsGenerated = 0;
-  var maxTimelines = chess.board.timelines.length;
-  var maxTurns = 0;
-  for(var i = 0;i < chess.board.timelines.length;i++) {
-    if(chess.board.timelines[i].turns.length > maxTurns) {
-      maxTurns = chess.board.timelines[i].turns.length;
-    }
+const benchCurrActions = () => {
+  const maxTimelines = chess.board.timelines.length;
+  let actionsGenerated = 0;
+  let maxTurns = 0;
+
+  for (const timeline of chess.board.timelines) {
+
+    if (timeline.turns.length > maxTurns) maxTurns = timeline.turns.length;
   }
+
   console.log('' + maxTimelines + ' Timeline(s), ' + maxTurns + ' Turn(s) Benchmark (x1 Samples)');
-  var startA = performance.now();
-  for(var i = 0;i < 1;i++) {
+
+  const startA = performance.now();
+
+  for (let i = 0; i < 1; i++) {
+
     actions = chess.actions('raw', false, false, true);
+
     actionsGenerated += actions.length;
   }
-  var endA = performance.now();
+
+  const endA = performance.now();
+
   benchResults[Date.now() + ' ' + maxTimelines + ' Timelines, ' + maxTurns + ' Turns'] = {
     'Actions Generated': actionsGenerated,
     'Time Taken (secs)': ((endA - startA) / 1000),

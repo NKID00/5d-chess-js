@@ -60,13 +60,19 @@ console.log(chess.inCheckmate);
 
 Currently supported variants:
 
- - Standard - This uses the standard chess layout (the string literal `standard` is used internally).
- - Defended Pawn - This variant switches the queen and queenside knight (the string literal `Standard - Defended Pawn` is used internally).
- - Half Reflected - This variant switches the black queen and black king (the string literal `half_reflected` is used internally).
- - Princess - This variant replaces the queen with a princess, a piece that only has rook + bishop movement (the string literal `princess` is used internally). Note the SAN piece equivalent is `S`.
- - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (the string literal `turn_zero` is used internally).
- - Two Timelines - This variant switches to a even timeline start, with -0 and +0 timelines available from the start (the string literal `two_timelines` is used internally).
- - Reversed Royalty - This variant switches the roles of the queen and king: the queen becomes the royal queen, which is vulnerable to checks and the king becomes the common king, which is not vulnerable to checks (`reversed_royalty` is used internally). The royal queen is referred to with `Y` and the common king with `C`.
+ - Standard - This uses the standard chess layout (the string literal `"standard"` is used internally).
+ - Defended Pawn - This variant switches the queen and queenside knight (the string literal `"defended_pawn"` is used internally).
+   - Full Name: **Standard - Defended Pawn**
+ - Half Reflected - This variant switches the black queen and black king (the string literal `"half_reflected"` is used internally).
+   - Full Name: **Standard - Half Reflected**
+ - Princess - This variant replaces the queen with a princess, a piece that only has rook + bishop movement (the string literal `"princess"` is used internally). Note the SAN piece equivalent is `S`.
+   - Full Name: **Standard - Princess**
+ - Turn Zero - This variant adds a new black 'Turn Zero' board to allow black to timetravel on first action (the string literal `"turn_zero"` is used internally).
+   - Full Name: **Standard - Turn Zero**
+ - Two Timelines - This variant switches to a even timeline start, with -0 and +0 timelines available from the start (the string literal `"two_timelines"` is used internally).
+   - Full Name: **Standard - Two Timelines**
+ - Reversed Royalty - This variant switches the roles of the queen and king: the queen becomes the royal queen, which is vulnerable to checks and the king becomes the common king, which is not vulnerable to checks (`"reversed_royalty"` is used internally). The royal queen is referred to with `Y` and the common king with `C`.
+   - Full Name: **Standard - Reversed Royalty**
 
 # Terminology
 
@@ -83,13 +89,16 @@ Terms used in the notation of 5D Chess JS:
 
 # PGN
 
-5D Chess JS uses the `5dpgn` standard as defined [here](https://github.com/adri326/5dchess-notation). Previous versions (v0.3.6 and below) used an older custom notation system.
-This library still maintains backwards compatibility, but `5dpgn` is the preferred standard moving forward.
+5D Chess JS uses the `5dpgn` standard as defined [here](https://github.com/adri326/5dchess-notation/tree/92c68f0c19183b4ff4459b4a32107b0bf6e069a2).
+
+Previous versions (v0.3.6 and below) used an older custom notation system which is no longer supported (v1.2.0 and above).
+
+*Note: This library has not been updated to the latest `5dpgn` standard yet. Currently this library uses `5dpgn` as described by commit `92c68f0`*
 
 # FEN
 
-5D Chess JS uses the `5dfen` standard as defined [here](https://github.com/adri326/5dchess-notation#5dfen-and-custom-variants).
-Its grammar can be found at [fen.ebnf](https://github.com/adri326/5dchess-notation/blob/master/fen.ebnf).
+5D Chess JS uses the `5dfen` standard as defined [here](https://github.com/adri326/5dchess-notation/tree/92c68f0c19183b4ff4459b4a32107b0bf6e069a2#5dfen-and-custom-variants).
+Its grammar can be found at [fen.ebnf](https://github.com/adri326/5dchess-notation/tree/92c68f0c19183b4ff4459b4a32107b0bf6e069a2/blob/master/fen.ebnf).
 
 # API
 
@@ -100,8 +109,8 @@ Its grammar can be found at [fen.ebnf](https://github.com/adri326/5dchess-notati
 Creates a new instance of the `Chess` class.
 
   - import - *[Optional]* List of actions to import. Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
-  - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
-  - **Return** - A new `Chess` object.
+  - variant - *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
+  - **Return** - A new `Chess` instance.
 
 ## Fields
 
@@ -159,6 +168,10 @@ These fields are implemented as a getter function. If getter functions are unsup
 
   - **Return** - Boolean indicating whether to skip validation and checkmate detection, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false. Primarily used for engine purposes (to reduce CPU usage).
 
+### .enableConsole
+
+  - **Return** - Boolean indicating whether to use console to output debug information, this value is writable (Note: This is an actual internal variable and not a getter function). Default value is false.
+
 ## Functions
 
 ### .import(import, [variant])
@@ -166,7 +179,7 @@ These fields are implemented as a getter function. If getter functions are unsup
 Imports data to have the internal state match the state that the imported data represents. Since the imported data is a list of actions from the start of the game (accessible through **.actionHistory** or **.export()**), this function effectively replays all actions to arrive at the desired internal state. Action/Move validation occurs at each step, so performance may suffer if the imported data represents a large full board state. Will throw errors.
 
   - import - List of actions to import (this will reset the internal state). Can be `5dpgn` string (delimited by newline characters, either `\n` or `\r\n`), array of `Action` objects, or JSON string of an array of `Action` objects.
-  - variant = *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
+  - variant - *[Optional]* String of variant to use. Also accepts `Board` object for custom variant.
   - **Return** - Nothing.
 
 ### .importable(import)
@@ -205,19 +218,19 @@ Resets the internal state to the initial full board state.
 
 ### .copy()
 
-Creates a new instance of the Chess class with the exact same internal state.
+Creates a new instance of the `Chess` class with the exact same internal state.
 
-  - **Return** - New Chess class instance.
+  - **Return** - New `Chess` class instance.
 
 ### .state()
 
-Get the internal state of this instance of the Chess class. Used internally by `.copy()`, this is used for serializable copy (for example, copying state from web worker to main thread).
+Get the internal state of this instance of the `Chess` class. Used internally by `.copy()`, this is used for serializable copy (for example, copying state from web worker to main thread).
 
   - **Return** - Object (JSON compatible) containing all information to make exact copy.
 
 ### .state(state)
 
-Set the internal state of this instance of the Chess class. Used internally by `.copy()`, this is used for serializable copy (for example, copying state from web worker to main thread).
+Set the internal state of this instance of the `Chess` class. Used internally by `.copy()`, this is used for serializable copy (for example, copying state from web worker to main thread).
 
   - state - Object (JSON compatible) containing all information to make exact copy.
   - **Return** - Nothing.
