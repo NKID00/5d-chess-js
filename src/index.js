@@ -156,7 +156,7 @@ class Chess {
     this.rawPromotionPieces = pieceFuncs.availablePromotionPieces(this.rawBoard);
   }
 
-  import(input, variant) {
+  import(input, variant, actionsRequired = false) {
     //Reset everything to "Standard" first
     this.reset('standard');
 
@@ -226,19 +226,23 @@ class Chess {
         }
       }
     } catch (err) {
-
       if(this.enableConsole) {
         console.error(err);
-        console.log('Error importing actions, skipping.');
+        if(!actionsRequired) {
+          console.log('Error importing actions, skipping...');
+        }
+      }
+      if(actionsRequired) {
+        throw err;
       }
     }
   }
 
-  importable(input) {
+  importable(input, variant, actionsRequired = false) {
     try {
       let newInstance = this.copy();
 
-      newInstance.import(input);
+      newInstance.import(input, variant, actionsRequired);
 
       return true;
     }

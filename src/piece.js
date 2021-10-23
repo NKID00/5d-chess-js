@@ -1,6 +1,6 @@
 const boardFuncs = require('@local/board');
 
-// convert's all of the piece numbers to their characters 
+// Converts all of the piece numbers to their characters 
 exports.toChar = (piece, displayPawn = false) => {
   const absPiece = Math.abs(piece);
 
@@ -45,7 +45,7 @@ exports.toChar = (piece, displayPawn = false) => {
   }
 }
 
-// convert's all of the piece characters to their numbers
+// Converts all of the piece characters to their numbers
 exports.fromChar = (char, actionNum = 0) => {
   switch (char) {
     case 'P':
@@ -517,12 +517,15 @@ exports.availablePromotionPieces = (fullBoard) => {
         for (let f = 0; fullBoard[l][t][r] && f < fullBoard[l][t][r].length; f++) {
           // get that piece
           const piece = Math.abs(fullBoard[l][t][r][f]);
-          // check if that piece is a royalty piece
-          const isRoyalty = piece >= 3 && piece <= 10 || piece == 13 || piece == 14 || piece == 17 || piece == 18
-          // check if that piece is counted
-          if (res.includes(piece)) continue;
-          // count it
-          if (isRoyalty) res.push(piece);
+          // check if that piece is not a royalty piece
+          const isNotRoyalty = piece >= 3 && piece <= 10 || piece == 13 || piece == 14 || piece == 17 || piece == 18;
+          // check if that piece is already added
+          if (isNotRoyalty && !res.includes(piece)) {
+            res.push(piece);
+            // Add opponent version if not already added
+            const opponentPiece = piece % 2 === 0 ? piece - 1 : piece + 1;
+            if (!res.includes(opponentPiece)) res.push(opponentPiece);
+          }
         }
       }
     }
@@ -916,7 +919,7 @@ exports.promotionPiece = (givenPiece, fullBoard, rPos, fPos, promotionPieces, pr
     // add it to the result
     res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos]]);
   }
-  return res
+  return res;
 }
 
 exports.enPassant = (fullBoard, givenPiece, curBoard, pieceColor, forward, rPos, fPos, res) => {
@@ -925,20 +928,34 @@ exports.enPassant = (fullBoard, givenPiece, curBoard, pieceColor, forward, rPos,
   const givenPieceRank = givenPiece[2];
 
   if (fPos < 0 || fPos >= curBoard[givenPieceRank].length) return res;
-  // get the destination piece
-  const destPiece = curBoard[givenPieceRank][fPos] - pieceColor;
+  // Check the opponent piece exists at correct square
+  let destPiece = curBoard[givenPieceRank][fPos] - pieceColor;
 
   if (destPiece !== 1 && destPiece !== 15) return res;
 
   const rPosEn = rPos + forward;
 
-  if (rPosEn >= 0 && rPosEn < curBoard.length && fPos >= 0 && fPos < curBoard[rPosEn].length) {
-    const destPiece = curBoard[rPosEn][fPos];
+  if (
+    rPosEn >= 0 &&
+    rPosEn < curBoard.length &&
+    fPos >= 0 &&
+    fPos < curBoard[rPosEn].length
+  ) {
+    // Check the opponent piece's source square is blank
+    destPiece = curBoard[rPosEn][fPos];
 
     if (destPiece !== 0) return res;
 
-    if (boardFuncs.positionExists(fullBoard, [givenPieceTimeline, givenPieceTurn - 2, rPosEn, fPos])) {
-      const destPiece = fullBoard[givenPieceTimeline][givenPieceTurn - 2][rPosEn][fPos] + pieceColor;
+    if (
+      boardFuncs.positionExists(fullBoard, [givenPieceTimeline, givenPieceTurn - 2, rPosEn, fPos]) &&
+      boardFuncs.positionExists(fullBoard, [givenPieceTimeline, givenPieceTurn - 2, givenPieceRank, fPos])
+    ) {
+      // Check the opponent piece square 1 turn in the past is blank
+      destPiece = fullBoard[givenPieceTimeline][givenPieceTurn - 2][givenPieceRank][fPos];
+    
+      if (destPiece !== 0) return res;
+
+      destPiece = fullBoard[givenPieceTimeline][givenPieceTurn - 2][rPosEn][fPos] + pieceColor;
 
       if (destPiece === -1 || destPiece === -15) res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos], [givenPieceTimeline, givenPieceTurn, givenPieceRank, fPos]]);
     }
@@ -955,7 +972,7 @@ exports.enPassantMovement = (fullBoard, givenPiece, promotionRank, promotionPiec
     res = this.promotionPiece(givenPiece, fullBoard, rPos, fPos, promotionPieces, promotionRank, pieceColor, res);
   }
 
-  res = this.enPassant(fullBoard, givenPiece, curBoard, pieceColor, forward, rPos, fPos, res)
+  res = this.enPassant(fullBoard, givenPiece, curBoard, pieceColor, forward, rPos, fPos, res);
   return res;
 }
 
