@@ -517,12 +517,15 @@ exports.availablePromotionPieces = (fullBoard) => {
         for (let f = 0; fullBoard[l][t][r] && f < fullBoard[l][t][r].length; f++) {
           // get that piece
           const piece = Math.abs(fullBoard[l][t][r][f]);
-          // check if that piece is a royalty piece
-          const isRoyalty = piece >= 3 && piece <= 10 || piece == 13 || piece == 14 || piece == 17 || piece == 18
-          // check if that piece is counted
-          if (res.includes(piece)) continue;
-          // count it
-          if (isRoyalty) res.push(piece);
+          // check if that piece is not a royalty piece
+          const isNotRoyalty = piece >= 3 && piece <= 10 || piece == 13 || piece == 14 || piece == 17 || piece == 18;
+          // check if that piece is already added
+          if (isNotRoyalty && !res.includes(piece)) {
+            res.push(piece);
+            // Add opponent version if not already added
+            const opponentPiece = piece % 2 === 0 ? piece - 1 : piece + 1;
+            if (!res.includes(opponentPiece)) res.push(opponentPiece);
+          }
         }
       }
     }
@@ -916,7 +919,7 @@ exports.promotionPiece = (givenPiece, fullBoard, rPos, fPos, promotionPieces, pr
     // add it to the result
     res.push([givenPiece, [givenPieceTimeline, givenPieceTurn, rPos, fPos]]);
   }
-  return res
+  return res;
 }
 
 exports.enPassant = (fullBoard, givenPiece, curBoard, pieceColor, forward, rPos, fPos, res) => {
