@@ -2,25 +2,91 @@ const present = require('present');
 const boardFuncs = require('@local/board');
 const turnFuncs = require('@local/turn');
 
-exports.hasLegalAction = (fullBoard, actionNum, maxTime = 60000) => {
+exports.hasLegalAction = (fullBoard, actionNum) => {
   let startTime = present();
   //Using penteract's hypercuboid search algorithm found here: https://github.com/penteract/cwmtt/blob/master/Game/Chess/TimeTravel/FastCheckmate.lhs
   let tmpBoard = boardFuncs.copy(fullBoard);
+  const possibleMoves = boardFuncs.moves(tmpBoard, actionNum, false, false);
   /*
     Possible hypercuboid data:
      - Spatial only moves:
         - type: 'spatial'
         - move: move array
+        - turn: single timeline board array
+        - pos: [L,T]
      - Arriving:
         - type: 'arrive'
         - move: move array
+        - turn: single timeline board array
+        - pos: [L,T]
      - Leaving:
         - type: 'leave'
-        - pos: [L,T,R,F]
+        - move: move array
+        - turn: single timeline board array
+        - pos: [L,T]
      - Pass:
         - type: 'pass'
         - pos: [L,T]
+
+    Hypercuboid is a 2D array, array of arrays of single timeline boards of possible moves
   */
+}
+
+const buildHC = (fullBoard, moves) => {
+  let HC = [];
+  for(let move of moves) {
+    let tmpBoard = boardFuncs.copy(fullBoard);
+    boardFuncs.move(tmpBoard, move);
+    //Spatial only
+    if(move[0][0] === move[1][0] && move[0][1] === move[1][1]) {
+      let timeline = move[0][0];
+      let turn = move[0][1];
+      for(let l = 0;l <= timeline;l++) {
+        if(!Array.isArray(HC[l])) {
+          HC[l] = [];
+        }
+      }
+      HC[timeline].push({
+        type: 'spatial',
+        move: move,
+        turn: turnFuncs.copy(fullBoard, timeline, turn),
+        pos: [timeline, turn]
+      });
+    }
+    else {
+      let srcTimeline = move[0][0];
+      let srcTurn = move[0][1];
+      let destTimeline = move[1][0];
+      let destTurn = move[1][1];
+      let oldTimelineSum = 0;
+      for(let l = 0;l < fullBoard.length;l++) {
+        if(Array.isArray(fullBoard[l])) {
+          oldTimelineSum++;
+        }
+      }
+      let newTimelineSum = 0;
+      for(let l = 0;l < tmpBoard.length;l++) {
+        if(Array.isArray(tmpBoard[l])) {
+          newTimelineSum++;
+        }
+      }
+      let createdNewTimeline = oldTimelineSum !== newTimelineSum;
+      if(createdNewTimeline) {
+
+      }
+      else {
+
+      }
+    }
+  }
+}
+
+exports.checkPoint = (HCs) => {
+  for(let i = 0;i < HCs.length;i++) {
+    if(HCs[i]) {
+
+    }
+  }
 }
 
 exports.blankAction = (fullBoard, actionNum) => {
