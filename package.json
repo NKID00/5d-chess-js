@@ -8,9 +8,17 @@
     {
       "name": "Shad Amethyst",
       "url": "https://gitlab.com/adri326"
+    },
+    {
+      "name": "SnowmanFactory",
+      "url": "https://gitlab.com/SnowmanFactory"
+    },
+    {
+      "name": "Neathp",
+      "url": "https://gitlab.com/ehphillips.neathp"
     }
   ],
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.",
   "main": "./dist/5d-chess.js",
   "browser": {
@@ -20,12 +28,15 @@
     "dist"
   ],
   "scripts": {
+    "start": "npm run build-dev",
     "cli": "nodemon ./src/cli.js",
     "test": "jest",
     "bench": "node --max_old_space_size=8192 ./src/bench.js",
     "profile": "clinic flame -- node --max_old_space_size=8192 ./src/bench.js",
     "prepare": "npm run-script build",
-    "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js"
+    "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js",
+    "build-dev": "watchify ./src/index.js -d -v -t aliasify -s Chess -o ./dist/5d-chess.js",
+    "docs-start": "docsify serve ./docs"
   },
   "aliasify": {
     "aliases": {
@@ -42,11 +53,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/alexbay218/5d-chess-js.git"
+    "url": "git+https://gitlab.com/5d-chess/5d-chess-js.git"
   },
   "license": "AGPL-3.0-or-later",
   "bugs": {
-    "url": "https://gitlab.com/alexbay218/5d-chess-js/issues"
+    "url": "https://gitlab.com/5d-chess/5d-chess-js/issues"
   },
   "keywords": [
     "chess",
@@ -58,7 +69,7 @@
     "node",
     "browser"
   ],
-  "homepage": "https://gitlab.com/alexbay218/5d-chess-js#readme",
+  "homepage": "https://gitlab.com/5d-chess/5d-chess-js#readme",
   "dependencies": {
     "blueimp-md5": "^2.18.0",
     "module-alias": "^2.2.2",
@@ -69,9 +80,11 @@
     "browserify": "^16.5.2",
     "clinic": "^7.0.0",
     "deep-equal": "^2.0.3",
+    "docsify-cli": "^4.4.3",
     "jest": "^26.4.2",
     "nodemon": "^2.0.4",
     "tinyify": "^3.0.0",
-    "uglify-js": "^3.10.4"
+    "uglify-js": "^3.10.4",
+    "watchify": "^4.0.0"
   }
 }
