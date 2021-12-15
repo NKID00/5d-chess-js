@@ -303,7 +303,7 @@ class Chess {
 
       for (let l = this.rawBoard.length - 1; l > 0; l--) {
 
-        if (this.rawBoard[l] && l % 2 == 0) continue;
+        if (!this.rawBoard[l] || l % 2 == 0) continue;
 
         for (let t = 0; t < this.rawBoard[l].length; t++) {
 
@@ -314,7 +314,7 @@ class Chess {
 
       for (let l = 0; l < this.rawBoard.length; l++) {
 
-        if (this.rawBoard[l] && l % 2 != 0) continue;
+        if (!this.rawBoard[l] || l % 2 != 0) continue;
 
         for (let t = 0; t < this.rawBoard[l].length; t++) {
 
