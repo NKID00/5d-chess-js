@@ -29,14 +29,15 @@
   ],
   "scripts": {
     "start": "npm run build-dev",
-    "cli": "nodemon ./src/cli.js",
+    "cli": "nodemon ./comp/cli.js",
     "test": "jest",
-    "bench": "node --max_old_space_size=8192 ./src/bench.js",
-    "profile": "clinic flame -- node --max_old_space_size=8192 ./src/bench.js",
+    "bench": "node --max_old_space_size=8192 ./comp/bench.js",
+    "profile": "clinic flame -- node --max_old_space_size=8192 ./comp/bench.js",
     "prepare": "npm run-script build",
-    "build": "browserify ./src/index.js -t aliasify -s Chess -o ./dist/5d-chess.js",
-    "build-dev": "watchify ./src/index.js -d -v -t aliasify -s Chess -o ./dist/5d-chess.js",
-    "docs-start": "docsify serve ./docs"
+    "build": "browserify ./comp/index.js -t aliasify -s Chess -o ./dist/5d-chess.js",
+    "build-dev": "watchify ./comp/index.js -d -v -t aliasify -s Chess -o ./dist/5d-chess.js",
+    "docs-start": "docsify serve ./docs",
+    "tsc": "tsc"
   },
   "aliasify": {
     "aliases": {
@@ -44,12 +45,7 @@
     }
   },
   "_moduleAliases": {
-    "@local": "./src"
-  },
-  "jest": {
-    "moduleNameMapper": {
-      "^@local(.*)$": "<rootDir>/src/$1"
-    }
+    "@local": "./comp"
   },
   "repository": {
     "type": "git",
@@ -76,14 +72,19 @@
     "present": "^1.0.0"
   },
   "devDependencies": {
+    "@types/blueimp-md5": "^2.18.0",
+    "@types/jest": "^27.4.0",
+    "@types/node": "^15.14.1",
     "aliasify": "^2.1.0",
     "browserify": "^16.5.2",
-    "clinic": "^7.0.0",
+    "clinic": "^9.1.0",
     "deep-equal": "^2.0.3",
-    "docsify-cli": "^4.4.3",
-    "jest": "^26.4.2",
+    "docsify-cli": "^4.4.2",
+    "jest": "^27.4.7",
     "nodemon": "^2.0.4",
     "tinyify": "^3.0.0",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.5.5",
     "uglify-js": "^3.10.4",
     "watchify": "^4.0.0"
   }

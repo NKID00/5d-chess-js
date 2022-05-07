@@ -1,0 +1,28 @@
+{
+  "include": [
+    "src/*.ts"
+  ],
+  "compilerOptions": {
+    "strict": true,
+    "outDir": "comp",
+    "target": "ES6",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "es2019",
+    ],
+    "types": [
+      "node",
+      "jest",
+      "blueimp-md5"
+    ],
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "noImplicitAny": false,
+    "removeComments": false,
+    "sourceMap": true,
+    "strictNullChecks": false,
+    "esModuleInterop": true,
+    "module": "commonjs"
+  }
+}
