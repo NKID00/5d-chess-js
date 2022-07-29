@@ -1,5 +1,6 @@
 require('module-alias/register');
-const md5 = require('blueimp-md5');
+// const md5 = require('blueimp-md5');
+import md5 from 'blueimp-md5';
 
 import * as convertFuncs from './convert';
 import * as actionFuncs from './action';

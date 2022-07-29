@@ -151,7 +151,7 @@ export function setTurn(fullBoard: FullBoard, givenTimelineIndex: number, givenT
 
         if (turn == givenTurnIndex) fullBoard[timeline][turn] = turnMade;
 
-        if (turn < fullBoard[timeline].length && typeof turn != 'undefined') continue;
+        if (turn < fullBoard[timeline].length && typeof fullBoard[timeline][turn] != 'undefined') continue;
 
         fullBoard[timeline][turn] = null;
 
