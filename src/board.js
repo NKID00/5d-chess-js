@@ -162,7 +162,7 @@ exports.setTurn = (fullBoard, givenTimelineIndex, givenTurnIndex, turnMade) => {
         if (t == givenTurnIndex) fullBoard[l][t] = turnMade;
 
         // if the turn we are on is not a turn
-        if (t < fullBoard[l].length && typeof t != 'undefined') continue;
+        if (t < fullBoard[l].length && typeof fullBoard[l][t] != 'undefined') continue;
 
         fullBoard[l][t] = null;
 
