@@ -91,6 +91,7 @@ class Chess {
       res.rawActionHistory = copyFuncs.actions(this.rawActionHistory);
       res.rawMoveBuffer = copyFuncs.action(this.rawMoveBuffer);
       res.rawPromotionPieces = this.rawPromotionPieces.slice();
+      res.importStr = this.importStr;
       return res;
     }
     else {
@@ -109,6 +110,7 @@ class Chess {
       this.rawActionHistory = copyFuncs.actions(state.rawActionHistory);
       this.rawMoveBuffer = copyFuncs.action(state.rawMoveBuffer);
       this.rawPromotionPieces = state.rawPromotionPieces.slice();
+      this.importStr = state.importStr;
     }
   }
 
@@ -134,6 +136,9 @@ class Chess {
     if (typeof variant == 'string') {
       this.metadata.board = metadataFuncs.lookupVariant(variant);
       this.rawBoard = boardFuncs.init(this.metadata.board);
+      if (this.metadata.board == 'custom' && typeof this.importStr != 'undefined') {
+        this.fen(this.importStr);
+      }
     }
     else if (typeof variant == 'object') {
       this.metadata.board = 'custom';
@@ -141,6 +146,9 @@ class Chess {
     }
     else {
       this.rawBoard = boardFuncs.init(this.metadata.board);
+      if (this.metadata.board == 'custom' && typeof this.importStr != 'undefined') {
+        this.fen(this.importStr);
+      }
     }
 
     this.rawAction = 0;
@@ -163,6 +171,7 @@ class Chess {
     if (typeof input == 'string') {
 
       Object.assign(this.metadata, metadataFuncs.strToObj(input));
+      this.importStr = input;
 
       if (typeof this.metadata.board == 'string') {
 
@@ -186,18 +195,6 @@ class Chess {
         this.rawPromotionPieces.push(pieceFuncs.fromChar(promotions, 0));
         this.rawPromotionPieces.push(pieceFuncs.fromChar(promotions, 1));
       }
-    }
-
-    if (this.metadata.board == 'custom') {
-
-      this.fen(input);
-
-      if (typeof this.rawBoard[0] !== 'undefined' && this.rawBoard[0] !== null) {
-        this.rawAction = this.rawBoard[0].length % 2 === 0 ? 1 : 0;
-      }
-
-      this.rawStartingAction = this.rawAction;
-      this.rawBoardHistory = [boardFuncs.copy(this.rawBoard)];
     }
 
     try {
