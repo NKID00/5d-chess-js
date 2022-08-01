@@ -17,8 +17,8 @@ test('Two Timelines Board Parsing', () => {
   expect(deepequal(board1,board2)).toBe(true);
   var str1 = '[Board "Custom"]\n' +
   '[Mode "5D"]\n' +
-  '[R*NBQK*BNR*/P*P*P*P*P*P*P*P*/8/8/8/8/p*p*p*p*p*p*p*p*/r*nbqk*bnr*:-0:1:b]\n' +
-  '[R*NBQK*BNR*/P*P*P*P*P*P*P*P*/8/8/8/8/p*p*p*p*p*p*p*p*/r*nbqk*bnr*:+0:1:w]\n';
+  '[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:-0:1:b]\n' +
+  '[r*nbqk*bnr*/p*p*p*p*p*p*p*p*/8/8/8/8/P*P*P*P*P*P*P*P*/R*NBQK*BNR*:+0:1:w]\n';
   chess.import(str1);
   var str2 = chess.export();
   expect(str1 === str2).toBe(true);
