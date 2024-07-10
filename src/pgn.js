@@ -77,7 +77,7 @@ exports.ambiguousSan = (move, fullBoard, actionNum = 0, moveGen = [], promotionP
   }
 
   if (Math.abs(destPiece) != 0 || move.length == 3) {
-    if (Math.abs(piece) == 1 || Math.abs(piece) == 2 && !conflict) {
+    if ((Math.abs(piece) == 1 || Math.abs(piece) == 2) && !conflict) {
 
       res += this.toSanCoord([src[2], src[3]])[0];
 
@@ -223,6 +223,7 @@ exports.fromMove = (move, fullBoard = [], actionNum = 0, suffix = '', timelineAc
     } else {
 
       res += pieceChar;
+      console.log("HELLO!!");
       res += this.ambiguousSan(move, fullBoard, actionNum, [], null);
     }
   }
