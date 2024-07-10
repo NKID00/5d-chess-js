@@ -223,7 +223,9 @@ exports.fromMove = (move, fullBoard = [], actionNum = 0, suffix = '', timelineAc
     } else {
 
       res += pieceChar;
-      res += this.ambiguousSan(move, fullBoard, actionNum, [], null);
+      if(Math.abs(srcPiece)>2){
+        res += this.ambiguousSan(move, fullBoard, actionNum, [], null);
+      }
     }
   }
 
