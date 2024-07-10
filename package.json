@@ -1,5 +1,14 @@
 {
-  "name": "5d-chess-js",
+  "name": "@nkid00/5d-chess-js",
+  "repository": "https://github.com/NKID00/5d-chess-js",
+  "bugs": {
+    "url": "https://github.com/NKID00/5d-chess-js/issues"
+  },
+  "homepage": "https://github.com/NKID00/5d-chess-js",
+  "description": "A fork of 5d-chess-js with bugfixes.",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "author": {
     "name": "Shaun Wu",
     "email": "alexbay218@gmail.com"
@@ -16,10 +25,13 @@
     {
       "name": "Neathp",
       "url": "https://gitlab.com/ehphillips.neathp"
+    },
+    {
+      "name": "NKID00",
+      "url": "https://github.com/NKID00"
     }
   ],
-  "version": "1.2.1",
-  "description": "Open source implementation of '5D Chess With Multiverse Time Travel' in the style of Chess.js library with built-in notation support.",
+  "version": "1.2.2",
   "main": "./dist/5d-chess.js",
   "browser": {
     "module-alias/register": false
@@ -51,14 +63,7 @@
       "^@local(.*)$": "<rootDir>/src/$1"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://gitlab.com/5d-chess/5d-chess-js.git"
-  },
   "license": "AGPL-3.0-or-later",
-  "bugs": {
-    "url": "https://gitlab.com/5d-chess/5d-chess-js/issues"
-  },
   "keywords": [
     "chess",
     "5d",
@@ -69,7 +74,6 @@
     "node",
     "browser"
   ],
-  "homepage": "https://gitlab.com/5d-chess/5d-chess-js#readme",
   "dependencies": {
     "blueimp-md5": "^2.18.0",
     "module-alias": "^2.2.2",
