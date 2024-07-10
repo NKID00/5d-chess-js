@@ -223,7 +223,6 @@ exports.fromMove = (move, fullBoard = [], actionNum = 0, suffix = '', timelineAc
     } else {
 
       res += pieceChar;
-      console.log("HELLO!!");
       res += this.ambiguousSan(move, fullBoard, actionNum, [], null);
     }
   }
